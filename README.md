@@ -409,8 +409,8 @@ This project is licensed under the MIT License.
 
 AI & ML Engineer
 
-- 💼 LinkedIn: https://linkedin.com/in/your-profile
-- 🐙 GitHub: https://github.com/yourusername
+- 💼 LinkedIn: www.linkedin.com/in/abhinandan-kumar-059693426
+- 🐙 GitHub: https://github.com/abhinandan761211-code
 - 🌐 Portfolio: https://yourportfolio.com
 
 ---
