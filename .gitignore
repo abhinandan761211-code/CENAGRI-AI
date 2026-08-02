@@ -1,0 +1,75 @@
+# Environment variables
+.env
+.env.*
+!.env.example
+.env.local
+
+# IDE and editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Python
+__pycache__/
+.venv*/
+venv*/
+env/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Node
+node_modules/
+npm-debug.log
+yarn-error.log
+.npm
+package-lock.json
+yarn.lock
+
+# React build
+/build/
+/dist/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Supabase local
+supabase/.temp/
+supabase/.branches/
+
+# Logs
+logs/
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# API keys and secrets
+.env
+*.pem
+*.key
