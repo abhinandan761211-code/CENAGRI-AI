@@ -44,6 +44,8 @@ export type Profile = {
   phone: string | null;
   role: string | null;
   avatar_url: string | null;
+  /** Role-specific answers (district, crops, vehicle type …). */
+  details: Record<string, string> | null;
   created_at: string;
   updated_at: string;
 };

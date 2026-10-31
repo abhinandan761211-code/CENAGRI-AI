@@ -14,7 +14,10 @@ type AuthValue = {
   configured: boolean;
   /** Signed in but no role picked yet (always true for a fresh Google sign-in). */
   needsRole: boolean;
-  completeRole: (role: UserRole) => Promise<void>;
+  /** Signed in, has a role, but the role-specific questions were never answered. */
+  needsDetails: boolean;
+  completeRole: (role: UserRole, details?: Record<string, string>) => Promise<void>;
+  saveDetails: (details: Record<string, string>) => Promise<void>;
   signInWithEmail: (email: string, password: string) => Promise<void>;
   signUpWithEmail: (params: {
     email: string;
@@ -152,7 +155,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await syncProfile(user);
   }, [syncProfile]);
 
-  const completeRole = useCallback(async (role: UserRole) => {
+  const completeRole = useCallback(async (role: UserRole, roleDetails: Record<string, string> = {}) => {
     const client = assertClient();
     const {
       data: { user },
@@ -160,7 +163,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!user) throw new Error("You are not signed in.");
 
     const { error: authError } = await client.auth.updateUser({
-      data: { role, onboarded: true },
+      data: { role, onboarded: true, details: roleDetails },
     });
     if (authError) throw authError;
 
@@ -170,6 +173,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         {
           id: user.id,
           role,
+          details: roleDetails,
           full_name:
             (user.user_metadata?.full_name as string | undefined) ??
             (user.user_metadata?.name as string | undefined) ??
@@ -190,6 +194,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     else await syncProfile(await client.auth.getUser().then((r) => r.data.user));
   }, [syncProfile]);
 
+  const saveDetails = useCallback(
+    async (profileDetails: Record<string, string>) => {
+      const client = assertClient();
+      const {
+        data: { user },
+      } = await client.auth.getUser();
+      if (!user) throw new Error("You are not signed in.");
+
+      const { error: authError } = await client.auth.updateUser({
+        data: { details: profileDetails, onboarded: true },
+      });
+      if (authError) throw authError;
+
+      const { data, error } = await client
+        .from("profiles")
+        .upsert({ id: user.id, details: profileDetails }, { onConflict: "id" })
+        .select()
+        .maybeSingle();
+      if (error) throw error;
+
+      if (data) setProfile(data as Profile);
+      else await syncProfile(await client.auth.getUser().then((r) => r.data.user));
+    },
+    [syncProfile]
+  );
+
   // Metadata is the source of truth right after OAuth (the profile row may not
   // exist yet), while the profile row wins once the role step has been saved.
   const metaRole = session?.user?.user_metadata?.role;
@@ -198,30 +228,42 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     (typeof metaRole === "string" && (USER_ROLES as readonly string[]).includes(metaRole));
   const needsRole = Boolean(session) && !hasValidRole;
 
-  // If the role lives only in auth metadata (older accounts, or the DB trigger
-  // is not installed yet) show it instead of an empty "role" label.
+  // Metadata is the fallback for accounts whose profile row is missing or was
+  // created before the details column existed.
+  const metaDetails = (session?.user?.user_metadata?.details ?? null) as
+    | Record<string, string>
+    | null;
+  const filledDetails = profile?.details ?? metaDetails;
+  const hasDetails = Boolean(filledDetails && Object.keys(filledDetails).length > 0);
+  const needsDetails = Boolean(session) && !needsRole && !hasDetails;
+
+  // If the role/details live only in auth metadata (older accounts, or the DB
+  // trigger is not installed yet) show them instead of empty labels.
   const effectiveProfile = useMemo<Profile | null>(() => {
     if (!session) return null;
-    if (profile?.role) return profile;
-    if (typeof metaRole !== "string") return profile;
+    const role = profile?.role ?? (typeof metaRole === "string" ? metaRole : null);
+    const meta = session.user.user_metadata ?? {};
+
     return {
-      id: session.user.id,
+      id: profile?.id ?? session.user.id,
       full_name:
         profile?.full_name ??
-        (session.user.user_metadata?.full_name as string | undefined) ??
-        (session.user.user_metadata?.name as string | undefined) ??
+        (meta.full_name as string | undefined) ??
+        (meta.name as string | undefined) ??
         null,
       email: profile?.email ?? session.user.email ?? null,
       phone: profile?.phone ?? null,
-      role: metaRole,
+      role,
       avatar_url:
         profile?.avatar_url ??
-        (session.user.user_metadata?.avatar_url as string | undefined) ??
+        (meta.avatar_url as string | undefined) ??
+        (meta.picture as string | undefined) ??
         null,
+      details: filledDetails,
       created_at: profile?.created_at ?? "",
       updated_at: profile?.updated_at ?? "",
     };
-  }, [session, profile, metaRole]);
+  }, [session, profile, metaRole, filledDetails]);
 
   const value = useMemo<AuthValue>(
     () => ({
@@ -231,7 +273,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       loading,
       configured: isSupabaseConfigured,
       needsRole,
+      needsDetails,
       completeRole,
+      saveDetails,
       signInWithEmail,
       signUpWithEmail,
       signInWithGoogle,
@@ -252,7 +296,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       updatePassword,
       refreshProfile,
       needsRole,
+      needsDetails,
       completeRole,
+      saveDetails,
     ]
   );
 

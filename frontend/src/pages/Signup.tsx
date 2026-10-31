@@ -66,7 +66,8 @@ export default function Signup() {
       if (needsEmailConfirmation) {
         setSentTo(email);
       } else {
-        navigate(next, { replace: true });
+        // Role is known, but the role-specific questions still need answers.
+        navigate("/complete-profile?next=/dashboard", { replace: true });
       }
     } catch (err) {
       const message = err instanceof Error ? err.message : "Could not create your account.";

@@ -1,14 +1,24 @@
 import { Navigate, useNavigate } from "react-router-dom";
-import { LogOut, Mail, Phone } from "lucide-react";
+import { LogOut, Mail, MapPin, Phone } from "lucide-react";
 import Logo from "@/components/Logo";
 import { useAuth } from "@/hooks/useAuth";
+import { ROLE_FIELDS } from "@/lib/roleFields";
+import type { UserRole } from "@/types";
 
 export default function Dashboard() {
-  const { user, profile, signOut, needsRole } = useAuth();
+  const { user, profile, signOut, needsRole, needsDetails } = useAuth();
   const navigate = useNavigate();
 
-  // Google sign-ups and any legacy account without a role must finish onboarding.
-  if (needsRole) return <Navigate to="/complete-profile?next=/dashboard" replace />;
+  // Google sign-ups (and older accounts) must finish onboarding first.
+  if (needsRole || needsDetails) {
+    return <Navigate to="/complete-profile?next=/dashboard" replace />;
+  }
+
+  const details = profile?.details ?? {};
+  const detailFields = (profile?.role && (profile.role in ROLE_FIELDS)
+    ? ROLE_FIELDS[profile.role as UserRole]
+    : []
+  ).filter((f) => details[f.name]);
 
   const name =
     profile?.full_name ||
@@ -89,6 +99,30 @@ export default function Dashboard() {
               </dd>
             </div>
           </dl>
+
+          {detailFields.length > 0 && (
+            <section className="mt-6">
+              <h2 className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                Your {profile?.role} profile
+              </h2>
+              <dl className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {detailFields.map((field) => (
+                  <div
+                    key={field.name}
+                    className="rounded-lg border border-slate-200 bg-white p-3.5"
+                  >
+                    <dt className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                      {field.name === "district" && <MapPin className="h-3 w-3" />}
+                      {field.label}
+                    </dt>
+                    <dd className="mt-1 break-words text-sm font-medium text-forest">
+                      {details[field.name]}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            </section>
+          )}
 
           <p className="mt-8 rounded-lg border border-brand-200 bg-brand-50 p-4 text-sm text-brand-800">
             Next up: crop advisories, live mandi prices and weather alerts land here once the

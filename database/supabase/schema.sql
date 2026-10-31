@@ -17,11 +17,18 @@ create table if not exists public.profiles (
     )
   ),
   avatar_url  text,
+  -- Role-specific onboarding answers (district, crops, vehicle type …).
+  -- Kept as jsonb so new questions never need a migration.
+  details     jsonb not null default '{}'::jsonb,
   created_at  timestamptz not null default now(),
   updated_at  timestamptz not null default now()
 );
 
+-- For projects created before `details` existed.
+alter table public.profiles add column if not exists details jsonb not null default '{}'::jsonb;
+
 create index if not exists idx_profiles_role on public.profiles (role);
+create index if not exists idx_profiles_district on public.profiles ((details ->> 'district'));
 
 -- 2. Keep updated_at fresh ---------------------------------------
 create or replace function public.touch_updated_at()
