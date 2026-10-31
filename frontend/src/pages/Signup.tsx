@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { AlertCircle, ArrowRight, Check, CheckCircle2, Loader2, Lock, Mail, Phone, User } from "lucide-react";
+import { AlertCircle, ArrowRight, CheckCircle2, Loader2, Lock, Mail, Phone, User } from "lucide-react";
 import AuthLayout from "@/components/auth/AuthLayout";
 import SocialButtons from "@/components/auth/SocialButtons";
 import TextField from "@/components/auth/TextField";
 import PasswordStrength from "@/components/auth/PasswordStrength";
+import RoleSelector from "@/components/auth/RoleSelector";
 import { useAuth } from "@/hooks/useAuth";
-import { USER_ROLES } from "@/types";
 import type { UserRole } from "@/types";
 
 type Errors = Partial<
@@ -170,35 +170,7 @@ export default function Signup() {
             <PasswordStrength value={password} />
           </div>
 
-          <fieldset>
-            <legend className="mb-2 block text-sm font-semibold text-forest">
-              I am a…
-            </legend>
-            <div className="flex flex-wrap gap-2">
-              {USER_ROLES.map((option) => {
-                const active = role === option;
-                return (
-                  <button
-                    key={option}
-                    type="button"
-                    onClick={() => setRole(option)}
-                    aria-pressed={active}
-                    className={`rounded-full border px-3.5 py-1.5 text-[13px] font-semibold transition ${
-                      active
-                        ? "border-brand-700 bg-brand-700 text-white shadow-sm"
-                        : "border-slate-300 bg-white text-slate-600 hover:border-brand-400 hover:text-brand-800"
-                    }`}
-                  >
-                    {active && <Check className="mr-1 inline h-3.5 w-3.5" />}
-                    {option}
-                  </button>
-                );
-              })}
-            </div>
-            {errors.role && (
-              <p className="mt-1.5 text-xs font-medium text-red-600">{errors.role}</p>
-            )}
-          </fieldset>
+          <RoleSelector value={role} onChange={setRole} error={errors.role} />
 
           <div>
             <label className="flex cursor-pointer select-none items-start gap-2.5 text-[13px] leading-relaxed text-slate-600">

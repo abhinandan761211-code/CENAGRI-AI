@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import type { Session, User } from "@supabase/supabase-js";
 import { isSupabaseConfigured, supabase } from "@/lib/supabase";
 import { loadProfile } from "@/lib/profile";
+import { USER_ROLES } from "@/types";
 import type { Profile, UserRole } from "@/types";
 
 type AuthValue = {
@@ -11,6 +12,9 @@ type AuthValue = {
   profile: Profile | null;
   loading: boolean;
   configured: boolean;
+  /** Signed in but no role picked yet (always true for a fresh Google sign-in). */
+  needsRole: boolean;
+  completeRole: (role: UserRole) => Promise<void>;
   signInWithEmail: (email: string, password: string) => Promise<void>;
   signUpWithEmail: (params: {
     email: string;
@@ -148,13 +152,86 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await syncProfile(user);
   }, [syncProfile]);
 
+  const completeRole = useCallback(async (role: UserRole) => {
+    const client = assertClient();
+    const {
+      data: { user },
+    } = await client.auth.getUser();
+    if (!user) throw new Error("You are not signed in.");
+
+    const { error: authError } = await client.auth.updateUser({
+      data: { role, onboarded: true },
+    });
+    if (authError) throw authError;
+
+    const { data, error } = await client
+      .from("profiles")
+      .upsert(
+        {
+          id: user.id,
+          role,
+          full_name:
+            (user.user_metadata?.full_name as string | undefined) ??
+            (user.user_metadata?.name as string | undefined) ??
+            null,
+          email: user.email ?? null,
+          avatar_url:
+            (user.user_metadata?.avatar_url as string | undefined) ??
+            (user.user_metadata?.picture as string | undefined) ??
+            null,
+        },
+        { onConflict: "id" }
+      )
+      .select()
+      .maybeSingle();
+    if (error) throw error;
+
+    if (data) setProfile(data as Profile);
+    else await syncProfile(await client.auth.getUser().then((r) => r.data.user));
+  }, [syncProfile]);
+
+  // Metadata is the source of truth right after OAuth (the profile row may not
+  // exist yet), while the profile row wins once the role step has been saved.
+  const metaRole = session?.user?.user_metadata?.role;
+  const hasValidRole =
+    (profile?.role && (USER_ROLES as readonly string[]).includes(profile.role)) ||
+    (typeof metaRole === "string" && (USER_ROLES as readonly string[]).includes(metaRole));
+  const needsRole = Boolean(session) && !hasValidRole;
+
+  // If the role lives only in auth metadata (older accounts, or the DB trigger
+  // is not installed yet) show it instead of an empty "role" label.
+  const effectiveProfile = useMemo<Profile | null>(() => {
+    if (!session) return null;
+    if (profile?.role) return profile;
+    if (typeof metaRole !== "string") return profile;
+    return {
+      id: session.user.id,
+      full_name:
+        profile?.full_name ??
+        (session.user.user_metadata?.full_name as string | undefined) ??
+        (session.user.user_metadata?.name as string | undefined) ??
+        null,
+      email: profile?.email ?? session.user.email ?? null,
+      phone: profile?.phone ?? null,
+      role: metaRole,
+      avatar_url:
+        profile?.avatar_url ??
+        (session.user.user_metadata?.avatar_url as string | undefined) ??
+        null,
+      created_at: profile?.created_at ?? "",
+      updated_at: profile?.updated_at ?? "",
+    };
+  }, [session, profile, metaRole]);
+
   const value = useMemo<AuthValue>(
     () => ({
       session,
       user: session?.user ?? null,
-      profile,
+      profile: effectiveProfile,
       loading,
       configured: isSupabaseConfigured,
+      needsRole,
+      completeRole,
       signInWithEmail,
       signUpWithEmail,
       signInWithGoogle,
@@ -165,7 +242,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }),
     [
       session,
-      profile,
+      effectiveProfile,
       loading,
       signInWithEmail,
       signUpWithEmail,
@@ -174,6 +251,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       resetPassword,
       updatePassword,
       refreshProfile,
+      needsRole,
+      completeRole,
     ]
   );
 

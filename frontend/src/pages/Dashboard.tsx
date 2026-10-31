@@ -1,11 +1,14 @@
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { LogOut, Mail, Phone } from "lucide-react";
 import Logo from "@/components/Logo";
 import { useAuth } from "@/hooks/useAuth";
 
 export default function Dashboard() {
-  const { user, profile, signOut } = useAuth();
+  const { user, profile, signOut, needsRole } = useAuth();
   const navigate = useNavigate();
+
+  // Google sign-ups and any legacy account without a role must finish onboarding.
+  if (needsRole) return <Navigate to="/complete-profile?next=/dashboard" replace />;
 
   const name =
     profile?.full_name ||
@@ -90,6 +93,10 @@ export default function Dashboard() {
           <p className="mt-8 rounded-lg border border-brand-200 bg-brand-50 p-4 text-sm text-brand-800">
             Next up: crop advisories, live mandi prices and weather alerts land here once the
             backend endpoints are connected.
+          </p>
+
+          <p className="mt-3 text-xs text-slate-400">
+            Wrong role? Sign out and sign in again to pick a different one.
           </p>
         </div>
       </main>

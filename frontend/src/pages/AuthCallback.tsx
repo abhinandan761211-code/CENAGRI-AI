@@ -2,12 +2,20 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
+import { USER_ROLES } from "@/types";
 
 /**
  * Lands here after Google OAuth (and email confirmation links).
  * The Supabase client detects the session in the URL; we just wait for it
  * and then forward the user to the page they originally wanted.
  */
+/** New Google users have no `role` yet — send them to the onboarding step. */
+function destination(session: { user: { user_metadata?: Record<string, unknown> } }, fallback: string) {
+  const role = session.user.user_metadata?.role;
+  const hasRole = typeof role === "string" && (USER_ROLES as readonly string[]).includes(role);
+  return hasRole ? fallback : "/complete-profile";
+}
+
 export default function AuthCallback() {
   const [params] = useSearchParams();
   const navigate = useNavigate();
@@ -37,14 +45,14 @@ export default function AuthCallback() {
     } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session && !done) {
         done = true;
-        navigate(next, { replace: true });
+        navigate(destination(session, next), { replace: true });
       }
     });
 
     supabase.auth.getSession().then(({ data }) => {
       if (data.session && !done) {
         done = true;
-        navigate(next, { replace: true });
+        navigate(destination(data.session, next), { replace: true });
       }
     });
 
