@@ -26,6 +26,7 @@ export type VideoCard = {
 export const USER_ROLES = [
   "Farmer",
   "Buyer",
+  "Retailer",
   "Shop",
   "Worker",
   "Equipment",

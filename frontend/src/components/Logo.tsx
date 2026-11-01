@@ -3,9 +3,11 @@ import { Link } from "react-router-dom";
 type LogoProps = {
   className?: string;
   variant?: "dark" | "light";
+  /** Show only the mark — used when the sidebar is collapsed to an icon rail. */
+  compact?: boolean;
 };
 
-export default function Logo({ className = "", variant = "dark" }: LogoProps) {
+export default function Logo({ className = "", variant = "dark", compact = false }: LogoProps) {
   const leaf = variant === "light" ? "#86efac" : "#16a34a";
   const text = variant === "light" ? "text-white" : "text-forest";
 
@@ -26,9 +28,11 @@ export default function Logo({ className = "", variant = "dark" }: LogoProps) {
           />
         </svg>
       </span>
-      <span className={`font-display text-lg font-extrabold tracking-tight ${text}`}>
-        CenAGRI<span className="text-brand-600">-AI</span>
-      </span>
+      {!compact && (
+        <span className={`font-display text-lg font-extrabold tracking-tight ${text}`}>
+          CenAGRI<span className="text-brand-600">-AI</span>
+        </span>
+      )}
     </Link>
   );
 }

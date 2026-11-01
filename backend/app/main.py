@@ -1,12 +1,29 @@
 """CenAGRI-AI — FastAPI application entrypoint."""
 
+import asyncio
+from contextlib import asynccontextmanager
+from typing import AsyncIterator
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.v1 import api_router
 from app.core.config import settings
+from app.services import mandi
+
+
+@asynccontextmanager
+async def lifespan(_: FastAPI) -> AsyncIterator[None]:
+    # Prefetch one page of mandi prices in the background so the dashboard's
+    # first load is fast — but never delay binding the port on a slow feed.
+    warm = asyncio.create_task(mandi.warm_cache())
+    yield
+    warm.cancel()
+    await mandi.close_client()
+
 
 app = FastAPI(
+    lifespan=lifespan,
     title=settings.APP_NAME,
     version="0.1.0",
     docs_url="/docs" if settings.APP_DEBUG else None,

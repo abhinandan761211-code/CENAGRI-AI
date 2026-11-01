@@ -14,14 +14,22 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [formError, setFormError] = useState("");
   const [loading, setLoading] = useState(false);
-  const { signInWithEmail, user } = useAuth();
+  const { signInWithEmail, user, profile, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const next = params.get("redirect") || params.get("next") || "/dashboard";
 
+  /**
+   * Signed in AND the current account's profile has landed. Without the
+   * `profile` condition we would route to the dashboard while it still holds
+   * the previous account's data, which is exactly how account B used to open
+   * showing account A's details.
+   */
+  const ready = Boolean(user) && !authLoading && profile?.id === user?.id;
+
   useEffect(() => {
-    if (user) navigate(next, { replace: true });
-  }, [user, next, navigate]);
+    if (ready) navigate(next, { replace: true });
+  }, [ready, next, navigate]);
 
   useEffect(() => {
     if (params.get("error") === "auth") {
@@ -47,13 +55,13 @@ export default function Login() {
     setLoading(true);
     try {
       await signInWithEmail(email, password);
-      navigate(next, { replace: true });
+      // Navigation happens in the effect above once the new profile is loaded.
     } catch (err) {
       setFormError(
         err instanceof Error ? err.message : "Sign-in failed. Please check your details."
       );
-    } finally {
       setLoading(false);
+      return;
     }
   }
 

@@ -12,7 +12,7 @@ create table if not exists public.profiles (
   phone       text,
   role        text check (
     role is null or role in (
-      'Farmer', 'Buyer', 'Shop', 'Worker',
+      'Farmer', 'Buyer', 'Retailer', 'Shop', 'Worker',
       'Equipment', 'Transporter', 'Warehouse', 'Content Creator'
     )
   ),
@@ -29,6 +29,8 @@ alter table public.profiles add column if not exists details jsonb not null defa
 
 create index if not exists idx_profiles_role on public.profiles (role);
 create index if not exists idx_profiles_district on public.profiles ((details ->> 'district'));
+create index if not exists idx_profiles_state on public.profiles ((details ->> 'state'));
+create index if not exists idx_profiles_village on public.profiles ((details ->> 'village'));
 
 -- 2. Keep updated_at fresh ---------------------------------------
 create or replace function public.touch_updated_at()
@@ -55,8 +57,18 @@ language plpgsql
 security definer
 set search_path = public
 as $$
+declare
+  -- The signup form sends state / district / village as flat metadata keys;
+  -- keep them in `details` (jsonb) so every role reads location the same way.
+  loc jsonb := jsonb_strip_nulls(
+    jsonb_build_object(
+      'state',    nullif(trim(new.raw_user_meta_data ->> 'state'), ''),
+      'district', nullif(trim(new.raw_user_meta_data ->> 'district'), ''),
+      'village',  nullif(trim(new.raw_user_meta_data ->> 'village'), '')
+    )
+  );
 begin
-  insert into public.profiles (id, full_name, email, phone, role, avatar_url)
+  insert into public.profiles (id, full_name, email, phone, role, avatar_url, details)
   values (
     new.id,
     coalesce(
@@ -70,12 +82,21 @@ begin
     coalesce(
       new.raw_user_meta_data ->> 'avatar_url',
       new.raw_user_meta_data ->> 'picture'
-    )
+    ),
+    coalesce(new.raw_user_meta_data -> 'details', '{}'::jsonb) || coalesce(loc, '{}'::jsonb)
   )
   on conflict (id) do update
     set full_name  = coalesce(excluded.full_name, public.profiles.full_name),
         avatar_url = coalesce(excluded.avatar_url, public.profiles.avatar_url),
-        email      = coalesce(excluded.email, public.profiles.email);
+        email      = coalesce(excluded.email, public.profiles.email),
+        phone      = coalesce(excluded.phone, public.profiles.phone),
+        -- The account type MUST be written here. Without this, a user whose
+        -- profile row already existed (retry, OAuth re-login, a trigger that
+        -- ran before `role` was set) ends up with a NULL role and the app
+        -- cannot tell which dashboard to open.
+        role       = coalesce(excluded.role, public.profiles.role),
+        -- Never clobber answers already saved on the profile row.
+        details    = public.profiles.details || coalesce(excluded.details, '{}'::jsonb);
   return new;
 end;
 $$;
@@ -123,6 +144,13 @@ create table if not exists public.farms (
   created_at  timestamptz not null default now(),
   updated_at  timestamptz not null default now()
 );
+
+-- Farm detail shown on the "My Farm" page. Added separately so projects
+-- created before these columns existed pick them up on a re-run.
+alter table public.farms add column if not exists soil_type    text;
+alter table public.farms add column if not exists irrigation   text;
+alter table public.farms add column if not exists crops        text[] not null default '{}'::text[];
+alter table public.farms add column if not exists is_active    boolean not null default true;
 
 create index if not exists idx_farms_owner on public.farms (owner_id);
 

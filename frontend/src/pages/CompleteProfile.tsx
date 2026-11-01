@@ -3,9 +3,11 @@ import { Navigate, useNavigate, useSearchParams } from "react-router-dom";
 import { AlertCircle, ArrowLeft, ArrowRight, Loader2, LogOut, Sparkles } from "lucide-react";
 import AuthLayout from "@/components/auth/AuthLayout";
 import RoleSelector from "@/components/auth/RoleSelector";
+import LocationFields from "@/components/auth/LocationFields";
 import { useAuth } from "@/hooks/useAuth";
-import { ROLE_FIELDS } from "@/lib/roleFields";
+import { LOCATION_FIELD_NAMES, ROLE_FIELDS } from "@/lib/roleFields";
 import type { RoleField } from "@/lib/roleFields";
+
 import type { UserRole } from "@/types";
 
 type Step = "role" | "details";
@@ -73,6 +75,30 @@ function DetailsField({
 }
 
 /**
+ * Pre-fill the form with whatever the account already knows: saved profile
+ * details first, then the `details` blob in auth metadata, then the flat
+ * `state` / `district` / `village` keys written by the signup form.
+ */
+function seedLocation(
+  userMetadata: Record<string, unknown> | undefined,
+  profileDetails: Record<string, string> | null | undefined
+): Record<string, string> {
+  const metaDetails = (userMetadata?.details ?? {}) as Record<string, string>;
+  const details: Record<string, string> = { ...(profileDetails ?? {}) };
+
+  for (const key of LOCATION_FIELD_NAMES) {
+    const fallback = metaDetails[key] ?? userMetadata?.[key];
+    if (!details[key] && typeof fallback === "string" && fallback.trim()) {
+      details[key] = fallback.trim();
+    }
+  }
+
+  // Accounts that only ever stored a district default to the launch state.
+  if (!details.state && details.district) details.state = "West Bengal";
+  return details;
+}
+
+/**
  * Shown right after a Google sign-up (and any account missing a role / details).
  * Step 1 picks the role, step 2 asks the questions relevant to that role.
  */
@@ -85,7 +111,9 @@ export default function CompleteProfile() {
   const existingRole = (profile?.role ?? "") as UserRole | "";
   const [step, setStep] = useState<Step>(needsRole ? "role" : "details");
   const [role, setRole] = useState<UserRole | "">(existingRole);
-  const [values, setValues] = useState<Record<string, string>>(profile?.details ?? {});
+  const [values, setValues] = useState<Record<string, string>>(() =>
+    seedLocation(user?.user_metadata, profile?.details)
+  );
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -100,6 +128,16 @@ export default function CompleteProfile() {
     "there";
 
   const fields = role ? ROLE_FIELDS[role] : [];
+  // The three location fields are rendered together by <LocationFields>.
+  const otherFields = fields.filter((field) => !LOCATION_FIELD_NAMES.includes(field.name));
+  const showsLocation = LOCATION_FIELD_NAMES.every((name) =>
+    fields.some((field) => field.name === name)
+  );
+
+  function setLocation(next: { state: string; district: string; village: string }) {
+    setValues((prev) => ({ ...prev, ...next }));
+    setErrors(({ state, district, village, ...rest }) => rest);
+  }
 
   function goToDetails() {
     if (!role) {
@@ -137,6 +175,9 @@ export default function CompleteProfile() {
       const raw = (values[field.name] ?? "").trim();
       if (raw) clean[field.name] = raw;
     }
+    // A district picked on the signup form stays consistent even if a single
+    // location answer was left blank here.
+    if (!clean.state && clean.district) clean.state = "West Bengal";
 
     setLoading(true);
     try {
@@ -190,7 +231,25 @@ export default function CompleteProfile() {
           </p>
 
           <div className="mt-7 space-y-4">
-            {fields.map((field) => (
+            {showsLocation && (
+              <div className="rounded-xl border border-slate-200 bg-slate-50/60 p-4">
+                <LocationFields
+                  value={{
+                    state: values.state ?? "",
+                    district: values.district ?? "",
+                    village: values.village ?? "",
+                  }}
+                  onChange={setLocation}
+                  errors={{
+                    state: errors.state,
+                    district: errors.district,
+                    village: errors.village,
+                  }}
+                />
+              </div>
+            )}
+
+            {otherFields.map((field) => (
               <DetailsField
                 key={field.name}
                 field={field}

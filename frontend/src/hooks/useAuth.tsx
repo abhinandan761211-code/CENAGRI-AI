@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import type { Session, User } from "@supabase/supabase-js";
 import { isSupabaseConfigured, supabase } from "@/lib/supabase";
@@ -25,6 +25,8 @@ type AuthValue = {
     fullName: string;
     phone?: string;
     role: UserRole;
+    /** Where the user is based: state, district and village/block. */
+    location?: { state?: string; district?: string; village?: string };
   }) => Promise<{ needsEmailConfirmation: boolean }>;
   signInWithGoogle: (next?: string) => Promise<void>;
   signOut: () => Promise<void>;
@@ -55,16 +57,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(isSupabaseConfigured);
+  /**
+   * The user id whose profile has finished loading. Used to drop a profile
+   * response that arrives after the user already switched accounts.
+   */
+  const profileForUser = useRef<string | null>(null);
 
   const syncProfile = useCallback(async (user: User | null) => {
     if (!user) {
+      profileForUser.current = null;
       setProfile(null);
       return;
     }
+    profileForUser.current = user.id;
     try {
-      setProfile(await loadProfile(user));
-    } catch {
-      setProfile(null);
+      const next = await loadProfile(user);
+      // A late response for a user who signed out (or switched accounts) in the
+      // meantime must never overwrite the current user's profile.
+      if (profileForUser.current !== user.id) return;
+      setProfile(next);
+    } catch (err) {
+      console.error("[auth] profile load failed", err);
+      if (profileForUser.current === user.id) setProfile(null);
     }
   }, []);
 
@@ -87,8 +101,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, nextSession) => {
       setSession(nextSession);
-      setLoading(false);
-      void syncProfile(nextSession?.user ?? null);
+
+      // Signed out: clear the previous account immediately so no screen can
+      // render a stale name, avatar or role while the next sign-in happens.
+      if (!nextSession) {
+        profileForUser.current = null;
+        setProfile(null);
+        setLoading(false);
+        return;
+      }
+
+      // Keep the profile only when it already belongs to this session's user.
+      // Otherwise drop it and block the routed pages until the new one lands —
+      // this is what stopped account B from briefly seeing account A's data.
+      if (profileForUser.current !== nextSession.user.id) {
+        profileForUser.current = null;
+        setProfile(null);
+      }
+      setLoading(true);
+      void syncProfile(nextSession.user).finally(() => setLoading(false));
     });
 
     return () => {
@@ -103,6 +134,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signUpWithEmail = useCallback<AuthValue["signUpWithEmail"]>(async (params) => {
+    const location = params.location ?? {};
     const { data, error } = await assertClient().auth.signUp({
       email: params.email,
       password: params.password,
@@ -112,6 +144,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           full_name: params.fullName,
           phone: params.phone ?? "",
           role: params.role,
+          state: location.state ?? "",
+          district: location.district ?? "",
+          village: location.village ?? "",
         },
       },
     });
@@ -133,6 +168,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signOut = useCallback(async () => {
     const { error } = await assertClient().auth.signOut();
+    // Clear local state even if the network sign-out failed — otherwise the
+    // previous account's profile stays in memory and shows on the next login.
+    profileForUser.current = null;
+    setProfile(null);
+    setSession(null);
     if (error) throw error;
   }, []);
 
@@ -223,8 +263,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Metadata is the source of truth right after OAuth (the profile row may not
   // exist yet), while the profile row wins once the role step has been saved.
   const metaRole = session?.user?.user_metadata?.role;
+  // A profile left over from a previously signed-in account can never describe
+  // the current session. Treat it as absent rather than showing the wrong data.
+  const currentProfile = profile && profile.id === session?.user?.id ? profile : null;
   const hasValidRole =
-    (profile?.role && (USER_ROLES as readonly string[]).includes(profile.role)) ||
+    (currentProfile?.role && (USER_ROLES as readonly string[]).includes(currentProfile.role)) ||
     (typeof metaRole === "string" && (USER_ROLES as readonly string[]).includes(metaRole));
   const needsRole = Boolean(session) && !hasValidRole;
 
@@ -233,7 +276,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const metaDetails = (session?.user?.user_metadata?.details ?? null) as
     | Record<string, string>
     | null;
-  const filledDetails = profile?.details ?? metaDetails;
+  const filledDetails = currentProfile?.details ?? metaDetails;
   const hasDetails = Boolean(filledDetails && Object.keys(filledDetails).length > 0);
   const needsDetails = Boolean(session) && !needsRole && !hasDetails;
 
@@ -241,29 +284,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // trigger is not installed yet) show them instead of empty labels.
   const effectiveProfile = useMemo<Profile | null>(() => {
     if (!session) return null;
-    const role = profile?.role ?? (typeof metaRole === "string" ? metaRole : null);
+    const role = currentProfile?.role ?? (typeof metaRole === "string" ? metaRole : null);
     const meta = session.user.user_metadata ?? {};
 
     return {
-      id: profile?.id ?? session.user.id,
+      id: currentProfile?.id ?? session.user.id,
       full_name:
-        profile?.full_name ??
+        currentProfile?.full_name ??
         (meta.full_name as string | undefined) ??
         (meta.name as string | undefined) ??
         null,
-      email: profile?.email ?? session.user.email ?? null,
-      phone: profile?.phone ?? null,
+      email: currentProfile?.email ?? session.user.email ?? null,
+      phone: currentProfile?.phone ?? null,
       role,
       avatar_url:
-        profile?.avatar_url ??
+        currentProfile?.avatar_url ??
         (meta.avatar_url as string | undefined) ??
         (meta.picture as string | undefined) ??
         null,
       details: filledDetails,
-      created_at: profile?.created_at ?? "",
-      updated_at: profile?.updated_at ?? "",
+      created_at: currentProfile?.created_at ?? "",
+      updated_at: currentProfile?.updated_at ?? "",
     };
-  }, [session, profile, metaRole, filledDetails]);
+  }, [session, currentProfile, metaRole, filledDetails]);
 
   const value = useMemo<AuthValue>(
     () => ({

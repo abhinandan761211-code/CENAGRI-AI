@@ -1,3 +1,4 @@
+import { STATES } from "@/lib/locations";
 import type { UserRole } from "@/types";
 
 export type FieldType = "text" | "select" | "number" | "tel";
@@ -48,19 +49,42 @@ const DISTRICT: RoleField = {
 };
 
 /**
+ * The location block, shown first for every role.
+ *
+ * These field names are the contract with `LocationFields` and with the
+ * `state` / `district` / `village` keys written to auth metadata at signup, so
+ * answers given there are pre-filled and never asked twice.
+ */
+export const LOCATION_FIELDS: readonly RoleField[] = [
+  {
+    name: "state",
+    label: "State / UT",
+    type: "select",
+    required: true,
+    options: STATES.map((s) => s.name),
+    hint: "Advisories are fullest for West Bengal today.",
+  },
+  DISTRICT,
+  {
+    name: "village",
+    label: "Village / Block",
+    type: "select",
+    required: true,
+    placeholder: "e.g. Ketugram, Katwa",
+    hint: "Used to pin weather alerts and nearby mandi prices.",
+  },
+];
+
+/** Names of the fields rendered by the cascading `<LocationFields>` block. */
+export const LOCATION_FIELD_NAMES = LOCATION_FIELDS.map((field) => field.name);
+
+/**
  * Extra questions asked once the user picks their role. Every answer is stored
  * in `profiles.details` (jsonb) so new questions never need a migration.
  */
 export const ROLE_FIELDS: Record<UserRole, readonly RoleField[]> = {
   Farmer: [
-    DISTRICT,
-    {
-      name: "village",
-      label: "Village / Block",
-      type: "text",
-      placeholder: "e.g. Ketugram, Katwa",
-      required: true,
-    },
+    ...LOCATION_FIELDS,
     {
       name: "land_size",
       label: "Land size (acres)",
@@ -84,7 +108,7 @@ export const ROLE_FIELDS: Record<UserRole, readonly RoleField[]> = {
   ],
 
   Buyer: [
-    DISTRICT,
+    ...LOCATION_FIELDS,
     {
       name: "business_name",
       label: "Business / firm name",
@@ -106,8 +130,40 @@ export const ROLE_FIELDS: Record<UserRole, readonly RoleField[]> = {
     },
   ],
 
+  Retailer: [
+    ...LOCATION_FIELDS,
+    {
+      name: "shop_name",
+      label: "Shop name",
+      type: "text",
+      placeholder: "e.g. Mondal Bhandar",
+      required: true,
+    },
+    {
+      name: "shop_type",
+      label: "Shop type",
+      type: "select",
+      options: [
+        "Agri-input (seed & fertiliser)",
+        "Pesticide dealer",
+        "Irrigation & tools",
+        "Mixed agri-input",
+        "Grocery",
+        "Other",
+      ],
+    },
+    {
+      name: "gstin",
+      label: "GSTIN",
+      type: "text",
+      placeholder: "e.g. 19ABCDE1234F1Z5",
+      hint: "Needed for B2B invoices. Leave blank if not registered yet.",
+    },
+  ],
+
+  // Legacy alias kept so older accounts saved with the old label still resolve.
   Shop: [
-    DISTRICT,
+    ...LOCATION_FIELDS,
     {
       name: "shop_name",
       label: "Shop name",
@@ -124,7 +180,7 @@ export const ROLE_FIELDS: Record<UserRole, readonly RoleField[]> = {
   ],
 
   Worker: [
-    DISTRICT,
+    ...LOCATION_FIELDS,
     {
       name: "skills",
       label: "Work you do",
@@ -147,7 +203,7 @@ export const ROLE_FIELDS: Record<UserRole, readonly RoleField[]> = {
   ],
 
   Equipment: [
-    DISTRICT,
+    ...LOCATION_FIELDS,
     {
       name: "equipment_types",
       label: "Equipment you own",
@@ -164,7 +220,7 @@ export const ROLE_FIELDS: Record<UserRole, readonly RoleField[]> = {
   ],
 
   Transporter: [
-    DISTRICT,
+    ...LOCATION_FIELDS,
     {
       name: "vehicle_type",
       label: "Vehicle type",
@@ -187,7 +243,7 @@ export const ROLE_FIELDS: Record<UserRole, readonly RoleField[]> = {
   ],
 
   Warehouse: [
-    DISTRICT,
+    ...LOCATION_FIELDS,
     {
       name: "warehouse_name",
       label: "Warehouse / godown name",
@@ -210,7 +266,7 @@ export const ROLE_FIELDS: Record<UserRole, readonly RoleField[]> = {
   ],
 
   "Content Creator": [
-    DISTRICT,
+    ...LOCATION_FIELDS,
     {
       name: "platforms",
       label: "Where do you publish?",

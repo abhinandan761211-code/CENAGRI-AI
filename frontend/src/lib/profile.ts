@@ -41,7 +41,42 @@ export async function loadProfile(user: User): Promise<Profile | null> {
     .eq("id", user.id)
     .maybeSingle();
 
-  if (!error && data) return data as Profile;
+  if (!error && data) {
+    const profile = data as Profile;
+    // A row that is missing its role, or whose role details were never written
+    // (OAuth re-login, a retry over an existing row, a trigger that ran before
+    // the answers were set), cannot drive the role dashboards. The signup form
+    // always writes role + location to auth metadata, so repair from there.
+    const meta = metadataToProfile(user);
+    const metaDetails = (user.user_metadata?.details ?? {}) as Record<string, string>;
+    const metaLocation: Record<string, string> = {};
+    for (const key of ["state", "district", "village"]) {
+      const value = user.user_metadata?.[key];
+      if (typeof value === "string" && value.trim()) metaLocation[key] = value.trim();
+    }
+
+    const patch: Record<string, unknown> = {};
+    if (!profile.role && meta.role) patch.role = meta.role;
+    if (!profile.phone && meta.phone) patch.phone = meta.phone;
+
+    const existingDetails = profile.details ?? {};
+    const missingDetails = Object.keys(existingDetails).length === 0;
+    if (missingDetails) {
+      const merged = { ...metaDetails, ...metaLocation };
+      if (Object.keys(merged).length > 0) patch.details = merged;
+    }
+
+    if (Object.keys(patch).length > 0) {
+      const { data: repaired } = await supabase
+        .from("profiles")
+        .update(patch)
+        .eq("id", user.id)
+        .select()
+        .maybeSingle();
+      if (repaired) return repaired as Profile;
+    }
+    return profile;
+  }
 
   // Accounts created before the `details` column existed still load fine.
   if (error?.code === "42703" || error?.message?.includes("details")) {

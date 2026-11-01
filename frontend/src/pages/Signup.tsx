@@ -7,16 +7,18 @@ import SocialButtons from "@/components/auth/SocialButtons";
 import TextField from "@/components/auth/TextField";
 import PasswordStrength from "@/components/auth/PasswordStrength";
 import RoleSelector from "@/components/auth/RoleSelector";
+import LocationFields, { EMPTY_LOCATION } from "@/components/auth/LocationFields";
 import { useAuth } from "@/hooks/useAuth";
 import type { UserRole } from "@/types";
 
 type Errors = Partial<
-  Record<"name" | "email" | "phone" | "password" | "role" | "terms", string>
+  Record<"name" | "email" | "phone" | "password" | "role" | "state" | "district" | "village" | "terms", string>
 >;
 
 export default function Signup() {
   const [errors, setErrors] = useState<Errors>({});
   const [role, setRole] = useState<UserRole | "">("");
+  const [location, setLocation] = useState(EMPTY_LOCATION);
   const [password, setPassword] = useState("");
   const [accepted, setAccepted] = useState(false);
   const [formError, setFormError] = useState("");
@@ -30,6 +32,15 @@ export default function Signup() {
   useEffect(() => {
     if (user) navigate(next, { replace: true });
   }, [user, next, navigate]);
+
+  /** Drop a field's error as soon as the user edits that field. */
+  function clearError(field: keyof Errors) {
+    setErrors((prev) => {
+      if (!prev[field]) return prev;
+      const { [field]: _removed, ...rest } = prev;
+      return rest;
+    });
+  }
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -48,6 +59,9 @@ export default function Signup() {
     if (!password) nextErrors.password = "Create a password.";
     else if (password.length < 8) nextErrors.password = "Use at least 8 characters.";
     if (!role) nextErrors.role = "Select the role that fits you best.";
+    if (!location.state) nextErrors.state = "Select your state.";
+    if (!location.district) nextErrors.district = "Select your district.";
+    if (!location.village.trim()) nextErrors.village = "Select or enter your village / block.";
     if (!accepted) nextErrors.terms = "Please accept the terms to continue.";
 
     setErrors(nextErrors);
@@ -62,6 +76,11 @@ export default function Signup() {
         fullName: name,
         phone: phone || undefined,
         role,
+        location: {
+          state: location.state,
+          district: location.district,
+          village: location.village.trim(),
+        },
       });
       if (needsEmailConfirmation) {
         setSentTo(email);
@@ -133,6 +152,7 @@ export default function Signup() {
               autoComplete="name"
               placeholder="Anil Mondal"
               error={errors.name}
+              onChange={() => clearError("name")}
             />
             <TextField
               label="Mobile"
@@ -154,6 +174,7 @@ export default function Signup() {
             autoComplete="email"
             placeholder="name@farm.com"
             error={errors.email}
+            onChange={() => clearError("email")}
           />
 
           <div>
@@ -165,20 +186,45 @@ export default function Signup() {
               autoComplete="new-password"
               placeholder="Create a strong password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                clearError("password");
+              }}
               error={errors.password}
             />
             <PasswordStrength value={password} />
           </div>
 
-          <RoleSelector value={role} onChange={setRole} error={errors.role} />
+          <RoleSelector
+            value={role}
+            onChange={(nextRole) => {
+              setRole(nextRole);
+              clearError("role");
+            }}
+            error={errors.role}
+          />
+
+          <div className="rounded-xl border border-slate-200 bg-slate-50/60 p-4">
+            <h2 className="mb-3 text-sm font-semibold text-forest">Where do you farm / work?</h2>
+            <LocationFields
+              value={location}
+              onChange={(next) => {
+                setLocation(next);
+                setErrors(({ state, district, village, ...rest }) => rest);
+              }}
+              errors={{ state: errors.state, district: errors.district, village: errors.village }}
+            />
+          </div>
 
           <div>
             <label className="flex cursor-pointer select-none items-start gap-2.5 text-[13px] leading-relaxed text-slate-600">
               <input
                 type="checkbox"
                 checked={accepted}
-                onChange={(e) => setAccepted(e.target.checked)}
+                onChange={(e) => {
+                  setAccepted(e.target.checked);
+                  clearError("terms");
+                }}
                 className="mt-0.5 h-4 w-4 shrink-0 rounded border-slate-300 text-brand-700 focus:ring-brand-500"
               />
               <span>

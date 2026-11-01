@@ -2,7 +2,9 @@ import { Navigate, useNavigate } from "react-router-dom";
 import { LogOut, Mail, MapPin, Phone } from "lucide-react";
 import Logo from "@/components/Logo";
 import { useAuth } from "@/hooks/useAuth";
-import { ROLE_FIELDS } from "@/lib/roleFields";
+import { LOCATION_FIELD_NAMES, ROLE_FIELDS } from "@/lib/roleFields";
+import { formatLocation } from "@/lib/locations";
+import { homeForRole } from "@/lib/roleHome";
 import type { UserRole } from "@/types";
 
 export default function Dashboard() {
@@ -14,11 +16,21 @@ export default function Dashboard() {
     return <Navigate to="/complete-profile?next=/dashboard" replace />;
   }
 
+  // Farmers, buyers, retailers and creators each get a dedicated account page;
+  // the remaining roles use this generic profile card.
+  const home = homeForRole(profile?.role);
+  if (home !== "/dashboard") {
+    return <Navigate to={home} replace />;
+  }
+
   const details = profile?.details ?? {};
+  // Location gets its own card, so keep it out of the generic field grid.
   const detailFields = (profile?.role && (profile.role in ROLE_FIELDS)
     ? ROLE_FIELDS[profile.role as UserRole]
     : []
-  ).filter((f) => details[f.name]);
+  ).filter((f) => details[f.name] && !LOCATION_FIELD_NAMES.includes(f.name));
+
+  const locationLabel = formatLocation(details);
 
   const name =
     profile?.full_name ||
@@ -98,6 +110,14 @@ export default function Dashboard() {
                 {profile?.phone || "Not added yet"}
               </dd>
             </div>
+            <div className="rounded-lg border border-slate-200 bg-slate-50/60 p-4 sm:col-span-2">
+              <dt className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                <MapPin className="h-3.5 w-3.5" /> State · District · Village
+              </dt>
+              <dd className="mt-1 text-sm font-medium text-forest">
+                {locationLabel || "Not added yet"}
+              </dd>
+            </div>
           </dl>
 
           {detailFields.length > 0 && (
@@ -112,7 +132,6 @@ export default function Dashboard() {
                     className="rounded-lg border border-slate-200 bg-white p-3.5"
                   >
                     <dt className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-                      {field.name === "district" && <MapPin className="h-3 w-3" />}
                       {field.label}
                     </dt>
                     <dd className="mt-1 break-words text-sm font-medium text-forest">
