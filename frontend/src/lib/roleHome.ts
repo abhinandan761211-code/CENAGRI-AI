@@ -16,6 +16,14 @@ export function homeForRole(role: string | UserRole | null | undefined): string 
     case "Retailer":
     case "Shop":
       return "/retailer";
+    case "Worker":
+      return "/worker";
+    case "Transporter":
+      return "/transporter";
+    case "Warehouse":
+      return "/warehouse";
+    case "Equipment":
+      return "/equipment-owner";
     case "Content Creator":
       return "/creator";
     default:

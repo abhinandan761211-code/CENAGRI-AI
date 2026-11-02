@@ -1,10 +1,21 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700;800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700;800&family=Noto+Sans+Bengali:wght@400;600;700&family=Noto+Sans+Devanagari:wght@400;600;700&family=Noto+Sans+Tamil:wght@400;600;700&family=Noto+Sans+Telugu:wght@400;600;700&family=Noto+Sans+Gujarati:wght@400;600;700&family=Noto+Sans+Kannada:wght@400;600;700&family=Noto+Sans+Malayalam:wght@400;600;700&family=Noto+Sans+Gurmukhi:wght@400;600;700&family=Noto+Sans+Oriya:wght@400;600;700&family=Noto+Nastaliq+Urdu:wght@400;600&display=swap");
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
+  /*
+   * `--locale-font` is set on <html> by LanguageContext for the chosen Indian
+   * language. It is placed BEFORE the Latin faces in the stacks below, so a
+   * whole sentence renders in one family instead of falling back to a system
+   * font per glyph — that fallback is what makes a Bengali headline come out at
+   * three different sizes on one line.
+   */
+  :root {
+    --locale-font: "";
+  }
+
   html {
     scroll-behavior: smooth;
     -webkit-font-smoothing: antialiased;
@@ -12,6 +23,37 @@
 
   body {
     @apply bg-cream text-slate-800 font-sans;
+  }
+
+  /* Arabic-script languages read right to left. Flipping once at the root keeps
+     every logical property, flex row and text alignment in step. */
+  html[lang="ur"],
+  html[lang="sd"],
+  html[lang="ks"] {
+    direction: rtl;
+  }
+
+  /*
+   * Nastaliq stacks its letters diagonally, so a line is far taller than 1em.
+   * The Latin leading in the headings (leading-none / leading-tight) clips the
+   * second line of an Urdu headline, so RTL pages get a taller line-height and
+   * slightly smaller display sizes to keep fullPage headings readable.
+   */
+  html[lang="ur"] h1,
+  html[lang="sd"] h1,
+  html[lang="ks"] h1,
+  html[lang="ur"] h2,
+  html[lang="sd"] h2,
+  html[lang="ks"] h2 {
+    line-height: 1.75 !important;
+    padding-block: 0.1em;
+  }
+
+  html[lang="ur"] .landing-btn,
+  html[lang="ur"] button,
+  html[lang="sd"] .landing-btn,
+  html[lang="sd"] button {
+    line-height: 1.6;
   }
 }
 

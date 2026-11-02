@@ -1,6 +1,8 @@
 import { MapPin, Package, Route, Truck, Users } from "lucide-react";
 import { FeatureShell } from "@/components/farm/FeatureShell";
 import { FarmerSection, FarmerStats } from "@/components/farm/FarmerShell";
+import { SchemaBanner } from "@/components/farm/SchemaBanner";
+import { useTableExists } from "@/lib/schemaCheck";
 
 const VEHICLES = [
   { label: "Truck", hint: "10 ton+ for mandi runs and bulk produce" },
@@ -16,6 +18,8 @@ const VEHICLES = [
  * there is nothing real to show. Prices are omitted rather than invented.
  */
 export default function TransportServices() {
+  const schema = useTableExists("vehicles");
+
   return (
     <FeatureShell
       title="Transport Services"
@@ -23,6 +27,10 @@ export default function TransportServices() {
       demo
       demoNote="Vehicle owners and trip requests need the `vehicles` and `transport_requests` tables (in database/supabase/features.sql). With no rows nothing is quoted here — transport prices vary by distance, load and road, so an invented number would mislead you."
     >
+      {schema.exists === false && (
+        <SchemaBanner file={schema.file} tables={["vehicles", "transport_requests"]} />
+      )}
+
       <FarmerStats
         items={[
           { label: "Vehicles nearby", value: "0", icon: Truck, hint: "None listed in your block" },
@@ -57,15 +65,15 @@ export default function TransportServices() {
             ["Drop-off", "Mandi, warehouse or the buyer's address."],
             ["When", "The date the load must move — harvest day."],
           ].map(([label, body]) => (
-            <div key={label} className="rounded-lg border border-slate-200 bg-slate-50/60 p-3.5">
+            <div key={label} className="rounded-lg border border-slate-200 bg-slate-100/60 p-3.5">
               <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
                 {label}
               </p>
-              <p className="mt-1 text-[12px] leading-relaxed text-slate-600">{body}</p>
+              <p className="mt-1 text-[12px] leading-relaxed text-slate-500">{body}</p>
             </div>
           ))}
         </div>
-        <div className="border-t border-slate-100 px-4 py-3 sm:px-5">
+        <div className="border-t border-slate-200 px-4 py-3 sm:px-5">
           <p className="text-[11px] leading-relaxed text-slate-500">
             Distance, load weight and road condition decide the fare. Owners quote after they see
             the pickup and drop-off, so you are never shown a made-up rate.

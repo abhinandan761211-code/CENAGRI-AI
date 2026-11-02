@@ -6,6 +6,7 @@ import AuthLayout from "@/components/auth/AuthLayout";
 import SocialButtons from "@/components/auth/SocialButtons";
 import TextField from "@/components/auth/TextField";
 import { useAuth } from "@/hooks/useAuth";
+import { useLang } from "@/i18n/LanguageContext";
 
 type Errors = Partial<Record<"email" | "password", string>>;
 
@@ -15,6 +16,7 @@ export default function Login() {
   const [formError, setFormError] = useState("");
   const [loading, setLoading] = useState(false);
   const { signInWithEmail, user, profile, loading: authLoading } = useAuth();
+  const { t } = useLang();
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const next = params.get("redirect") || params.get("next") || "/dashboard";
@@ -33,9 +35,9 @@ export default function Login() {
 
   useEffect(() => {
     if (params.get("error") === "auth") {
-      setFormError("That sign-in link is invalid or has expired. Please try again.");
+      setFormError(t("login.errLink"));
     }
-  }, [params]);
+  }, [params, t]);
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -43,10 +45,10 @@ export default function Login() {
     const email = String(data.get("email") ?? "").trim();
 
     const nextErrors: Errors = {};
-    if (!email) nextErrors.email = "Enter your email address.";
+    if (!email) nextErrors.email = t("login.errEmailRequired");
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
-      nextErrors.email = "That doesn't look like a valid email.";
-    if (!password) nextErrors.password = "Enter your password.";
+      nextErrors.email = t("login.errEmailInvalid");
+    if (!password) nextErrors.password = t("login.errPasswordRequired");
 
     setErrors(nextErrors);
     setFormError("");
@@ -57,8 +59,13 @@ export default function Login() {
       await signInWithEmail(email, password);
       // Navigation happens in the effect above once the new profile is loaded.
     } catch (err) {
+      const message = err instanceof Error ? err.message : t("login.errFailed");
+      // Supabase's own messages are English-only; the one a user can actually
+      // act on is replaced with a readable sentence in their language.
       setFormError(
-        err instanceof Error ? err.message : "Sign-in failed. Please check your details."
+        /invalid login credentials|invalid_credentials/i.test(message)
+          ? t("login.errFailed")
+          : message
       );
       setLoading(false);
       return;
@@ -68,10 +75,10 @@ export default function Login() {
   return (
     <AuthLayout>
       <h1 className="font-display text-[26px] font-extrabold tracking-tight text-forest sm:text-3xl">
-        Welcome back
+        {t("login.title")}
       </h1>
       <p className="mt-2 text-sm text-slate-500">
-        Sign in to see today&apos;s advisory and market rates for your fields.
+        {t("login.subtitle")}
       </p>
 
       <div className="mt-7">
@@ -80,24 +87,24 @@ export default function Login() {
         <div className="my-6 flex items-center gap-3">
           <span className="h-px flex-1 bg-slate-200" />
           <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">
-            or continue with email
+            {t("login.orEmail")}
           </span>
           <span className="h-px flex-1 bg-slate-200" />
         </div>
 
         <form onSubmit={handleSubmit} noValidate className="space-y-4">
           <TextField
-            label="Email address"
+            label={t("login.email")}
             name="email"
             type="email"
             icon={Mail}
             autoComplete="email"
-            placeholder="name@farm.com"
+            placeholder={t("login.emailPlaceholder")}
             error={errors.email}
           />
 
           <TextField
-            label="Password"
+            label={t("login.password")}
             name="password"
             type="password"
             icon={Lock}
@@ -116,13 +123,13 @@ export default function Login() {
                 defaultChecked
                 className="h-4 w-4 rounded border-slate-300 text-brand-700 focus:ring-brand-500"
               />
-              Remember me
+              {t("login.remember")}
             </label>
             <Link
               to="/forgot-password"
               className="text-sm font-semibold text-brand-700 hover:text-brand-800 hover:underline"
             >
-              Forgot password?
+              {t("login.forgot")}
             </Link>
           </div>
 
@@ -134,11 +141,11 @@ export default function Login() {
             {loading ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />
-                Signing in…
+                {t("login.submitting")}
               </>
             ) : (
               <>
-                Sign in
+                {t("login.submit")}
                 <ArrowRight className="h-4 w-4" />
               </>
             )}
@@ -158,20 +165,20 @@ export default function Login() {
         </form>
 
         <p className="mt-7 text-center text-sm text-slate-600">
-          New to CenAGRI-AI?{" "}
+          {t("login.newHere")}{" "}
           <Link to="/signup" className="font-semibold text-brand-700 hover:underline">
-            Create a free account
+            {t("login.create")}
           </Link>
         </p>
 
         <p className="mt-8 text-center text-[11px] leading-relaxed text-slate-400">
-          Protected by encrypted transmission. By signing in you agree to our{" "}
+          {t("login.legal")}{" "}
           <a href="#terms" className="underline hover:text-slate-600">
-            Terms
+            {t("login.terms")}
           </a>{" "}
-          and{" "}
+          {t("login.and")}{" "}
           <a href="#privacy" className="underline hover:text-slate-600">
-            Privacy Policy
+            {t("login.privacy")}
           </a>
           .
         </p>

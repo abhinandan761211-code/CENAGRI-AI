@@ -5,42 +5,21 @@ import {
   BadgeCheck,
   Bell,
   BookOpen,
-  CalendarDays,
-  ChevronDown,
-  ClipboardList,
   CloudSun,
   Droplets,
-  FileText,
-  Headphones,
-  Home,
-  Languages,
-  Layers,
   Leaf,
-  Lock,
   MapPin,
-  Menu,
-  LogOut,
   MessageSquare,
-  Package,
   Play,
-  ScanLine,
-  Search,
-  Settings,
-  ShieldCheck,
   Sprout,
-  Store,
   ThumbsUp,
   Tractor,
   TrendingUp,
-  Truck,
-  User,
-  Users,
-  Wallet,
-  Warehouse,
   Wind,
   X,
 } from "lucide-react";
-import Logo from "@/components/Logo";
+import { FarmerShell } from "@/components/farm/FarmerShell";
+import { renderFarmerPanel } from "@/components/farm/farmerPanels";
 import { useAuth } from "@/hooks/useAuth";
 import { LOCATION_FIELD_NAMES, ROLE_FIELDS } from "@/lib/roleFields";
 import { formatLocation } from "@/lib/locations";
@@ -112,107 +91,6 @@ const TRENDING = [
   },
 ];
 
-type NavItem = {
-  label: string;
-  icon: typeof Home;
-  /** Own route for a feature page. */
-  href?: string;
-  /** Anchor on this dashboard. */
-  section?: string;
-  /** Dialog opened on this dashboard. */
-  panel?: string;
-};
-
-type NavGroup = {
-  /** Section heading; the dashboard itself has no heading. */
-  title?: string;
-  icon: typeof Home;
-  items: NavItem[];
-};
-
-/**
- * Sidebar destinations, grouped like a real farm-management console.
- * `href` navigates to a feature page; `section` scrolls to a block on this
- * dashboard; `panel` opens a dialog here. Entries that have no destination yet
- * open an informational panel instead of being a dead button.
- */
-const SIDEBAR_GROUPS: NavGroup[] = [
-  {
-    title: undefined,
-    icon: Home,
-    items: [{ label: "Dashboard", icon: Home }],
-  },
-  {
-    title: "Farm Management",
-    icon: Tractor,
-    items: [
-      { label: "My Farm", icon: Tractor, href: "/my-farm" },
-      { label: "Crop Management", icon: Sprout, section: "#my-farm" },
-      { label: "Crop Calendar", icon: CalendarDays, panel: "Crop Calendar" },
-      { label: "Farm Activities", icon: ClipboardList, panel: "Farm Activities" },
-    ],
-  },
-  {
-    title: "AI & Agriculture",
-    icon: Sprout,
-    items: [
-      { label: "AI Crop Advisory", icon: Sprout, href: "/advisory" },
-      { label: "Disease Detection", icon: ScanLine, href: "/advisory" },
-      { label: "Soil Health", icon: Layers, panel: "Soil Health" },
-      { label: "Irrigation Management", icon: Droplets, panel: "Irrigation Management" },
-      { label: "Weather & Alerts", icon: CloudSun, href: "/weather" },
-    ],
-  },
-  {
-    title: "Market & Business",
-    icon: TrendingUp,
-    items: [
-      { label: "Mandi Prices", icon: TrendingUp, section: "#mandi" },
-      { label: "Marketplace", icon: Store, href: "/marketplace" },
-      { label: "My Orders & Sales", icon: ClipboardList, panel: "My Orders & Sales" },
-      { label: "Expenses & Profit", icon: Wallet, panel: "Expenses & Profit" },
-    ],
-  },
-  {
-    title: "Farming Services",
-    icon: Package,
-    items: [
-      { label: "Equipment Rental", icon: Package, href: "/equipment" },
-      { label: "Transport Services", icon: Truck, href: "/transport" },
-      { label: "Storage & Warehouse", icon: Warehouse, href: "/storage" },
-      { label: "Farm Labour", icon: Users, panel: "Farm Labour" },
-      { label: "Government Schemes", icon: BadgeCheck, panel: "Government Schemes" },
-      { label: "Crop Insurance", icon: ShieldCheck, panel: "Crop Insurance" },
-    ],
-  },
-  {
-    title: "Community",
-    icon: Users,
-    items: [
-      { label: "CenFriend", icon: Users, href: "/cenfriend" },
-      { label: "Kisan Video Hub", icon: Play, panel: "Kisan Video Hub" },
-      { label: "Farming Groups", icon: MessageSquare, panel: "Farming Groups" },
-      { label: "Messages", icon: MessageSquare, panel: "Messages" },
-      { label: "Notifications", icon: Bell, panel: "Notifications" },
-    ],
-  },
-  {
-    title: "My Account",
-    icon: User,
-    items: [
-      { label: "Profile Overview", icon: User, panel: "My Profile" },
-      { label: "Personal Information", icon: User, panel: "Personal Information" },
-      { label: "Farming Information", icon: Tractor, panel: "Farming Information" },
-      { label: "My Documents & KYC", icon: FileText, panel: "My Documents & KYC" },
-      { label: "Language Settings", icon: Languages, panel: "Language Settings" },
-      { label: "Notification Settings", icon: Bell, panel: "Notification Settings" },
-      { label: "Privacy & Security", icon: Lock, panel: "Privacy & Security" },
-      { label: "Help & Support", icon: Headphones, href: "tel:1800" },
-      { label: "Account Management", icon: Settings, panel: "Account Management" },
-    ],
-  },
-];
-
 const QUICK_LINKS = [
   { label: "Crop Disease Help", icon: Leaf },
   { label: "Soil Health Tips", icon: Sprout },
@@ -233,21 +111,6 @@ const QUICK_LINK_TARGETS: Record<string, string> = {
 
 const inr = (value: number) => `₹ ${value.toLocaleString("en-IN")}`;
 
-/** Every place the search box can jump to, matched on label + keywords. */
-const SEARCHABLE = [
-  { label: "Mandi Prices", keywords: "price rates market mandi", section: "Mandi" },
-  { label: "My Farm", keywords: "farm land acres plot", section: "Farms" },
-  { label: "My Crops", keywords: "crops paddy potato mustard", section: "Farms" },
-  { label: "Crop Disease Help", keywords: "disease pest blight insect", section: "Quick Actions" },
-  { label: "Soil Health Tips", keywords: "soil ph fertiliser manure", section: "Quick Actions" },
-  { label: "Farming Schemes", keywords: "scheme subsidy government pm kisan", section: "Quick Actions" },
-  { label: "Market Trends", keywords: "trend chart forecast rate", section: "Quick Actions" },
-  { label: "Ask AI Assistant", keywords: "ai assistant chat question", section: "Quick Actions" },
-  { label: "Weather & Alerts", keywords: "weather rain forecast humidity", section: "Dashboard" },
-  { label: "Kisan Video Hub", keywords: "video farming tutorial watch", section: "Dashboard" },
-  { label: "My Profile", keywords: "profile account email phone edit", section: "Account" },
-];
-
 /** One entry in the bell menu; built from live weather and mandi state below. */
 type Notification = {
   id: string;
@@ -256,7 +119,41 @@ type Notification = {
   kind: "weather" | "price";
 };
 
-/** Generic accessible dialog used by every modal on the page. */
+/* ── Small building blocks ────────────────────────────────────────── */
+
+/** Section heading row with an optional right-hand action. */
+function CardHead({
+  title,
+  action,
+  icon,
+  onAction,
+}: {
+  title: string;
+  action?: string;
+  icon?: React.ReactNode;
+  onAction?: () => void;
+}) {
+  return (
+    <div className="mb-3 flex items-center justify-between gap-3">
+      <h2 className="flex items-center gap-2 text-sm font-bold text-forest">
+        {icon}
+        {title}
+      </h2>
+      {action && (
+        <button
+          type="button"
+          onClick={onAction}
+          className="inline-flex shrink-0 items-center gap-1 text-xs font-semibold text-brand-700 hover:text-brand-700"
+        >
+          {action}
+          <ArrowRight className="h-3.5 w-3.5" />
+        </button>
+      )}
+    </div>
+  );
+}
+
+/** Accessible dialog used by every dashboard popup. */
 function Modal({
   title,
   onClose,
@@ -281,7 +178,7 @@ function Modal({
   }, [onClose]);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-forest-dark/50 p-0 sm:items-center sm:p-4">
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 p-0 sm:items-center sm:p-4">
       <button
         type="button"
         aria-label="Close dialog"
@@ -292,16 +189,16 @@ function Modal({
         role="dialog"
         aria-modal="true"
         aria-label={title}
-        className={`relative max-h-[90vh] w-full overflow-y-auto rounded-t-2xl bg-white shadow-xl sm:rounded-2xl ${
+        className={`creator-card relative max-h-[90vh] w-full overflow-y-auto rounded-t-2xl shadow-xl sm:rounded-2xl ${
           wide ? "sm:max-w-3xl" : "sm:max-w-lg"
         }`}
       >
         <div className="sticky top-0 flex items-center justify-between gap-3 border-b border-slate-200 bg-white px-5 py-3.5">
-          <h2 className="font-display text-base font-bold text-forest">{title}</h2>
+          <h2 className="text-base font-bold text-forest">{title}</h2>
           <button
             type="button"
             onClick={onClose}
-            className="grid h-8 w-8 place-items-center rounded-md text-slate-500 hover:bg-slate-100"
+            className="grid h-8 w-8 place-items-center rounded-md text-slate-500 hover:bg-slate-100 hover:text-forest"
             aria-label="Close"
           >
             <X className="h-4 w-4" />
@@ -309,39 +206,6 @@ function Modal({
         </div>
         <div className="p-5">{children}</div>
       </div>
-    </div>
-  );
-}
-
-/* ── Small building blocks ────────────────────────────────────────── */
-
-function CardHead({
-  title,
-  action,
-  icon,
-  onAction,
-}: {
-  title: string;
-  action?: string;
-  icon?: React.ReactNode;
-  onAction?: () => void;
-}) {
-  return (
-    <div className="mb-3 flex items-center justify-between gap-3">
-      <h2 className="flex items-center gap-2 font-display text-[15px] font-bold text-forest">
-        {icon}
-        {title}
-      </h2>
-      {action && (
-        <button
-          type="button"
-          onClick={onAction}
-          className="inline-flex shrink-0 items-center gap-1 text-xs font-semibold text-brand-700 hover:text-brand-800"
-        >
-          {action}
-          <ArrowRight className="h-3.5 w-3.5" />
-        </button>
-      )}
     </div>
   );
 }
@@ -367,24 +231,26 @@ function WeatherGlyph({ kind }: { kind: "sun" | "cloud" | "rain" }) {
 
 /* ── Page ─────────────────────────────────────────────────────────── */
 
+/**
+ * Farmer dashboard.
+ *
+ * Only the page BODY lives here: the dark sidebar, header, search and bell come
+ * from `<FarmerShell>`, so this screen, every feature page and the account
+ * pages all share exactly one chrome in the creator-studio style.
+ */
 export default function FarmerDashboard() {
+  return (
+    <FarmerShell panelContent={(name, close) => renderFarmerPanel(name, close)}>
+      <FarmerDashboardBody />
+    </FarmerShell>
+  );
+}
+
+function FarmerDashboardBody() {
   const { user, profile, needsRole, needsDetails, signOut } = useAuth();
   const navigate = useNavigate();
   const { pathname, hash } = useLocation();
 
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  /**
-   * Desktop hover-to-open: the sidebar is a narrow icon rail normally and
-   * expands when the cursor reaches the left edge. A short close delay stops
-   * a jittery mouse from flickering it shut.
-   */
-  const [sidebarHovered, setSidebarHovered] = useState(false);
-  const sidebarHoverTimer = useRef<number | null>(null);
-  /**
-   * Which sidebar section is expanded on desktop. Only one open at a time keeps
-   * the rail readable once all six groups are listed. `null` = all collapsed.
-   */
-  const [openGroup, setOpenGroup] = useState<string | null>("Farm Management");
   const [mandiTab, setMandiTab] = useState<MandiTab>("Top Commodities");
   const [farmTab, setFarmTab] = useState<"farms" | "crops" | "orders">("farms");
 
@@ -638,11 +504,17 @@ export default function FarmerDashboard() {
     : []
   ).filter((field) => details[field.name] && !LOCATION_FIELD_NAMES.includes(field.name));
 
-  const crops =
-    details.main_crops
-      ?.split(",")
-      .map((crop) => crop.trim())
-      .filter(Boolean) ?? [];
+  /**
+   * Crops shown on the dashboard: what the farms actually record, plus the
+   * crops given at signup. Reading only the onboarding answer meant a farm's
+   * own crops never appeared here.
+   */
+  const crops = useMemo(() => {
+    const fromFarms = farms.flatMap((farm) => farm.crops ?? []);
+    const fromProfile =
+      details.main_crops?.split(",").map((crop) => crop.trim()) ?? [];
+    return Array.from(new Set([...fromFarms, ...fromProfile].filter(Boolean)));
+  }, [farms, details.main_crops]);
 
   // Live mandi prices: best rows per tab, and every fetched record for "View all".
   const mandiRows = useMemo(
@@ -662,82 +534,6 @@ export default function FarmerDashboard() {
     await signOut();
     navigate("/", { replace: true });
   }
-
-  /** Search results for whatever is typed in the top bar. */
-  const searchResults = useMemo(() => {
-    const term = query.trim().toLowerCase();
-    if (!term) return [];
-    return SEARCHABLE.filter(
-      (item) =>
-        item.label.toLowerCase().includes(term) || item.keywords.includes(term)
-    ).slice(0, 6);
-  }, [query]);
-
-  /** Run a search result: jump to the matching section or open its panel. */
-  function goTo(label: string) {
-    setSearchOpen(false);
-    setQuery("");
-    const quick = QUICK_LINKS.find((q) => q.label === label);
-    if (quick) return openPanel(quick.label);
-    if (label === "My Farm") {
-      setFarmTab("farms");
-      return scrollTo("#my-farm");
-    }
-    if (label === "My Crops") {
-      setFarmTab("crops");
-      return scrollTo("#my-farm");
-    }
-    if (label === "Mandi Prices") return scrollTo("#mandi");
-    if (label === "My Profile") return openPanel("My Profile");
-    if (label === "Weather & Alerts") return navigate("/weather");
-    if (label === "Kisan Video Hub") return openPanel("Kisan Video Hub");
-    scrollTo("#videos");
-  }
-
-  function scrollTo(selector: string) {
-    document.querySelector(selector)?.scrollIntoView({ behavior: "smooth", block: "start" });
-  }
-
-  /** One section expands at a time on the desktop rail. */
-  function toggleGroup(title: string) {
-    setOpenGroup((current) => (current === title ? null : title));
-  }
-
-  /** A sidebar item is active on its own route or when its block is open. */
-  function isNavActive(item: NavItem) {
-    if (item.href && !item.href.startsWith("tel:")) {
-      return item.href.split("#")[0] === pathname;
-    }
-    if (item.section) return `#${hash.replace("#", "")}` === item.section;
-    if (item.panel) return panel === item.panel;
-    return false;
-  }
-
-  /** Routes navigate, anchors scroll, everything else opens its panel. */
-  function handleNavItem(item: NavItem) {
-    setSidebarOpen(false);
-    if (item.section) scrollTo(item.section);
-    else if (item.panel) openPanel(item.panel);
-  }
-
-  function handleSidebarEnter() {
-    if (sidebarHoverTimer.current) {
-      window.clearTimeout(sidebarHoverTimer.current);
-      sidebarHoverTimer.current = null;
-    }
-    setSidebarHovered(true);
-  }
-
-  function handleSidebarLeave() {
-    sidebarHoverTimer.current = window.setTimeout(() => setSidebarHovered(false), 220);
-  }
-
-  // Clear a pending hover timer when the page unmounts.
-  useEffect(() => {
-    return () => {
-      if (sidebarHoverTimer.current) window.clearTimeout(sidebarHoverTimer.current);
-    };
-  }, []);
 
   function openFarmForm(farm?: Farm) {
     setFarmError("");
@@ -800,372 +596,8 @@ export default function FarmerDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-cream">
-      <div className="flex">
-        {/* ── Sidebar ── */}
-        {/* Hover strip at the very edge of the screen: easer to hit than the rail. */}
-        <div
-          aria-hidden="true"
-          onMouseEnter={handleSidebarEnter}
-          className="fixed inset-y-0 left-0 z-30 hidden w-3 lg:block"
-        />
-
-        <aside
-          onMouseEnter={handleSidebarEnter}
-          onMouseLeave={handleSidebarLeave}
-          onFocusCapture={handleSidebarEnter}
-          className={`fixed inset-y-0 left-0 z-40 shrink-0 overflow-y-auto overflow-x-hidden border-r border-slate-200 bg-white transition-[transform,width] duration-200 ease-out lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"
-            } ${sidebarHovered ? "w-64" : "w-64 lg:w-16"}`}
-        >
-          <div className="flex h-16 items-center justify-between border-b border-slate-200 px-4">
-            <Logo />
-            <button
-              type="button"
-              onClick={() => setSidebarOpen(false)}
-              className="grid h-8 w-8 place-items-center rounded-md text-slate-500 hover:bg-slate-100 lg:hidden"
-              aria-label="Close menu"
-            >
-              <X className="h-4 w-4" />
-            </button>
-          </div>
-
-          <nav className="space-y-1 p-3" aria-label="Farmer">
-            {SIDEBAR_GROUPS.map((group) => {
-              const GroupIcon = group.icon;
-              // The lone "Dashboard" entry has no heading of its own.
-              if (!group.title) {
-                const item = group.items[0];
-                const active = panel === null && !hash || hash === "";
-                return (
-                  <button
-                    key={item.label}
-                    type="button"
-                    aria-current={active ? "page" : undefined}
-                    title={item.label}
-                    onClick={() => handleNavItem(item)}
-                    className={`flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-[13px] font-medium transition ${active
-                      ? "bg-brand-700 text-white shadow-sm"
-                      : "text-slate-600 hover:bg-slate-100 hover:text-forest"
-                      } ${sidebarHovered ? "" : "lg:justify-center"}`}
-                  >
-                    <GroupIcon className="h-[18px] w-[18px] shrink-0" />
-                    <span className={`truncate ${sidebarHovered ? "" : "lg:hidden"}`}>
-                      {item.label}
-                    </span>
-                  </button>
-                );
-              }
-
-              return (
-                <div key={group.title} className="pt-1">
-                  <button
-                    type="button"
-                    onClick={() => toggleGroup(group.title!)}
-                    title={group.title}
-                    aria-expanded={openGroup === group.title}
-                    className={`flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left transition hover:bg-slate-100 ${sidebarHovered ? "" : "lg:justify-center"
-                      }`}
-                  >
-                    <GroupIcon className="h-[18px] w-[18px] shrink-0 text-brand-700" />
-                    <span className={`flex-1 truncate text-[11px] font-bold uppercase tracking-[0.08em] text-slate-500 ${sidebarHovered ? "" : "lg:hidden"
-                      }`}>
-                      {group.title}
-                    </span>
-                    <ChevronDown
-                      className={`h-3.5 w-3.5 shrink-0 text-slate-400 transition-transform ${openGroup === group.title ? "rotate-180" : ""
-                        } ${sidebarHovered ? "" : "lg:hidden"}`}
-                    />
-                  </button>
-
-                  <div
-                    className={`overflow-hidden transition-[max-height] duration-200 ${openGroup === group.title ? "max-h-96" : "max-h-0"
-                      } ${sidebarHovered ? "" : "lg:hidden"}`}
-                  >
-                    <div className="mt-0.5 space-y-0.5 border-l border-slate-200 pl-2.5 ml-4">
-                      {group.items.map((item) => {
-                        const ItemIcon = item.icon;
-                        const active = isNavActive(item);
-                        const itemClass = `flex w-full items-center gap-2 rounded-md px-2.5 py-1.5 text-left text-[12.5px] font-medium transition ${active
-                          ? "bg-brand-50 text-brand-800"
-                          : "text-slate-600 hover:bg-slate-100 hover:text-forest"
-                          }`;
-
-                        if (item.href?.startsWith("tel:")) {
-                          return (
-                            <a key={item.label} href={item.href} className={itemClass}>
-                              <ItemIcon className="h-4 w-4 shrink-0" />
-                              <span className="truncate">{item.label}</span>
-                            </a>
-                          );
-                        }
-                        if (item.href) {
-                          return (
-                            <Link key={item.label} to={item.href} className={itemClass} title={item.label}>
-                              <ItemIcon className="h-4 w-4 shrink-0" />
-                              <span className="truncate">{item.label}</span>
-                            </Link>
-                          );
-                        }
-                        return (
-                          <button
-                            key={item.label}
-                            type="button"
-                            aria-current={active ? "page" : undefined}
-                            className={itemClass}
-                            title={item.label}
-                            onClick={() => handleNavItem(item)}
-                          >
-                            <ItemIcon className="h-4 w-4 shrink-0" />
-                            <span className="truncate">{item.label}</span>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </nav>
-
-          <div className="px-3 pb-4">
-            {sidebarHovered ? (
-              <div className="rounded-xl border border-brand-200 bg-brand-50 p-3.5">
-                <p className="flex items-center gap-1.5 text-[13px] font-bold text-brand-800">
-                  <Headphones className="h-4 w-4" /> Kisan Helpline
-                </p>
-                <p className="mt-1 text-[11px] leading-relaxed text-brand-700">
-                  Talk to an expert in Bengali, Hindi or English.
-                </p>
-                <a
-                  href="tel:1800"
-                  className="mt-2.5 block rounded-md bg-white py-1.5 text-center text-xs font-bold text-brand-800 shadow-sm"
-                >
-                  1800-000-000
-                </a>
-              </div>
-            ) : (
-              <a
-                href="tel:1800"
-                title="Kisan Helpline · 1800-000-000"
-                aria-label="Kisan Helpline 1800-000-000"
-                className="hidden place-items-center rounded-xl border border-brand-200 bg-brand-50 py-2.5 text-brand-700 transition hover:bg-brand-100 lg:grid"
-              >
-                <Headphones className="h-[18px] w-[18px]" />
-              </a>
-            )}
-          </div>
-        </aside>
-
-        {sidebarOpen && (
-          <button
-            type="button"
-            aria-label="Close menu"
-            onClick={() => setSidebarOpen(false)}
-            className="fixed inset-0 z-30 bg-forest-dark/40 lg:hidden"
-          />
-        )}
-
-        {/* ── Main column ── */}
-        <div className="min-w-0 flex-1">
-          <header className="sticky top-0 z-20 border-b border-slate-200 bg-white">
-            <div className="flex h-16 items-center gap-3 px-4 sm:px-6">
-              <button
-                type="button"
-                onClick={() => setSidebarOpen(true)}
-                className="grid h-9 w-9 shrink-0 place-items-center rounded-md border border-slate-200 text-forest lg:hidden"
-                aria-label="Open menu"
-              >
-                <Menu className="h-4 w-4" />
-              </button>
-
-              <div ref={searchRef} className="relative hidden min-w-0 flex-1 sm:block">
-                <div className="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 focus-within:border-brand-500 focus-within:bg-white">
-                  <Search className="h-4 w-4 shrink-0 text-slate-400" />
-                  <input
-                    type="search"
-                    value={query}
-                    onChange={(e) => {
-                      setQuery(e.target.value);
-                      setSearchOpen(true);
-                    }}
-                    onFocus={() => setSearchOpen(true)}
-                    placeholder="Search crops, mandi, schemes…"
-                    aria-label="Search the dashboard"
-                    aria-expanded={searchOpen && query.trim().length > 0}
-                    className="w-full bg-transparent text-sm text-slate-700 outline-none placeholder:text-slate-400"
-                  />
-                  {query && (
-                    <button
-                      type="button"
-                      onClick={() => setQuery("")}
-                      aria-label="Clear search"
-                      className="text-slate-400 hover:text-slate-600"
-                    >
-                      <X className="h-3.5 w-3.5" />
-                    </button>
-                  )}
-                </div>
-
-                {searchOpen && query.trim() && (
-                  <ul className="absolute left-0 right-0 top-full z-30 mt-1.5 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-lg">
-                    {searchResults.length === 0 ? (
-                      <li className="px-3.5 py-3 text-xs text-slate-500">
-                        No matches for “{query.trim()}”.
-                      </li>
-                    ) : (
-                      searchResults.map((result) => (
-                        <li key={result.label}>
-                          <button
-                            type="button"
-                            onClick={() => goTo(result.label)}
-                            className="flex w-full items-center justify-between gap-3 px-3.5 py-2.5 text-left text-xs hover:bg-slate-50"
-                          >
-                            <span className="font-semibold text-forest">{result.label}</span>
-                            <span className="shrink-0 text-[10px] uppercase tracking-wide text-slate-400">
-                              {result.section}
-                            </span>
-                          </button>
-                        </li>
-                      ))
-                    )}
-                  </ul>
-                )}
-              </div>
-
-              <div className="ml-auto flex items-center gap-2">
-                <div className="relative">
-                  <button
-                    type="button"
-                    onClick={() => setNotifOpen((v) => !v)}
-                    className="relative grid h-9 w-9 place-items-center rounded-full border border-slate-200 text-slate-600 hover:bg-slate-50"
-                    aria-label={`Notifications${unread ? ` (${unread} unread)` : ""}`}
-                    aria-expanded={notifOpen}
-                  >
-                    <Bell className="h-4 w-4" />
-                    {unread > 0 && (
-                      <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-red-500 ring-2 ring-white" />
-                    )}
-                  </button>
-
-                  {notifOpen && (
-                    <div className="absolute right-0 top-full z-40 mt-2 w-72 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl">
-                      <div className="flex items-center justify-between border-b border-slate-100 px-3.5 py-2.5">
-                        <p className="text-xs font-bold text-forest">Notifications</p>
-                        <button
-                          type="button"
-                          onClick={() => setSeen(notifications.map((n) => n.id))}
-                          className="text-[11px] font-semibold text-brand-700 hover:underline"
-                        >
-                          Mark all read
-                        </button>
-                      </div>
-                      <ul className="max-h-72 overflow-y-auto">
-                        {notifications.length === 0 && (
-                          <li className="px-3.5 py-6 text-center text-[11px] text-slate-500">
-                            No alerts right now. You&apos;ll see forecast and price updates here.
-                          </li>
-                        )}
-                        {notifications.map((n) => (
-                          <li
-                            key={n.id}
-                            className={`border-b border-slate-50 px-3.5 py-2.5 last:border-0 ${
-                              seen.includes(n.id) ? "opacity-60" : ""
-                            }`}
-                          >
-                            <p className="flex items-center gap-1.5 text-xs font-semibold text-forest">
-                              {n.kind === "price" ? (
-                                <TrendingUp className="h-3.5 w-3.5 text-brand-700" />
-                              ) : (
-                                <CloudSun className="h-3.5 w-3.5 text-brand-700" />
-                              )}
-                              {n.title}
-                            </p>
-                            <p className="mt-0.5 pl-5 text-[11px] leading-relaxed text-slate-500">
-                              {n.body}
-                            </p>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                </div>
-                <div className="relative" ref={settingsRef}>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setNotifOpen(false);
-                      setSearchOpen(false);
-                      setSettingsOpen((v) => !v);
-                    }}
-                    className="grid h-9 w-9 place-items-center rounded-full border border-slate-200 text-slate-600 hover:bg-slate-50"
-                    aria-label="Settings"
-                    aria-haspopup="menu"
-                    aria-expanded={settingsOpen}
-                  >
-                    <Settings className="h-4 w-4" />
-                  </button>
-
-                  {settingsOpen && (
-                    <div
-                      role="menu"
-                      aria-label="Account settings"
-                      className="absolute right-0 top-full z-40 mt-2 w-56 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl"
-                    >
-                      <div className="border-b border-slate-100 px-3.5 py-2.5">
-                        <p className="truncate text-xs font-bold text-forest">{name}</p>
-                        <p className="truncate text-[11px] text-slate-500">
-                          {profile?.email ?? user?.email}
-                        </p>
-                      </div>
-                      <button
-                        type="button"
-                        role="menuitem"
-                        onClick={() => {
-                          setSettingsOpen(false);
-                          openPanel("My Profile");
-                        }}
-                        className="flex w-full items-center gap-2.5 px-3.5 py-2.5 text-left text-[13px] font-medium text-slate-600 transition hover:bg-slate-50 hover:text-forest"
-                      >
-                        <User className="h-[18px] w-[18px] shrink-0" />
-                        Edit profile
-                      </button>
-                      <button
-                        type="button"
-                        role="menuitem"
-                        onClick={() => {
-                          setSettingsOpen(false);
-                          handleSignOut();
-                        }}
-                        className="flex w-full items-center gap-2.5 border-t border-slate-100 px-3.5 py-2.5 text-left text-[13px] font-medium text-rose-600 transition hover:bg-rose-50"
-                      >
-                        <LogOut className="h-[18px] w-[18px] shrink-0" />
-                        Sign out
-                      </button>
-                    </div>
-                  )}
-                </div>
-                <button
-                  type="button"
-                  onClick={() => openPanel("My Profile")}
-                  aria-label="Open my profile"
-                  className="grid h-9 w-9 place-items-center overflow-hidden rounded-full bg-forest text-xs font-bold text-white ring-offset-2 hover:ring-2 hover:ring-brand-400"
-                >
-                  {profile?.avatar_url ? (
-                    <img
-                      src={profile.avatar_url}
-                      alt=""
-                      className="h-9 w-9 object-cover"
-                      referrerPolicy="no-referrer"
-                    />
-                  ) : (
-                    initials || "CA"
-                  )}
-                </button>
-              </div>
-            </div>
-          </header>
-
-          <main className="space-y-5 p-4 sm:p-6">
+    <>
+      <div className="space-y-5">
             {/* Hero + weather */}
             <section className="relative overflow-hidden rounded-xl2 bg-forest px-5 py-6 text-white sm:px-7">
               <div
@@ -1192,7 +624,7 @@ export default function FarmerDashboard() {
 
                 <div className="flex shrink-0 flex-col gap-2.5 sm:flex-row">
                   <div className="rounded-xl bg-white/10 p-3.5">
-                    <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-white/70">
+                    <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-white/80">
                       <CloudSun className="h-3.5 w-3.5" /> Today
                       {weatherState === "loading" && (
                         <span className="ml-1 h-2 w-2 animate-pulse rounded-full bg-white/70" />
@@ -1203,23 +635,23 @@ export default function FarmerDashboard() {
                       <>
                         <p className="mt-1.5 flex items-baseline gap-1.5 font-display text-2xl font-extrabold">
                           {weather.temp}°C
-                          <span className="text-xs font-medium capitalize text-white/70">
+                          <span className="text-xs font-medium capitalize text-white/80">
                             {titleCase(weather.description)}
                           </span>
                         </p>
-                        <p className="mt-1 flex gap-3 text-[11px] text-white/70">
+                        <p className="mt-1 flex gap-3 text-[11px] text-white/80">
                           <span className="inline-flex items-center gap-1">
                             <Droplets className="h-3 w-3" /> {weather.humidity}%
                           </span>
                           <span className="inline-flex items-center gap-1">
                             <Wind className="h-3 w-3" /> {weather.windKph} km/h
                           </span>
-                          <span className="text-white/50">feels {weather.feelsLike}°</span>
+                          <span className="text-white/60">feels {weather.feelsLike}°</span>
                         </p>
                       </>
                     ) : weatherState === "error" ? (
                       <div className="mt-1.5 max-w-[220px]">
-                        <p className="text-xs font-semibold text-white/85">
+                        <p className="text-xs font-semibold text-white/80">
                           Weather unavailable
                         </p>
                         <button
@@ -1229,12 +661,12 @@ export default function FarmerDashboard() {
                         >
                           Retry
                         </button>
-                        <p className="mt-1 text-[10px] leading-snug text-white/50">
+                        <p className="mt-1 text-[10px] leading-snug text-white/80">
                           {weatherError}
                         </p>
                       </div>
                     ) : (
-                      <p className="mt-1.5 max-w-[220px] text-[11px] leading-relaxed text-white/70">
+                      <p className="mt-1.5 max-w-[220px] text-[11px] leading-relaxed text-white/80">
                         {isWeatherConfigured
                           ? `Loading weather for ${weatherDistrict ?? "your district"}…`
                           : "Add a district to your profile to see live weather."}
@@ -1243,14 +675,14 @@ export default function FarmerDashboard() {
                   </div>
 
                   <div className="rounded-xl bg-white/10 px-3.5 py-3.5">
-                    <p className="text-[11px] font-semibold uppercase tracking-wide text-white/70">
+                    <p className="text-[11px] font-semibold uppercase tracking-wide text-white/80">
                       5-day forecast
                     </p>
                     <div className="mt-2 flex gap-3">
                       {(weather?.forecast.length ? weather.forecast : FALLBACK_FORECAST).map(
                         (day) => (
                           <div key={day.date} className="text-center" title={day.description}>
-                            <p className="text-[10px] font-semibold text-white/70">{day.day}</p>
+                            <p className="text-[10px] font-semibold text-white/80">{day.day}</p>
                             <WeatherGlyph kind={day.icon === "mist" || day.icon === "snow" ? "cloud" : day.icon === "storm" ? "rain" : day.icon} />
                             <p className="text-[11px] font-bold">
                               {day.temp == null ? "—" : `${day.temp}°`}
@@ -1277,7 +709,7 @@ export default function FarmerDashboard() {
                       if (link) navigate(link);
                       else openPanel(label);
                     }}
-                    className="group rounded-xl border border-slate-200 bg-white p-4 text-center shadow-sm transition hover:-translate-y-0.5 hover:border-brand-300 hover:shadow-card"
+                    className="creator-card creator-card-hover group p-4 text-center"
                   >
                     <span className="mx-auto grid h-10 w-10 place-items-center rounded-full bg-brand-50 text-brand-700 transition group-hover:bg-brand-100">
                       <Icon className="h-[18px] w-[18px]" />
@@ -1290,7 +722,7 @@ export default function FarmerDashboard() {
 
             <div className="grid gap-5 xl:grid-cols-3">
               {/* Mandi prices */}
-              <section id="mandi" className="card scroll-mt-20 p-4 sm:p-5 xl:col-span-2">
+              <section id="mandi" className="card min-w-0 scroll-mt-20 p-4 sm:p-5 xl:col-span-2">
                 <CardHead
                   title="Today's Mandi Prices"
                   icon={<TrendingUp className="h-4 w-4 text-brand-700" />}
@@ -1307,7 +739,7 @@ export default function FarmerDashboard() {
                       </span>
                     ) : (
                       <>
-                        <MapPin className="h-3 w-3 text-brand-600" />
+                        <MapPin className="h-3 w-3 text-brand-700" />
                         {locationDetails.district || locationDetails.state || "India"}
                         {mandiArrival && <> · arrival {arrivalLabel(mandiArrival)}</>}
                         {mandiTotal > 0 && <> · {mandiTotal.toLocaleString("en-IN")} trades</>}
@@ -1315,7 +747,7 @@ export default function FarmerDashboard() {
                     )}
                   </p>
                   <div className="flex items-center gap-2">
-                    <span className="inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+                    <span className="inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wide text-slate-500">
                       <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> Live · data.gov.in
                     </span>
                     <button
@@ -1352,23 +784,23 @@ export default function FarmerDashboard() {
                 </div>
 
                 {mandiState === "error" ? (
-                  <div className="rounded-lg border border-red-100 bg-red-50 px-3.5 py-3">
-                    <p className="text-xs font-semibold text-red-700">
+                  <div className="rounded-lg border border-rose-200 bg-rose-50 px-3.5 py-3">
+                    <p className="text-xs font-semibold text-rose-700">
                       Could not load live mandi prices
                     </p>
-                    <p className="mt-0.5 text-[11px] leading-relaxed text-red-600">
+                    <p className="mt-0.5 text-[11px] leading-relaxed text-rose-600">
                       {mandiError}
                     </p>
                     <button
                       type="button"
                       onClick={() => void loadMandi()}
-                      className="mt-2 text-[11px] font-bold text-red-700 underline"
+                      className="mt-2 text-[11px] font-bold text-rose-700 underline"
                     >
                       Try again
                     </button>
                   </div>
                 ) : mandiState === "idle" ? (
-                  <p className="rounded-lg border border-slate-200 bg-slate-50 px-3.5 py-3 text-xs text-slate-500">
+                  <p className="rounded-lg border border-slate-200 bg-slate-100 px-3.5 py-3 text-xs text-slate-500">
                     Add your state and district in your profile to see live rates from nearby
                     mandis.
                   </p>
@@ -1399,19 +831,19 @@ export default function FarmerDashboard() {
                           .map((row) => (
                             <tr
                               key={`${row.commodity}-${row.market}-${row.grade}`}
-                              className="border-b border-slate-100 last:border-0"
+                              className="border-b border-slate-200 last:border-0"
                             >
                               <td className="py-2.5 pr-3 font-semibold text-forest">
                                 {titleCase(row.commodity)}
                                 {row.grade && row.grade !== "FAQ" && (
-                                  <span className="ml-1 text-[10px] font-medium text-slate-400">
+                                  <span className="ml-1 text-[10px] font-medium text-slate-500">
                                     {row.grade}
                                   </span>
                                 )}
                               </td>
                               <td className="py-2.5 text-slate-500">
                                 <span className="block truncate">{row.market}</span>
-                                <span className="block text-[10px] text-slate-400">
+                                <span className="block text-[10px] text-slate-500">
                                   {row.district}
                                 </span>
                               </td>
@@ -1422,7 +854,7 @@ export default function FarmerDashboard() {
                                 {row.min_price != null && row.max_price != null
                                   ? `${row.min_price.toLocaleString("en-IN")}–${row.max_price.toLocaleString("en-IN")}`
                                   : "—"}
-                                <span className="block text-[10px] text-slate-400">per quintal</span>
+                                <span className="block text-[10px] text-slate-500">per quintal</span>
                               </td>
                             </tr>
                           ))}
@@ -1448,7 +880,7 @@ export default function FarmerDashboard() {
                         type="button"
                         onClick={() => setFarmTab(tab)}
                         className={`-mb-px border-b-2 px-3 py-2 text-xs font-semibold capitalize transition ${farmTab === tab
-                            ? "border-brand-700 text-brand-800"
+                            ? "border-brand-700 text-brand-700"
                             : "border-transparent text-slate-500 hover:text-forest"
                           }`}
                       >
@@ -1474,7 +906,7 @@ export default function FarmerDashboard() {
                         {farms.map((farm) => (
                           <div
                             key={farm.id}
-                            className="rounded-lg border border-slate-200 bg-slate-50/60 p-3"
+                            className="rounded-lg border border-slate-200 bg-slate-100 p-3"
                           >
                             <div className="flex items-start justify-between gap-2">
                               <p className="flex items-center gap-1.5 text-xs font-bold text-forest">
@@ -1492,7 +924,7 @@ export default function FarmerDashboard() {
                                 <button
                                   type="button"
                                   onClick={() => handleDeleteFarm(farm.id)}
-                                  className="text-[11px] font-semibold text-red-600 hover:underline"
+                                  className="text-[11px] font-semibold text-rose-600 hover:underline"
                                 >
                                   Delete
                                 </button>
@@ -1511,7 +943,7 @@ export default function FarmerDashboard() {
                         ))}
 
                         {farmFields.length > 0 && (
-                          <dl className="space-y-2 border-t border-slate-100 pt-2">
+                          <dl className="space-y-2 border-t border-slate-200 pt-2">
                             {farmFields.slice(0, 3).map((field) => (
                               <div
                                 key={field.name}
@@ -1529,7 +961,7 @@ export default function FarmerDashboard() {
                         <button
                           type="button"
                           onClick={() => openFarmForm()}
-                          className="w-full rounded-lg border border-dashed border-brand-300 py-2 text-xs font-semibold text-brand-800 transition hover:bg-brand-50"
+                          className="w-full rounded-lg border border-dashed border-brand-300 py-2 text-xs font-semibold text-brand-700 transition hover:bg-brand-50"
                         >
                           + Add farm
                         </button>
@@ -1537,42 +969,83 @@ export default function FarmerDashboard() {
                     )}
 
                     {farmTab === "crops" && (
-                      <div className="flex flex-wrap gap-1.5">
-                        {crops.length === 0 && (
-                          <p className="text-xs text-slate-500">No crops added yet.</p>
-                        )}
-                        {crops.map((crop) => (
-                          <span
-                            key={crop}
-                            className="inline-flex items-center gap-1 rounded-full bg-brand-50 px-2.5 py-1 text-[11px] font-semibold text-brand-800"
+                      <div className="space-y-3">
+                        <div className="flex flex-wrap gap-1.5">
+                          {crops.length === 0 && (
+                            <p className="text-xs text-slate-500">No crops added yet.</p>
+                          )}
+                          {crops.map((crop) => (
+                            <span
+                              key={crop}
+                              className="inline-flex items-center gap-1 rounded-full bg-brand-50 px-2.5 py-1 text-[11px] font-semibold text-brand-700"
+                            >
+                              <Leaf className="h-3 w-3" /> {crop}
+                            </span>
+                          ))}
+                        </div>
+                        <div className="flex flex-wrap gap-2 border-t border-slate-200 pt-2">
+                          <button
+                            type="button"
+                            onClick={() => navigate("/crops")}
+                            className="text-[11px] font-semibold text-brand-700 hover:underline"
                           >
-                            <Leaf className="h-3 w-3" /> {crop}
-                          </span>
-                        ))}
+                            Manage crops
+                          </button>
+                          <span className="text-[11px] text-slate-600">|</span>
+                          <button
+                            type="button"
+                            onClick={() => navigate("/advisory")}
+                            className="text-[11px] font-semibold text-brand-700 hover:underline"
+                          >
+                            Get advice for these crops
+                          </button>
+                        </div>
                       </div>
                     )}
 
                     {farmTab === "orders" && (
-                      <p className="text-xs text-slate-500">
-                        No orders yet. Your marketplace purchases will appear here.
-                      </p>
+                      <div className="space-y-2">
+                        <p className="text-xs text-slate-500">
+                          No orders yet. Your marketplace purchases will appear here.
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => navigate("/marketplace")}
+                          className="text-[11px] font-semibold text-brand-700 hover:underline"
+                        >
+                          Browse the marketplace
+                        </button>
+                      </div>
                     )}
                   </div>
                 </section>
 
+                {/* Alerts are derived from the live forecast, never hand-written. */}
                 <section className="rounded-xl2 border border-amber-200 bg-amber-50 p-4">
                   <p className="flex items-center gap-2 text-[13px] font-bold text-amber-900">
                     <Bell className="h-4 w-4" /> Today&apos;s advisory
                   </p>
-                  <p className="mt-1.5 text-xs leading-relaxed text-amber-800">
-                    Light rain expected Tuesday. Consider delaying urea top-dressing by a day and
-                    check for leaf blight in paddy.
-                  </p>
+                  {notifications.length === 0 ? (
+                    <p className="mt-1.5 text-xs leading-relaxed text-amber-800">
+                      {weatherState === "ready"
+                        ? "Nothing in the forecast crosses the rain, heat, cold or wind thresholds. Carry on with your usual schedule."
+                        : "Add your district to your profile to get forecast-based advisories here."}
+                    </p>
+                  ) : (
+                    <ul className="mt-1.5 space-y-1.5">
+                      {notifications.slice(0, 2).map((n) => (
+                        <li key={n.id} className="text-xs leading-relaxed text-amber-800">
+                          <span className="font-semibold">{n.title}.</span> {n.body}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                   <button
                     type="button"
+                    onClick={() => navigate("/weather")}
                     className="mt-2.5 inline-flex items-center gap-1 text-xs font-bold text-amber-900 hover:underline"
                   >
-                    Read full advisory <ArrowRight className="h-3 w-3" />
+                    See full forecast &amp; alerts <ArrowRight className="h-3 w-3" />
                   </button>
                 </section>
               </div>
@@ -1597,7 +1070,7 @@ export default function FarmerDashboard() {
                     onKeyDown={(e) => {
                       if (e.key === "Enter" || e.key === " ") setVideo(video);
                     }}
-                    className="group cursor-pointer overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition hover:shadow-card"
+                    className="group cursor-pointer overflow-hidden creator-card-hover rounded-xl p-4 transition hover:shadow-card"
                   >
                     <div className="relative aspect-video overflow-hidden bg-slate-100">
                       <img
@@ -1607,7 +1080,7 @@ export default function FarmerDashboard() {
                         className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
                       />
                       <span className="absolute inset-0 grid place-items-center">
-                        <span className="grid h-10 w-10 place-items-center rounded-full bg-white/90 text-forest shadow-sm">
+                        <span className="grid h-10 w-10 place-items-center rounded-full bg-brand-700 text-white shadow-sm">
                           <Play className="ml-0.5 h-4 w-4 fill-current" />
                         </span>
                       </span>
@@ -1636,7 +1109,7 @@ export default function FarmerDashboard() {
               </div>
             </section>
 
-            <footer className="rounded-xl border border-slate-200 bg-white p-4">
+            <footer className="creator-card p-4">
               <p className="text-xs text-slate-500">
                 Signed in as{" "}
                 <span className="font-semibold text-forest">{profile?.email ?? user?.email}</span>
@@ -1658,8 +1131,6 @@ export default function FarmerDashboard() {
                 </button>
               </p>
             </footer>
-          </main>
-        </div>
       </div>
 
       {/* ── Farm add/edit dialog ── */}
@@ -1675,24 +1146,24 @@ export default function FarmerDashboard() {
                 value={form.name}
                 onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
                 placeholder="e.g. Mondal Para field"
-                className="h-11 w-full rounded-lg border border-slate-300 px-3.5 text-sm outline-none focus:border-brand-600 focus:ring-4 focus:ring-brand-100"
+                className="creator-input h-11"
               />
             </div>
             <div>
               <label htmlFor="farm-loc" className="mb-1.5 block text-sm font-semibold text-forest">
-                Location <span className="font-normal text-slate-400">(optional)</span>
+                Location <span className="font-normal text-slate-500">(optional)</span>
               </label>
               <input
                 id="farm-loc"
                 value={form.location}
                 onChange={(e) => setForm((f) => ({ ...f, location: e.target.value }))}
                 placeholder={locationLine}
-                className="h-11 w-full rounded-lg border border-slate-300 px-3.5 text-sm outline-none focus:border-brand-600 focus:ring-4 focus:ring-brand-100"
+                className="creator-input h-11"
               />
             </div>
             <div>
               <label htmlFor="farm-acres" className="mb-1.5 block text-sm font-semibold text-forest">
-                Area (acres) <span className="font-normal text-slate-400">(optional)</span>
+                Area (acres) <span className="font-normal text-slate-500">(optional)</span>
               </label>
               <input
                 id="farm-acres"
@@ -1703,12 +1174,12 @@ export default function FarmerDashboard() {
                 value={form.acres}
                 onChange={(e) => setForm((f) => ({ ...f, acres: e.target.value }))}
                 placeholder="e.g. 2.5"
-                className="h-11 w-full rounded-lg border border-slate-300 px-3.5 text-sm outline-none focus:border-brand-600 focus:ring-4 focus:ring-brand-100"
+                className="creator-input h-11"
               />
             </div>
 
             {farmError && (
-              <p role="alert" className="rounded-lg border border-red-200 bg-red-50 p-2.5 text-xs text-red-700">
+              <p role="alert" className="rounded-lg border border-red-200 bg-red-50 p-2.5 text-xs text-rose-700">
                 {farmError}
               </p>
             )}
@@ -1717,14 +1188,14 @@ export default function FarmerDashboard() {
               <button
                 type="button"
                 onClick={() => setPanel(null)}
-                className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50"
+                className="creator-btn-ghost h-9 px-4 text-xs"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={saving}
-                className="btn-primary h-10 disabled:opacity-70"
+                className="creator-btn-primary h-10 disabled:opacity-70"
               >
                 {saving ? "Saving…" : editingId ? "Save changes" : "Add farm"}
               </button>
@@ -1747,7 +1218,7 @@ export default function FarmerDashboard() {
               ["Village / Block", locationDetails.village || "—"],
               ["Farms", String(farms.length)],
             ].map(([label, value]) => (
-              <div key={label} className="flex items-start justify-between gap-4 border-b border-slate-100 pb-2 last:border-0">
+              <div key={label} className="flex items-start justify-between gap-4 border-b border-slate-200 pb-2 last:border-0">
                 <dt className="text-xs text-slate-500">{label}</dt>
                 <dd className="max-w-[60%] break-words text-right text-xs font-semibold text-forest">
                   {value}
@@ -1757,11 +1228,11 @@ export default function FarmerDashboard() {
           </dl>
           <Link
             to="/complete-profile?next=/farmer-account"
-            className="btn-primary mt-5 h-10 w-full text-sm"
+            className="creator-btn-primary mt-5 h-10 w-full text-sm"
           >
             Update my details
           </Link>
-          <p className="mt-2 text-center text-[11px] text-slate-400">
+          <p className="mt-2 text-center text-[11px] text-slate-500">
             Change crops, land size and irrigation questions.
           </p>
         </Modal>
@@ -1782,28 +1253,13 @@ export default function FarmerDashboard() {
             video backend.
           </p>
           <div className="mt-4 flex gap-2">
-            <span className="inline-flex items-center gap-1 rounded-full bg-brand-50 px-3 py-1.5 text-xs font-semibold text-brand-800">
+            <span className="inline-flex items-center gap-1 rounded-full bg-brand-50 px-3 py-1.5 text-xs font-semibold text-brand-700">
               <ThumbsUp className="h-3.5 w-3.5" /> {video.likes} likes
             </span>
             <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-600">
               <MessageSquare className="h-3.5 w-3.5" /> {video.comments} comments
             </span>
           </div>
-        </Modal>
-      )}
-
-      {/* ── Quick-action dialog ── */}
-      {panel && QUICK_LINKS.some((q) => q.label === panel) && (
-        <Modal title={panel} onClose={() => setPanel(null)}>
-          <p className="text-sm leading-relaxed text-slate-600">{QUICK_TEXT[panel]}</p>
-          <ul className="mt-4 space-y-2">
-            {QUICK_BULLETS[panel].map((item) => (
-              <li key={item} className="flex items-start gap-2 text-xs text-slate-600">
-                <BadgeCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-brand-700" />
-                {item}
-              </li>
-            ))}
-          </ul>
         </Modal>
       )}
 
@@ -1833,52 +1289,6 @@ export default function FarmerDashboard() {
           </div>
         </Modal>
       )}
-    </div>
+    </>
   );
 }
-
-const QUICK_TEXT: Record<string, string> = {
-  "Crop Disease Help":
-    "Spot a problem on your crop? Start with the symptoms below, then share a photo with the advisory team for a confirmed diagnosis.",
-  "Soil Health Tips":
-    "Healthy soil is the cheapest yield boost there is. These are the checks worth doing this season.",
-  "Farming Schemes":
-    "Government support you may qualify for, based on the state and district on your profile.",
-  "Market Trends":
-    "Where your crops are headed over the next few weeks, based on recent mandi arrivals.",
-  "Ask AI Assistant":
-    "Ask anything about your crop, weather, or prices in Bengali, Hindi or English. The assistant uses your farm profile for context.",
-};
-
-const QUICK_BULLETS: Record<string, string[]> = {
-  "Crop Disease Help": [
-    "Yellowing between leaf veins usually means a nutrient deficiency, not disease",
-    "Brown spots with a grey centre in paddy often point to blast",
-    "Avoid spraying within 24 hours of expected rain",
-    "Keep affected leaves away from healthy rows",
-  ],
-  "Soil Health Tips": [
-    "Test pH once a season — most crops prefer 6.0–7.0",
-    "Add organic matter every year to hold moisture",
-    "Rotate crops to break pest and disease cycles",
-    "Avoid tilling wet soil; it compacts badly",
-  ],
-  "Farming Schemes": [
-    "PM-KISAN — income support in three instalments",
-    "PM Fasal Bima Yojana — crop insurance",
-    "Kisan Credit Card — short-term working capital",
-    "Soil Health Card — free soil testing",
-  ],
-  "Market Trends": [
-    "Vegetable prices peak in the 2–3 weeks before a major festival",
-    "Arrivals usually rise after a dry spell ends",
-    "Grade your produce — graded lots fetch 10–15% more",
-    "Check the mandi nearest to you first; freight can outweigh the difference",
-  ],
-  "Ask AI Assistant": [
-    "Describe the field, crop stage and what you have already tried",
-    "Ask one clear question at a time for the best answer",
-    "Mention the day of sowing for stage-specific advice",
-    "Always confirm chemical doses with your local dealer",
-  ],
-};

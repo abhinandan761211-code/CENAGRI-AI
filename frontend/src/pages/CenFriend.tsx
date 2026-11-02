@@ -1,6 +1,8 @@
 import { MessageCircle, Search, Sprout, Users } from "lucide-react";
 import { FeatureShell } from "@/components/farm/FeatureShell";
 import { FarmerSection, FarmerStats } from "@/components/farm/FarmerShell";
+import { SchemaBanner } from "@/components/farm/SchemaBanner";
+import { useTableExists } from "@/lib/schemaCheck";
 
 /**
  * CenFriend — the farmer community.
@@ -9,6 +11,8 @@ import { FarmerSection, FarmerStats } from "@/components/farm/FarmerShell";
  * shows an honest empty state. No invented farmers or messages.
  */
 export default function CenFriend() {
+  const schema = useTableExists("posts");
+
   return (
     <FeatureShell
       title="CenFriend"
@@ -16,6 +20,8 @@ export default function CenFriend() {
       demo
       demoNote="Posts and comments live in the `posts` and `comments` tables (database/supabase/features.sql). Nothing is displayed until real farmers post — this is an empty network, not a sample one."
     >
+      {schema.exists === false && <SchemaBanner file={schema.file} tables={["posts", "comments"]} />}
+
       <FarmerStats
         items={[
           { label: "Farmers in your block", value: "0", icon: Users, hint: "Nobody has joined yet" },

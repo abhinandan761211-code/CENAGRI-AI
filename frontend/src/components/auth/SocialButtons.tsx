@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Loader2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useSearchParams } from "react-router-dom";
+import { useLang } from "@/i18n/LanguageContext";
 
 function GoogleIcon() {
   return (
@@ -33,15 +34,16 @@ type Props = {
 
 export default function SocialButtons({ action, onError }: Props) {
   const { signInWithGoogle, configured } = useAuth();
+  const { t } = useLang();
   const [busy, setBusy] = useState(false);
   const [params] = useSearchParams();
   const next = params.get("redirect") || params.get("next") || "/dashboard";
 
+  const label = action === "Sign in" ? t("social.signIn") : t("social.signUp");
+
   async function handleGoogle() {
     if (!configured) {
-      onError?.(
-        "Google sign-in is unavailable because Supabase keys are missing. Add them to frontend/.env and restart the dev server."
-      );
+      onError?.(t("social.unconfigured"));
       return;
     }
     setBusy(true);
@@ -50,7 +52,7 @@ export default function SocialButtons({ action, onError }: Props) {
       // Browser is redirected to Google — keep the spinner until it navigates.
     } catch (err) {
       setBusy(false);
-      onError?.(err instanceof Error ? err.message : "Could not start Google sign-in.");
+      onError?.(err instanceof Error ? err.message : t("social.failed"));
     }
   }
 
@@ -62,7 +64,7 @@ export default function SocialButtons({ action, onError }: Props) {
       className="flex h-11 w-full items-center justify-center gap-2.5 rounded-lg border border-slate-300 bg-white text-sm font-semibold text-slate-700 shadow-sm transition hover:border-slate-400 hover:bg-slate-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600 disabled:cursor-not-allowed disabled:opacity-70"
     >
       {busy ? <Loader2 className="h-[18px] w-[18px] animate-spin" /> : <GoogleIcon />}
-      {action} with Google
+      {label}
     </button>
   );
 }

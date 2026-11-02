@@ -1,4 +1,9 @@
-# Netlify — frontend-only deploy (Supabase handles auth + database).
+# Netlify — frontend (static Vite build). Supabase handles auth + database;
+# the FastAPI backend lives on Render and is reached via VITE_API_BASE_URL.
+#
+# Deploy: Netlify → "Add new site" → "Import an existing project" → pick the
+# repo. Netlify reads this file, so no build settings are typed by hand.
+
 [build]
   base    = "frontend"
   command = "npm run build"
@@ -7,13 +12,42 @@
 [build.environment]
   NODE_VERSION = "20"
 
-# SPA fallback so /login, /signup, /dashboard, /auth/callback work on refresh.
+# SPA fallback so /login, /signup, /dashboard, /equipment-owner, /auth/callback
+# work on a direct load or refresh. `force = false` lets real files (assets,
+# images, robots.txt) win over the fallback.
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
 
+# Proxies /api/* to the Render backend. This is what makes the app work when
+# VITE_API_BASE_URL is left at its "/api/v1" default — set the env var instead
+# if you prefer the browser to call Render directly.
+#
+# Replace the host below with your actual Render service URL after the first
+# deploy (Render → your service → the https://xxxx.onrender.com address).
+[[redirects]]
+  from = "/api/*"
+  to = "https://cenagri-api.onrender.com/api/:splat"
+  status = 200
+  force = true
+
+# Hashed build assets never change, so cache them for a year.
 [[headers]]
   for = "/assets/*"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
+
+# index.html must always be revalidated, otherwise a deploy keeps serving the
+# old app shell to returning visitors.
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "SAMEORIGIN"
+    Referrer-Policy = "strict-origin-when-cross-origin"

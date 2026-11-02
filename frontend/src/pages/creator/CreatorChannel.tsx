@@ -141,14 +141,14 @@ export default function CreatorChannel() {
     <CreatorShell>
       {/* Banner */}
       <div className="creator-card overflow-hidden">
-        <div className="relative h-32 w-full bg-gradient-to-r from-[#16C784]/30 via-[#2ED3B7]/20 to-[#0B1020] sm:h-40">
+        <div className="creator-banner relative h-32 w-full sm:h-40">
           {channel.banner_url && (
             <img src={channel.banner_url} alt="" className="h-full w-full object-cover" />
           )}
         </div>
 
         <div className="flex flex-wrap items-end gap-4 px-4 pb-4 sm:px-5">
-          <span className="-mt-8 grid h-20 w-20 shrink-0 place-items-center overflow-hidden rounded-full border-4 border-[#151F32] bg-[#16C784] text-2xl font-black text-[#0B1020] sm:h-24 sm:w-24">
+          <span className="creator-avatar -mt-8 grid h-20 w-20 shrink-0 place-items-center overflow-hidden rounded-full border-4 border-[var(--cr-card)] text-2xl font-black sm:h-24 sm:w-24">
             {channel.avatar_url ? (
               <img src={channel.avatar_url} alt="" className="h-full w-full object-cover" />
             ) : (
@@ -157,9 +157,9 @@ export default function CreatorChannel() {
           </span>
 
           <div className="min-w-0 flex-1 pt-1">
-            <h1 className="flex items-center gap-1.5 text-xl font-extrabold text-white">
+            <h1 className="creator-heading flex items-center gap-1.5 text-xl font-extrabold">
               {channel.channel_name}
-              {channel.is_verified && <BadgeCheck className="h-5 w-5 text-[#16C784]" />}
+              {channel.is_verified && <BadgeCheck className="h-5 w-5 text-[var(--cr-green)]" />}
             </h1>
             <p className="text-[11px] text-slate-400">
               {channel.handle ? `@${channel.handle} · ` : ""}

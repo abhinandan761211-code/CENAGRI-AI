@@ -9,6 +9,8 @@ export type Role = {
   description: string;
   image: string;
   href: string;
+  /** Value the signup form expects for this role. */
+  signupRole?: string;
 };
 
 export type Feature = {

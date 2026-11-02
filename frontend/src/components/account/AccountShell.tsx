@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
-import { Bell, Headphones, LogOut, Menu, Search, Settings, User, X } from "lucide-react";
+import { Bell, Headphones, LogOut, Menu, Search, Settings, User, Video, X } from "lucide-react";
 import { Link } from "react-router-dom";
 import Logo from "@/components/Logo";
 import type { LucideIcon } from "lucide-react";
+import "@/styles/account.css";
 
 /**
  * Shared account chrome for every role dashboard.
@@ -17,6 +18,12 @@ import type { LucideIcon } from "lucide-react";
  * Nothing role-specific lives here: the caller passes its own nav, search
  * index, hero and notifications. That keeps Farmer, Buyer and Retailer on the
  * same base while their features stay separate.
+ *
+ * Colour code: the Shop (retailer) account's light palette — cream page, white
+ * surfaces, slate lines, forest headings and brand-700 green. `acct-root`
+ * applies it to every account rendered through this shell, so a page written
+ * against the dark creator tokens still comes out in the account colours. The
+ * Content Creator studio has its own shell and is deliberately untouched.
  */
 
 export type ShellNavItem = {
@@ -157,7 +164,7 @@ export default function AccountShell({
   }
 
   return (
-    <div className="min-h-screen bg-cream">
+    <div className="acct-root min-h-screen bg-cream">
       <div className="flex">
         {/* Thin hover strip: the rail is only 64px wide, so this gives the
             cursor an easy target at the very edge of the screen. */}
@@ -176,8 +183,10 @@ export default function AccountShell({
           className={`fixed inset-y-0 left-0 z-40 shrink-0 overflow-y-auto overflow-x-hidden border-r border-slate-200 bg-white transition-[transform,width] duration-200 ease-out lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"
             } ${sidebarHovered ? "w-64" : "w-64 lg:w-16"}`}
         >
-          <div className="flex h-16 items-center justify-between border-b border-slate-200 px-4">
-            <Logo />
+          <div className={`flex h-16 items-center border-b border-slate-200 ${sidebarHovered ? "justify-between px-4" : "justify-between px-4 lg:justify-center lg:px-2"}`}>
+            {/* Rail mode shows the mark only: the full wordmark is ~133px wide
+                and would spill out of the 64px rail over the page content. */}
+            <Logo compact={!sidebarHovered} className={sidebarHovered ? "" : "lg:[&>span:nth-child(2)]:hidden"} />
             <button
               type="button"
               onClick={() => setSidebarOpen(false)}
@@ -477,6 +486,16 @@ export default function AccountShell({
                     </div>
                   )}
                 </div>
+
+                {/* Creator mode — same entry point for every account. */}
+                <Link
+                  to="/creator/settings"
+                  className="grid h-9 w-9 place-items-center rounded-full border border-slate-200 text-slate-600 hover:bg-slate-50"
+                  title="Creator Studio"
+                  aria-label="Creator Studio"
+                >
+                  <Video className="h-4 w-4" />
+                </Link>
 
                 <div className="relative" ref={settingsRef}>
                   <button

@@ -1,0 +1,54 @@
+# Render blueprint — FastAPI backend.
+#
+# Deploy:  push this file, then in Render → "New +" → "Blueprint" and pick the
+# repo. Render reads this file and creates the service.
+#
+# The frontend on Netlify is a static build and is NOT defined here.
+#
+# Secrets marked `sync: false` are not stored in git — Render prompts for them
+# on first deploy and keeps them encrypted. Fill them in from .env.example.
+
+services:
+  - type: web
+    name: cenagri-api
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    plan: free # upgrade to `starter` before real traffic
+    region: singapore # closest region to Indian users
+    branch: main
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      # Render injects PORT. Setting it explicitly to 10000 makes the container
+      # and Render's port detection agree; the default 8000 would work too, but
+      # an explicit value documents what the service actually listens on.
+      # The Dockerfile CMD reads $PORT at runtime (see backend/Dockerfile).
+      - key: PORT
+        value: "10000"
+      # Production mode turns off /docs and /openapi.json.
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: "false"
+
+      # ── Secrets: set these in the Render dashboard ──────────────────────
+      - key: DATABASE_URL
+        sync: false # postgresql+psycopg://...  (Supabase Session pooler)
+      - key: JWT_SECRET
+        generateValue: true
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: SUPABASE_JWT_SECRET
+        sync: false
+      - key: DATA_GOV_API_KEY
+        sync: false
+      - key: LLM_API_KEY
+        sync: false
+
+      # The Netlify site origin. Must match exactly (scheme + host, no trailing
+      # slash) or the browser blocks every API call with a CORS error.
+      - key: CORS_ORIGINS
+        sync: false

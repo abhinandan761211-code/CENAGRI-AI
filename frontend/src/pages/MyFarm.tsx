@@ -278,22 +278,22 @@ export default function MyFarm() {
 
       {/* Search + status filter */}
       <div className="card flex flex-col gap-3 p-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex min-w-0 flex-1 items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 focus-within:border-brand-500 focus-within:bg-white">
-          <Search className="h-4 w-4 shrink-0 text-slate-400" />
+        <div className="flex min-w-0 flex-1 items-center gap-2 rounded-lg border border-slate-200 bg-slate-100 px-3 py-2 focus-within:border-brand-700 focus-within:bg-slate-100">
+          <Search className="h-4 w-4 shrink-0 text-slate-500" />
           <input
             type="search"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search farm name, location or crop…"
             aria-label="Search farms"
-            className="w-full bg-transparent text-sm text-slate-700 outline-none placeholder:text-slate-400"
+            className="w-full bg-transparent text-sm text-slate-200 outline-none placeholder:text-slate-500"
           />
           {search && (
             <button
               type="button"
               onClick={() => setSearch("")}
               aria-label="Clear search"
-              className="shrink-0 text-slate-400 hover:text-slate-600"
+              className="shrink-0 text-slate-500 hover:text-slate-500"
             >
               <X className="h-3.5 w-3.5" />
             </button>
@@ -308,11 +308,10 @@ export default function MyFarm() {
               type="button"
               onClick={() => setFilter(option)}
               aria-pressed={filter === option}
-              className={`rounded-lg px-3.5 py-1.5 text-xs font-semibold transition ${
-                filter === option
-                  ? "bg-forest text-white"
-                  : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-              }`}
+              className={`rounded-lg px-3.5 py-1.5 text-xs font-semibold transition ${filter === option
+                  ? "bg-forest text-forest"
+                  : "bg-slate-100 text-slate-500 hover:bg-slate-100"
+                }`}
             >
               {option}
             </button>
@@ -321,11 +320,12 @@ export default function MyFarm() {
       </div>
 
       <FarmerSection
+        id="crops"
         title="Your Farms"
         description={`${filteredFarms.length} of ${farms.length} farms shown`}
         icon={LandPlot}
         action={
-          <button type="button" onClick={openAdd} className="btn-primary h-9 px-4 text-xs">
+          <button type="button" onClick={openAdd} className="creator-btn-primary h-9 px-4 text-xs">
             <Plus className="h-4 w-4" /> Add New Farm
           </button>
         }
@@ -352,7 +352,7 @@ export default function MyFarm() {
             <button
               type="button"
               onClick={openAdd}
-              className="btn-primary mt-4 h-9 px-4 text-xs"
+              className="creator-btn-primary mt-4 h-9 px-4 text-xs"
             >
               <Plus className="h-4 w-4" /> Add Farm
             </button>
@@ -371,11 +371,10 @@ export default function MyFarm() {
                   <div className="relative flex h-24 items-center justify-center bg-gradient-to-br from-emerald-100 to-green-50">
                     <Sprout className="h-10 w-10 text-emerald-600/70" />
                     <span
-                      className={`absolute right-3 top-3 rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide ${
-                        active
+                      className={`absolute right-3 top-3 rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide ${active
                           ? "bg-green-100 text-green-700"
-                          : "bg-slate-200 text-slate-600"
-                      }`}
+                          : "bg-slate-100 text-slate-500"
+                        }`}
                     >
                       {active ? "Active" : "Inactive"}
                     </span>
@@ -402,7 +401,7 @@ export default function MyFarm() {
                     </div>
 
                     <div className="my-3 grid grid-cols-2 gap-2">
-                      <div className="rounded-lg bg-slate-50 p-2.5">
+                      <div className="rounded-lg bg-slate-100 p-2.5">
                         <LandPlot className="mb-1 h-4 w-4 text-brand-700" />
                         <p className="text-[10px] uppercase tracking-wide text-slate-500">
                           Land Area
@@ -411,7 +410,7 @@ export default function MyFarm() {
                           {acres != null ? `${acres} Acres` : "—"}
                         </p>
                       </div>
-                      <div className="rounded-lg bg-slate-50 p-2.5">
+                      <div className="rounded-lg bg-slate-100 p-2.5">
                         <Droplets className="mb-1 h-4 w-4 text-sky-500" />
                         <p className="text-[10px] uppercase tracking-wide text-slate-500">
                           Irrigation
@@ -430,21 +429,21 @@ export default function MyFarm() {
                         farm.crops!.map((crop) => (
                           <span
                             key={crop}
-                            className="rounded-md bg-brand-50 px-2 py-0.5 text-[11px] font-medium text-brand-800"
+                            className="rounded-md bg-brand-50 px-2 py-0.5 text-[11px] font-medium text-brand-700"
                           >
                             {crop}
                           </span>
                         ))
                       ) : (
-                        <span className="text-[11px] text-slate-400">No crops added</span>
+                        <span className="text-[11px] text-slate-500">No crops added</span>
                       )}
                     </div>
 
-                    <div className="mt-3 flex items-center justify-between border-t border-slate-100 pt-3">
+                    <div className="mt-3 flex items-center justify-between border-t border-slate-200 pt-3">
                       <button
                         type="button"
                         onClick={() => setSelectedFarm(farm)}
-                        className="inline-flex items-center gap-0.5 text-xs font-semibold text-brand-700 hover:text-brand-800"
+                        className="inline-flex items-center gap-0.5 text-xs font-semibold text-brand-700 hover:text-brand-700"
                       >
                         View Details <ChevronRight className="h-3.5 w-3.5" />
                       </button>
@@ -453,7 +452,7 @@ export default function MyFarm() {
                         onClick={() => void handleDelete(farm.id)}
                         title="Delete farm"
                         aria-label={`Delete ${farm.name}`}
-                        className="rounded-md p-1.5 text-slate-400 hover:bg-rose-50 hover:text-rose-600"
+                        className="rounded-md p-1.5 text-slate-500 hover:bg-rose-50 hover:text-rose-600"
                       >
                         <Trash2 className="h-4 w-4" />
                       </button>
@@ -471,7 +470,7 @@ export default function MyFarm() {
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-forest-dark/50 sm:items-center sm:p-4">
           <form
             onSubmit={handleSave}
-            className="max-h-[92vh] w-full overflow-y-auto rounded-t-2xl bg-white p-5 shadow-xl sm:max-w-xl sm:rounded-2xl"
+            className="max-h-[92vh] w-full overflow-y-auto rounded-t-2xl bg-slate-100 p-5 shadow-xl sm:max-w-xl sm:rounded-2xl"
           >
             <div className="mb-5 flex items-start justify-between gap-3">
               <div>
@@ -494,7 +493,7 @@ export default function MyFarm() {
 
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="sm:col-span-2">
-                <label htmlFor="farm-name" className="mb-1 block text-xs font-semibold text-slate-700">
+                <label htmlFor="farm-name" className="mb-1 block text-xs font-semibold text-slate-200">
                   Farm Name *
                 </label>
                 <input
@@ -503,12 +502,12 @@ export default function MyFarm() {
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
                   placeholder="e.g. Main Farm"
-                  className="w-full rounded-lg border border-slate-200 p-2.5 text-sm outline-none focus:border-brand-500"
+                  className="w-full rounded-lg border border-slate-200 p-2.5 text-sm outline-none focus:border-brand-700"
                 />
               </div>
 
               <div className="sm:col-span-2">
-                <label htmlFor="farm-location" className="mb-1 block text-xs font-semibold text-slate-700">
+                <label htmlFor="farm-location" className="mb-1 block text-xs font-semibold text-slate-200">
                   Location *
                 </label>
                 <input
@@ -517,12 +516,12 @@ export default function MyFarm() {
                   value={form.location}
                   onChange={(e) => setForm({ ...form, location: e.target.value })}
                   placeholder="Village, District, State"
-                  className="w-full rounded-lg border border-slate-200 p-2.5 text-sm outline-none focus:border-brand-500"
+                  className="w-full rounded-lg border border-slate-200 p-2.5 text-sm outline-none focus:border-brand-700"
                 />
               </div>
 
               <div>
-                <label htmlFor="farm-area" className="mb-1 block text-xs font-semibold text-slate-700">
+                <label htmlFor="farm-area" className="mb-1 block text-xs font-semibold text-slate-200">
                   Land Area (Acres) *
                 </label>
                 <input
@@ -534,12 +533,12 @@ export default function MyFarm() {
                   value={form.area}
                   onChange={(e) => setForm({ ...form, area: e.target.value })}
                   placeholder="e.g. 2.5"
-                  className="w-full rounded-lg border border-slate-200 p-2.5 text-sm outline-none focus:border-brand-500"
+                  className="w-full rounded-lg border border-slate-200 p-2.5 text-sm outline-none focus:border-brand-700"
                 />
               </div>
 
               <div>
-                <label htmlFor="farm-status" className="mb-1 block text-xs font-semibold text-slate-700">
+                <label htmlFor="farm-status" className="mb-1 block text-xs font-semibold text-slate-200">
                   Status
                 </label>
                 <select
@@ -548,7 +547,7 @@ export default function MyFarm() {
                   onChange={(e) =>
                     setForm({ ...form, status: e.target.value as FarmForm["status"] })
                   }
-                  className="w-full rounded-lg border border-slate-200 p-2.5 text-sm outline-none focus:border-brand-500"
+                  className="w-full rounded-lg border border-slate-200 p-2.5 text-sm outline-none focus:border-brand-700"
                 >
                   <option value="Active">Active</option>
                   <option value="Inactive">Inactive</option>
@@ -556,14 +555,14 @@ export default function MyFarm() {
               </div>
 
               <div>
-                <label htmlFor="farm-soil" className="mb-1 block text-xs font-semibold text-slate-700">
+                <label htmlFor="farm-soil" className="mb-1 block text-xs font-semibold text-slate-200">
                   Soil Type
                 </label>
                 <select
                   id="farm-soil"
                   value={form.soil}
                   onChange={(e) => setForm({ ...form, soil: e.target.value })}
-                  className="w-full rounded-lg border border-slate-200 p-2.5 text-sm outline-none focus:border-brand-500"
+                  className="w-full rounded-lg border border-slate-200 p-2.5 text-sm outline-none focus:border-brand-700"
                 >
                   {SOIL_TYPES.map((soil) => (
                     <option key={soil} value={soil}>
@@ -574,14 +573,14 @@ export default function MyFarm() {
               </div>
 
               <div>
-                <label htmlFor="farm-irrigation" className="mb-1 block text-xs font-semibold text-slate-700">
+                <label htmlFor="farm-irrigation" className="mb-1 block text-xs font-semibold text-slate-200">
                   Irrigation
                 </label>
                 <select
                   id="farm-irrigation"
                   value={form.irrigation}
                   onChange={(e) => setForm({ ...form, irrigation: e.target.value })}
-                  className="w-full rounded-lg border border-slate-200 p-2.5 text-sm outline-none focus:border-brand-500"
+                  className="w-full rounded-lg border border-slate-200 p-2.5 text-sm outline-none focus:border-brand-700"
                 >
                   {IRRIGATION_TYPES.map((type) => (
                     <option key={type} value={type}>
@@ -592,7 +591,7 @@ export default function MyFarm() {
               </div>
 
               <div className="sm:col-span-2">
-                <label htmlFor="farm-crops" className="mb-1 block text-xs font-semibold text-slate-700">
+                <label htmlFor="farm-crops" className="mb-1 block text-xs font-semibold text-slate-200">
                   Crops
                 </label>
                 <input
@@ -600,9 +599,9 @@ export default function MyFarm() {
                   value={form.crops}
                   onChange={(e) => setForm({ ...form, crops: e.target.value })}
                   placeholder="Tomato, Rice, Maize"
-                  className="w-full rounded-lg border border-slate-200 p-2.5 text-sm outline-none focus:border-brand-500"
+                  className="w-full rounded-lg border border-slate-200 p-2.5 text-sm outline-none focus:border-brand-700"
                 />
-                <p className="mt-1 text-[11px] text-slate-400">Separate crops with commas.</p>
+                <p className="mt-1 text-[11px] text-slate-500">Separate crops with commas.</p>
               </div>
             </div>
 
@@ -620,7 +619,7 @@ export default function MyFarm() {
               >
                 Cancel
               </button>
-              <button type="submit" disabled={saving} className="btn-primary h-9 px-4 text-xs disabled:opacity-60">
+              <button type="submit" disabled={saving} className="creator-btn-primary h-9 px-4 text-xs disabled:opacity-60">
                 {saving ? "Saving…" : editingId ? "Save Changes" : "Create Farm"}
               </button>
             </div>
@@ -631,7 +630,7 @@ export default function MyFarm() {
       {/* Farm details */}
       {selectedFarm && (
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-forest-dark/50 sm:items-center sm:p-4">
-          <div className="max-h-[92vh] w-full overflow-y-auto rounded-t-2xl bg-white p-5 shadow-xl sm:max-w-lg sm:rounded-2xl">
+          <div className="max-h-[92vh] w-full overflow-y-auto rounded-t-2xl bg-slate-100 p-5 shadow-xl sm:max-w-lg sm:rounded-2xl">
             <div className="mb-4 flex items-start justify-between gap-3">
               <div>
                 <p className="text-[11px] font-bold uppercase tracking-wide text-brand-700">
@@ -653,7 +652,7 @@ export default function MyFarm() {
               </button>
             </div>
 
-            <dl className="divide-y divide-slate-100 rounded-lg border border-slate-200">
+            <dl className="divide-y divide-white/10 rounded-lg border border-slate-200">
               {[
                 {
                   label: "Land Area",
@@ -684,7 +683,18 @@ export default function MyFarm() {
               ))}
             </dl>
 
-            <div className="mt-5 flex gap-2">
+            <div className="mt-5 flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  const farm = selectedFarm;
+                  setSelectedFarm(null);
+                  if (farm) navigate(`/crops?farm=${farm.id}`);
+                }}
+                className="btn-outline h-9 flex-1 text-xs"
+              >
+                <Wheat className="h-3.5 w-3.5" /> View crops
+              </button>
               <button
                 type="button"
                 onClick={() => {
@@ -699,7 +709,7 @@ export default function MyFarm() {
               <button
                 type="button"
                 onClick={() => navigate("/advisory")}
-                className="btn-primary h-9 flex-1 text-xs"
+                className="creator-btn-primary h-9 flex-1 text-xs"
               >
                 <Sprout className="h-3.5 w-3.5" /> Get Crop Advice
               </button>

@@ -22,7 +22,7 @@ export default function CreatorMessages() {
             <MessageSquare className="h-6 w-6" />
           </span>
           <div>
-            <p className="text-sm font-semibold text-white">Creator messaging is not enabled yet</p>
+            <p className="creator-heading text-sm font-semibold">Creator messaging is not enabled yet</p>
             <p className="mx-auto mt-1 max-w-lg text-xs leading-relaxed text-slate-400">
               CenAGRI already has a working message thread for shops and their customers. A
               creator-specific inbox needs one shared conversation model so a farmer's message

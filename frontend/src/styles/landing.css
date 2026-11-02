@@ -1,0 +1,392 @@
+/* ───────────────────────────────────────────────────────────────────────────
+   Landing page theme.
+
+   The public marketing page has its own palette so it can use the product's
+   dark surfaces (the farmer dashboard / creator studio) next to warm, light
+   reading sections. Scoped under `.landing` so nothing here leaks into the app
+   screens.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+.landing {
+  /* Dark surfaces use the project's own forest greens (tailwind.config.js),
+     not an ad-hoc navy. Before this change the hero sat on #0b1020, a
+     blue-black that appears nowhere else in CenAGRI — so the landing page
+     read as a different product from the dashboards. */
+  --ld-ink: #12352a;        /* forest.dark  — also the footer */
+  --ld-ink-2: #1d4b3a;      /* forest       */
+  --ld-surface: #2b6350;    /* forest.light */
+  --ld-line: rgba(15, 23, 42, 0.09);
+  --ld-green: #16c784;
+  --ld-green-dark: #0f9e69;
+  --ld-teal: #2ed3b7;
+  --ld-cream: #f7faf5;
+  --ld-sand: #eef3ea;
+
+  background: var(--ld-cream);
+  color: #0f172a;
+  overflow-x: clip;
+}
+
+/* ── Section headings ───────────────────────────────────────────────────── */
+
+.landing-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(22, 199, 132, 0.28);
+  background: rgba(22, 199, 132, 0.1);
+  padding: 0.375rem 0.75rem;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ld-green-dark);
+}
+
+.landing-eyebrow-dark {
+  border-color: rgba(22, 199, 132, 0.35);
+  background: rgba(22, 199, 132, 0.14);
+  color: var(--ld-teal);
+}
+
+.landing-h2 {
+  font-family: Poppins, Inter, system-ui, sans-serif;
+  font-size: clamp(1.5rem, 1.1rem + 1.6vw, 2.4rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  color: var(--ld-ink);
+  text-wrap: balance;
+}
+
+.landing-h2-dark {
+  color: #ffffff;
+}
+
+/* ── Buttons ────────────────────────────────────────────────────────────── */
+
+.landing-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 0.75rem;
+  padding: 0.8rem 1.25rem;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  line-height: 1.2;
+  transition:
+    transform 0.15s ease,
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+  /* Comfortable touch target on phones. */
+  min-height: 48px;
+  white-space: nowrap;
+}
+
+.landing-btn:active {
+  transform: translateY(1px);
+}
+
+.landing-btn-primary {
+  background: var(--ld-green);
+  color: #052e1f;
+  box-shadow: 0 10px 24px -12px rgba(22, 199, 132, 0.9);
+}
+
+.landing-btn-primary:hover {
+  background: #22dd94;
+}
+
+.landing-btn-ghost {
+  border: 1px solid rgba(15, 23, 42, 0.14);
+  background: #ffffff;
+  color: var(--ld-ink);
+}
+
+.landing-btn-ghost:hover {
+  border-color: rgba(15, 23, 42, 0.3);
+  background: #ffffff;
+}
+
+.landing-btn-ghost-dark {
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.06);
+  color: #ffffff;
+}
+
+.landing-btn-ghost-dark:hover {
+  border-color: rgba(255, 255, 255, 0.45);
+  background: rgba(255, 255, 255, 0.12);
+}
+
+/* ── Cards ──────────────────────────────────────────────────────────────── */
+
+.landing-card {
+  border-radius: 1rem;
+  border: 1px solid var(--ld-line);
+  background: #ffffff;
+  box-shadow: 0 1px 2px rgba(16, 42, 32, 0.04), 0 12px 30px -20px rgba(16, 42, 32, 0.35);
+}
+
+.landing-card-dark {
+  border-radius: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.landing-lift {
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+
+@media (hover: hover) {
+  .landing-lift:hover {
+    transform: translateY(-3px);
+    border-color: rgba(22, 199, 132, 0.45);
+    box-shadow: 0 20px 45px -24px rgba(16, 42, 32, 0.55);
+  }
+}
+
+.landing-lift:focus-visible {
+  outline: 2px solid var(--ld-green);
+  outline-offset: 3px;
+}
+
+/* ── Header states ──────────────────────────────────────────────────────── */
+
+/*
+ * The header sits on the dark hero until the page scrolls, then turns into a
+ * light glass bar. These live in CSS (not template-string Tailwind classes) so
+ * the colour pair is always generated, whatever the scanner decides.
+ */
+.landing-header.is-over-hero {
+  border-bottom: 1px solid transparent;
+  background: transparent;
+}
+
+.landing-header.is-solid {
+  border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(12px);
+}
+
+.landing-header.is-over-hero .landing-nav-link {
+  color: #cbd5e1;
+}
+
+.landing-header.is-over-hero .landing-nav-link:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+.landing-header.is-over-hero .landing-nav-link.is-active {
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+}
+
+.landing-header.is-solid .landing-nav-link {
+  color: #475569;
+}
+
+.landing-header.is-solid .landing-nav-link:hover {
+  background: #f1f5f9;
+  color: #1d4b3a;
+}
+
+.landing-header.is-solid .landing-nav-link.is-active {
+  background: #f0fdf4;
+  color: #166534;
+}
+
+.landing-header.is-over-hero .landing-header-lang {
+  color: #cbd5e1;
+}
+
+.landing-header.is-over-hero .landing-header-lang:hover {
+  color: #ffffff;
+}
+
+.landing-header.is-solid .landing-header-lang {
+  color: #475569;
+}
+
+.landing-header.is-over-hero .landing-header-login {
+  color: #ffffff;
+}
+
+.landing-header.is-over-hero .landing-header-login:hover {
+  color: #86efac;
+}
+
+.landing-header.is-solid .landing-header-login {
+  color: #1d4b3a;
+}
+
+.landing-header.is-over-hero .landing-header-burger {
+  border-color: rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+.landing-header.is-over-hero .landing-header-burger:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.landing-header.is-solid .landing-header-burger {
+  border-color: #e2e8f0;
+  background: #ffffff;
+  color: #1d4b3a;
+}
+
+/* ── Role cards ─────────────────────────────────────────────────────────── */
+
+/*
+ * Phone: 96px image column + text column, one row.
+ * 640px and up: one column of two rows — image (16:10) on top, text below.
+ * Grid is used instead of flex so the image column cannot expand past its track.
+ */
+.landing .role-card {
+  display: grid;
+  grid-template-columns: 6rem minmax(0, 1fr);
+  grid-template-rows: auto;
+  overflow: hidden;
+}
+
+.landing .role-card-media {
+  position: relative;
+  overflow: hidden;
+  background: var(--ld-sand);
+  min-height: 7.5rem;
+}
+
+.landing .role-card-body {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  padding: 0.875rem;
+}
+
+@media (min-width: 640px) {
+  .landing .role-card {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto 1fr;
+  }
+
+  .landing .role-card-media {
+    aspect-ratio: 16 / 10;
+    min-height: 0;
+  }
+
+  .landing .role-card-body {
+    padding: 1rem;
+  }
+}
+
+/* ── Hero ───────────────────────────────────────────────────────────────── */
+
+.landing-hero {
+  position: relative;
+  overflow: hidden;
+  /* Forest-green banner. The gradients keep the same shape as before, but
+     blend into forest.dark (#12352a) instead of navy, so the hero, the header
+     overlay, the CTA panel and the footer are all one green family. */
+  background:
+    radial-gradient(70% 60% at 12% 0%, rgba(22, 199, 132, 0.22) 0%, rgba(18, 53, 42, 0) 62%),
+    radial-gradient(55% 55% at 92% 8%, rgba(46, 211, 183, 0.16) 0%, rgba(18, 53, 42, 0) 60%),
+    linear-gradient(180deg, #12352a 0%, #164034 62%, #1a4a3b 100%);
+  color: #ffffff;
+}
+
+/* Faint field rows, drawn in CSS so the hero has texture without an image. */
+.landing-hero::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 42%;
+  background-image: repeating-linear-gradient(100deg,
+      rgba(255, 255, 255, 0.035) 0 2px,
+      rgba(255, 255, 255, 0) 2px 26px);
+  mask-image: linear-gradient(180deg, transparent, #000 70%);
+  pointer-events: none;
+}
+
+.landing-hero-glow {
+  position: absolute;
+  inset-inline: 0;
+  top: -220px;
+  height: 520px;
+  background: radial-gradient(45% 55% at 50% 50%, rgba(22, 199, 132, 0.28), transparent 70%);
+  filter: blur(10px);
+  pointer-events: none;
+}
+
+.landing-stat {
+  border-radius: 0.875rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.045);
+  padding: 0.75rem 0.9rem;
+  backdrop-filter: blur(6px);
+}
+
+/* ── Marquee (trust logos) ──────────────────────────────────────────────── */
+
+.landing-marquee {
+  display: flex;
+  gap: 3rem;
+  width: max-content;
+  animation: landing-scroll 32s linear infinite;
+}
+
+.landing-marquee-mask {
+  overflow: hidden;
+  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-marquee {
+    animation: none;
+  }
+}
+
+@keyframes landing-scroll {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* ── Mobile: no clipped shadows, full-height drawers ────────────────────── */
+
+.landing-drawer {
+  animation: landing-drawer 0.18s ease-out both;
+}
+
+@keyframes landing-drawer {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  .landing-drawer,
+  .landing-lift,
+  .landing-btn {
+    animation: none;
+    transition: none;
+  }
+}

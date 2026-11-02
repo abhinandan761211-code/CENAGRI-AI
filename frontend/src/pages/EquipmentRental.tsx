@@ -10,6 +10,8 @@ import {
 import { useNavigate } from "react-router-dom";
 import { FeatureShell } from "@/components/farm/FeatureShell";
 import { FarmerSection, FarmerStats } from "@/components/farm/FarmerShell";
+import { SchemaBanner } from "@/components/farm/SchemaBanner";
+import { useTableExists } from "@/lib/schemaCheck";
 
 const CATEGORIES = [
   { icon: Tractor, label: "Tractor", hint: "Ploughing, haulage, trolley work" },
@@ -27,6 +29,7 @@ const CATEGORIES = [
  */
 export default function EquipmentRental() {
   const navigate = useNavigate();
+  const schema = useTableExists("equipment");
 
   return (
     <FeatureShell
@@ -35,6 +38,10 @@ export default function EquipmentRental() {
       demo
       demoNote="Availability, owners and bookings need the `equipment` and `equipment_bookings` tables (already defined in database/supabase/features.sql). Until rows exist, this screen deliberately shows no prices and no availability — a fake 'available today' would send you to a machine that is not there."
     >
+      {schema.exists === false && (
+        <SchemaBanner file={schema.file} tables={["equipment", "equipment_bookings"]} />
+      )}
+
       <FarmerStats
         items={[
           { label: "Machines nearby", value: "0", icon: Tractor, hint: "None listed in your block" },
@@ -69,14 +76,14 @@ export default function EquipmentRental() {
       </FarmerSection>
 
       <FarmerSection title="How renting works" icon={TrendingUp}>
-        <ol className="divide-y divide-slate-100">
+        <ol className="divide-y divide-white/10">
           {[
             ["Find a machine", "Filter by type and your block. Rates and free dates come from the owner."],
             ["Send a request", "Pick your dates. The owner accepts or suggests another slot — nothing is charged until they accept."],
             ["Work the field", "The machine arrives on the agreed date. Payment is settled directly with the owner."],
           ].map(([title, body], index) => (
             <li key={title} className="flex items-start gap-3 px-4 py-3 sm:px-5">
-              <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-brand-100 text-[11px] font-bold text-brand-800">
+              <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-brand-100 text-[11px] font-bold text-brand-700">
                 {index + 1}
               </span>
               <div className="min-w-0">

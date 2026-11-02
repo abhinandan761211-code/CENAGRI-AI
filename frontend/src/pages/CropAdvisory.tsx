@@ -92,7 +92,7 @@ export default function CropAdvisory() {
 
             {turns.map((turn, i) => (
               <div key={i} className="space-y-2">
-                <p className="ml-auto w-fit max-w-[85%] rounded-2xl rounded-br-sm bg-brand-700 px-3.5 py-2 text-sm text-white">
+                <p className="ml-auto w-fit max-w-[85%] rounded-2xl rounded-br-sm bg-brand-700 px-3.5 py-2 text-sm text-forest">
                   {turn.question}
                 </p>
 
@@ -104,21 +104,21 @@ export default function CropAdvisory() {
                     <p className="mt-1 text-[11px] leading-relaxed text-red-600">{turn.error}</p>
                   </div>
                 ) : turn.answer ? (
-                  <div className="max-w-[92%] rounded-2xl rounded-bl-sm border border-slate-200 bg-slate-50 px-3.5 py-3">
+                  <div className="max-w-[92%] rounded-2xl rounded-bl-sm border border-slate-200 bg-slate-100 px-3.5 py-3">
                     <div className="mb-1.5 flex flex-wrap items-center gap-2">
                       <span className="text-[11px] font-bold uppercase tracking-wide text-brand-700">
                         {turn.answer.mode === "ai" ? "AI answer" : "Rule-based answer"}
                       </span>
                       {turn.answer.mode === "ai" && turn.answer.model && (
-                        <span className="rounded bg-white px-1.5 py-0.5 text-[10px] font-medium text-slate-500">
+                        <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-medium text-slate-500">
                           {turn.answer.model}
                         </span>
                       )}
                     </div>
                     <ol className="space-y-1.5">
                       {turn.answer.steps.map((step, si) => (
-                        <li key={si} className="flex gap-2 text-[13px] leading-relaxed text-slate-700">
-                          <span className="mt-0.5 w-4 shrink-0 text-right text-[11px] font-bold text-brand-600">
+                        <li key={si} className="flex gap-2 text-[13px] leading-relaxed text-slate-200">
+                          <span className="mt-0.5 w-4 shrink-0 text-right text-[11px] font-bold text-brand-700">
                             {si + 1}.
                           </span>
                           {step}
@@ -132,7 +132,7 @@ export default function CropAdvisory() {
                     )}
                   </div>
                 ) : (
-                  <p className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-3.5 py-2 text-xs text-slate-500">
+                  <p className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-slate-100 px-3.5 py-2 text-xs text-slate-500">
                     <Loader2 className="h-3.5 w-3.5 animate-spin" /> Thinking…
                   </p>
                 )}
@@ -152,13 +152,13 @@ export default function CropAdvisory() {
               onChange={(e) => setQuestion(e.target.value)}
               maxLength={600}
               placeholder="e.g. My paddy leaves are turning yellow — what should I do?"
-              className="h-10 flex-1 rounded-lg border border-slate-300 px-3 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
+              className="h-10 flex-1 rounded-lg border border-slate-200 px-3 text-sm outline-none focus:border-brand-700 focus:ring-2 focus:ring-brand-100"
               aria-label="Your question"
             />
             <button
               type="submit"
               disabled={busy || !question.trim()}
-              className="btn-primary h-10 px-4 disabled:opacity-50"
+              className="creator-btn-primary h-10 px-4 disabled:opacity-50"
             >
               {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
               Ask
@@ -178,14 +178,14 @@ export default function CropAdvisory() {
                     type="button"
                     onClick={() => void ask(topic)}
                     disabled={busy}
-                    className="w-full rounded-lg border border-slate-200 px-2.5 py-2 text-left text-[11px] leading-snug text-slate-600 transition hover:border-brand-300 hover:bg-brand-50 disabled:opacity-50"
+                    className="w-full rounded-lg border border-slate-200 px-2.5 py-2 text-left text-[11px] leading-snug text-slate-500 transition hover:border-brand-300 hover:bg-brand-50 disabled:opacity-50"
                   >
                     {topic}
                   </button>
                 </li>
               ))}
                 {topics.length === 0 && (
-                  <li className="text-[11px] text-slate-400">Suggested questions unavailable.</li>
+                  <li className="text-[11px] text-slate-500">Suggested questions unavailable.</li>
                 )}
             </ul>
           </div>
@@ -199,7 +199,7 @@ export default function CropAdvisory() {
                 ["State", details.state || "Not set"],
                 ["Signed in as", profile?.email ?? user?.email ?? "—"],
               ].map(([k, v]) => (
-                <div key={k} className="flex justify-between gap-3 border-b border-slate-100 pb-1.5 last:border-0">
+                <div key={k} className="flex justify-between gap-3 border-b border-slate-200 pb-1.5 last:border-0">
                   <dt className="text-slate-500">{k}</dt>
                   <dd className="text-right font-semibold text-forest">{v}</dd>
                 </div>

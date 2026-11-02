@@ -13,6 +13,7 @@ import {
   ShoppingCart,
   Sprout,
   Store,
+  Video,
   Warehouse,
 } from "lucide-react";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
@@ -36,10 +37,11 @@ export type RetailerNavKey =
   | "buy"
   | "messages"
   | "notifications"
+  | "creator"
   | "settings"
   | "help";
 
-export const RETAILER_ROUTES: Record<RetailerNavKey, string> = {
+export const RETAILER_ROUTES: Record<Exclude<RetailerNavKey, "creator">, string> = {
   home: RETAILER_BASE,
   shop: `${RETAILER_BASE}/shop`,
   products: `${RETAILER_BASE}/products`,
@@ -65,7 +67,15 @@ const NAV: { key: RetailerNavKey; label: string; icon: ShellNavItem["icon"] }[] 
   { key: "buy", label: "Buy from Farmers", icon: Sprout },
   { key: "messages", label: "Messages", icon: MessageSquare },
   { key: "notifications", label: "Notifications", icon: Bell },
+  { key: "creator", label: "Creator Studio", icon: Video },
 ];
+
+/**
+ * Where each key goes. "creator" lives outside /retailer, so it is kept out of
+ * `RETAILER_ROUTES` (that map is typed to the in-app keys the shell uses for
+ * its active state) and resolved here instead.
+ */
+const NAV_HREF: Partial<Record<RetailerNavKey, string>> = { creator: "/creator/settings" };
 
 /** Notification kind → the icon shown in the header bell. */
 const KIND_ICON = {
@@ -174,7 +184,7 @@ export default function RetailerLayout({
     icon,
     badge: key === "notifications" ? unreadCount : undefined,
     active: key === activeKey,
-    to: RETAILER_ROUTES[key],
+    to: NAV_HREF[key] ?? RETAILER_ROUTES[key as Exclude<RetailerNavKey, "creator">],
   }));
 
   async function handleSignOut() {

@@ -139,7 +139,7 @@ export default function CreatorNotifications() {
                 </span>
 
                 <div className="min-w-0 flex-1">
-                  <p className={`text-[13px] ${isUnread ? "font-bold text-white" : "font-semibold text-slate-300"}`}>
+                  <p className={`text-[13px] ${isUnread ? "creator-heading font-bold" : "font-semibold text-slate-600"}`}>
                     {notification.title}
                   </p>
                   {notification.body && (

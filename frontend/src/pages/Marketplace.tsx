@@ -2,6 +2,8 @@ import { useState } from "react";
 import { IndianRupee, Package, Search, Store, Tag, UserPlus, Users } from "lucide-react";
 import { FeatureShell } from "@/components/farm/FeatureShell";
 import { FarmerSection, FarmerStats } from "@/components/farm/FarmerShell";
+import { SchemaBanner } from "@/components/farm/SchemaBanner";
+import { useTableExists } from "@/lib/schemaCheck";
 
 const CATEGORIES = ["All", "Grains", "Vegetables", "Fruits", "Seeds", "Fertiliser", "Equipment"];
 
@@ -16,6 +18,7 @@ const CATEGORIES = ["All", "Grains", "Vegetables", "Fruits", "Seeds", "Fertilise
 export default function Marketplace() {
   const [category, setCategory] = useState("All");
   const [query, setQuery] = useState("");
+  const schema = useTableExists("listings");
 
   return (
     <FeatureShell
@@ -24,6 +27,8 @@ export default function Marketplace() {
       demo
       demoNote="Listings, seller profiles and orders need a database table that does not exist yet — no invented produce is shown. The interface below is complete and ready to connect once `listings` and `orders` are created (schema in database/supabase/features.sql)."
     >
+      {schema.exists === false && <SchemaBanner file={schema.file} tables={["listings", "orders"]} />}
+
       <FarmerStats
         items={[
           { label: "Live listings", value: "0", icon: Store, hint: "Nothing posted in your district" },
@@ -40,7 +45,7 @@ export default function Marketplace() {
         action={
           <button
             type="button"
-            className="btn-primary h-9 px-3.5 text-xs"
+            className="creator-btn-primary h-9 px-3.5 text-xs"
             disabled
             title="Available once listings are enabled"
           >
@@ -48,14 +53,14 @@ export default function Marketplace() {
           </button>
         }
       >
-        <div className="space-y-3 border-b border-slate-100 p-4 sm:px-5">
+        <div className="space-y-3 border-b border-slate-200 p-4 sm:px-5">
           <label className="relative block">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search produce, seeds, equipment…"
-              className="h-10 w-full rounded-lg border border-slate-300 pl-9 pr-3 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
+              className="h-10 w-full rounded-lg border border-slate-200 pl-9 pr-3 text-sm outline-none focus:border-brand-700 focus:ring-2 focus:ring-brand-100"
               aria-label="Search marketplace"
             />
           </label>
@@ -69,8 +74,8 @@ export default function Marketplace() {
                 aria-pressed={category === c}
                 className={`shrink-0 rounded-full px-3 py-1.5 text-[11px] font-semibold transition ${
                   category === c
-                    ? "bg-brand-700 text-white"
-                    : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                    ? "bg-brand-700 text-forest"
+                    : "bg-slate-100 text-slate-500 hover:bg-slate-100"
                 }`}
               >
                 {c}
@@ -91,7 +96,7 @@ export default function Marketplace() {
               ? "Nothing in the marketplace matches your filters right now."
               : "When sellers post produce in your district, their listings appear here with price, quantity and mandi distance."}
           </p>
-          <p className="mt-4 inline-flex items-center gap-1.5 text-[11px] font-semibold text-slate-400">
+          <p className="mt-4 inline-flex items-center gap-1.5 text-[11px] font-semibold text-slate-500">
             <UserPlus className="h-3.5 w-3.5" /> Listings will be live once the marketplace is enabled
           </p>
         </div>

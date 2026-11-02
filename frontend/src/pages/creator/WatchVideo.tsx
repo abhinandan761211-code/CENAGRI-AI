@@ -29,6 +29,7 @@ import {
   listRelated,
   recordView,
   timeAgo,
+  categoryLabel,
   toggleLike,
   toggleSave,
   toggleSubscribe,
@@ -221,7 +222,7 @@ export default function WatchVideo() {
   const channel = video.creator;
 
   return (
-    <CreatorShell>
+    <CreatorShell hub>
       <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_360px]">
         {/* ── Main ── */}
         <div className="min-w-0 space-y-4">
@@ -248,6 +249,15 @@ export default function WatchVideo() {
             <p className="text-[11px] text-slate-400">
               {compactCount(video.view_count)} views · {timeAgo(video.published_at)}
             </p>
+
+            {video.category && (
+              <Link
+                to={`/video-hub?category=${video.category}`}
+                className="rounded-full bg-[var(--cr-green)]/15 px-2 py-0.5 text-[10px] font-bold text-[var(--cr-green)] hover:bg-[var(--cr-green)]/25"
+              >
+                {categoryLabel(video.category)}
+              </Link>
+            )}
 
             {video.crop_name && (
               <span className="rounded-full bg-[#2ED3B7]/10 px-2 py-0.5 text-[10px] font-bold text-[#2ED3B7]">

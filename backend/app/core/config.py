@@ -10,6 +10,7 @@ ENV_FILES = (Path(".env"), Path(__file__).resolve().parents[3] / ".env")
 
 
 class Settings(BaseSettings):
+    """Runtime configuration. Secrets are read here and never sent to a client."""
     model_config = SettingsConfigDict(
         env_file=ENV_FILES, env_file_encoding="utf-8", extra="ignore"
     )
@@ -29,6 +30,26 @@ class Settings(BaseSettings):
 
     CORS_ORIGINS: str = "http://localhost:5173"
 
+    # ── Central admin panel ────────────────────────────────────────────────
+    # Admin APIs talk to Postgres through the service role, so the browser never
+    # holds a credential that can read admin tables directly. When these are
+    # empty the admin router is not mounted at all — a safe default.
+    SUPABASE_URL: str = ""
+    SUPABASE_SERVICE_ROLE_KEY: str = ""
+    # Supabase signs access tokens with the project's signing key. FastAPI only
+    # VERIFIES those tokens (RS256/ES256 via JWKS, or the legacy HS256 secret);
+    # it never mints tokens of its own.
+    SUPABASE_JWT_SECRET: str = ""
+    SUPABASE_JWT_AUDIENCE: str = "authenticated"
+    # Admin sessions are shorter than a farmer's: a stolen admin token should
+    # age out fast.
+    ADMIN_SESSION_MAX_MINUTES: int = 480
+    # Enforce MFA for every admin action. Off by default so a fresh install is
+    # usable; turn it on once admins have enrolled a factor.
+    ADMIN_MFA_REQUIRED: bool = False
+    # Throttle: max admin API requests per admin per minute (0 disables).
+    ADMIN_RATE_LIMIT_PER_MINUTE: int = 240
+
     # data.gov.in → "Current Daily Price of Various Commodities from Various
     # Markets (Mandi)". Server-side only; never expose this key to the browser.
     DATA_GOV_API_KEY: str = ""
@@ -45,6 +66,19 @@ class Settings(BaseSettings):
     @property
     def cors_origins_list(self) -> list[str]:
         return [o.strip() for o in self.CORS_ORIGINS.split(",") if o.strip()]
+
+    @property
+    def admin_enabled(self) -> bool:
+        """True only when the backend can verify sessions AND read admin data."""
+        has_secret = bool(self.SUPABASE_JWT_SECRET or self.SUPABASE_JWKS_URL)
+        return bool(self.SUPABASE_URL and self.SUPABASE_SERVICE_ROLE_KEY and has_secret)
+
+    @property
+    def SUPABASE_JWKS_URL(self) -> str:
+        """JWKS endpoint for modern (RS256/ES256) Supabase projects."""
+        if not self.SUPABASE_URL:
+            return ""
+        return f"{self.SUPABASE_URL.rstrip('/')}/auth/v1/.well-known/jwks.json"
 
 
 settings = Settings()

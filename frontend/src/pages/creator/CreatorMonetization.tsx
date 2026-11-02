@@ -37,8 +37,8 @@ export default function CreatorMonetization() {
               <span className="grid h-9 w-9 place-items-center rounded-lg bg-[#16C784]/10 text-[#16C784]">
                 <Icon className="h-[18px] w-[18px]" />
               </span>
-              <p className="mt-2 text-[13px] font-semibold text-white">{title}</p>
-              <p className="mt-0.5 text-[11px] leading-relaxed text-slate-400">{body}</p>
+              <p className="creator-heading mt-2 text-[13px] font-semibold">{title}</p>
+              <p className="mt-0.5 text-[11px] leading-relaxed text-slate-500">{body}</p>
               <span className="mt-2 inline-block rounded bg-white/5 px-1.5 py-0.5 text-[9px] font-bold uppercase text-slate-400">
                 Coming soon
               </span>

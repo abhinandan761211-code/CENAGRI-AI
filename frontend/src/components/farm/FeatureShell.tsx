@@ -57,8 +57,8 @@ export function FeatureShell({
         description={description ?? ""}
         aside={
           demo ? (
-            <div className="rounded-xl bg-white/10 p-3">
-              <p className="text-[11px] font-semibold uppercase tracking-wide text-white/70">
+            <div className="rounded-xl bg-slate-100 p-3">
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-600">
                 Status
               </p>
               <p className="mt-1 flex items-center gap-1.5 text-sm font-bold">

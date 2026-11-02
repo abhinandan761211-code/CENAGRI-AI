@@ -1,8 +1,10 @@
+import { useLang } from "@/i18n/LanguageContext";
+
 const LEVELS = [
-  { label: "Too weak", bar: "bg-red-400", text: "text-red-600" },
-  { label: "Weak", bar: "bg-orange-400", text: "text-orange-600" },
-  { label: "Fair", bar: "bg-amber-400", text: "text-amber-600" },
-  { label: "Strong", bar: "bg-brand-500", text: "text-brand-700" },
+  { label: "pwd.tooWeak", bar: "bg-red-400", text: "text-red-600" },
+  { label: "pwd.weak", bar: "bg-orange-400", text: "text-orange-600" },
+  { label: "pwd.fair", bar: "bg-amber-400", text: "text-amber-600" },
+  { label: "pwd.strong", bar: "bg-brand-500", text: "text-brand-700" },
 ] as const;
 
 export function scorePassword(pw: string): number {
@@ -16,6 +18,7 @@ export function scorePassword(pw: string): number {
 }
 
 export default function PasswordStrength({ value }: { value: string }) {
+  const { t } = useLang();
   const score = scorePassword(value);
   if (score < 0) return null;
 
@@ -27,19 +30,15 @@ export default function PasswordStrength({ value }: { value: string }) {
         {[1, 2, 3, 4].map((i) => (
           <span
             key={i}
-            className={`h-1.5 flex-1 rounded-full transition-colors ${
-              i <= score ? level.bar : "bg-slate-200"
-            }`}
+            className={`h-1.5 flex-1 rounded-full transition-colors ${i <= score ? level.bar : "bg-slate-200"
+              }`}
           />
         ))}
       </div>
       <p className={`mt-1.5 text-xs font-medium ${level.text}`}>
-        Password strength: {level.label}
+        {t("pwd.label")} {t(level.label)}
         {score < 3 && (
-          <span className="font-normal text-slate-500">
-            {" "}
-            — use 8+ characters with a mix of letters, numbers &amp; symbols.
-          </span>
+          <span className="font-normal text-slate-500"> {t("pwd.tip")}</span>
         )}
       </p>
     </div>

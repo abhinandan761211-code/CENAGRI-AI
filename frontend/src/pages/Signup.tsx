@@ -9,6 +9,7 @@ import PasswordStrength from "@/components/auth/PasswordStrength";
 import RoleSelector from "@/components/auth/RoleSelector";
 import LocationFields, { EMPTY_LOCATION } from "@/components/auth/LocationFields";
 import { useAuth } from "@/hooks/useAuth";
+import { useLang } from "@/i18n/LanguageContext";
 import type { UserRole } from "@/types";
 
 type Errors = Partial<
@@ -25,6 +26,7 @@ export default function Signup() {
   const [sentTo, setSentTo] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const { signUpWithEmail, user } = useAuth();
+  const { t } = useLang();
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const next = params.get("redirect") || params.get("next") || "/dashboard";
@@ -50,19 +52,19 @@ export default function Signup() {
     const phone = String(data.get("phone") ?? "").replace(/[\s-]/g, "");
 
     const nextErrors: Errors = {};
-    if (name.length < 2) nextErrors.name = "Enter your full name.";
-    if (!email) nextErrors.email = "Enter your email address.";
+    if (name.length < 2) nextErrors.name = t("signup.errName");
+    if (!email) nextErrors.email = t("signup.errEmailRequired");
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
-      nextErrors.email = "That doesn't look like a valid email.";
+      nextErrors.email = t("signup.errEmailInvalid");
     if (phone && !/^[6-9]\d{9}$/.test(phone))
-      nextErrors.phone = "Enter a 10-digit Indian mobile number.";
-    if (!password) nextErrors.password = "Create a password.";
-    else if (password.length < 8) nextErrors.password = "Use at least 8 characters.";
-    if (!role) nextErrors.role = "Select the role that fits you best.";
-    if (!location.state) nextErrors.state = "Select your state.";
-    if (!location.district) nextErrors.district = "Select your district.";
-    if (!location.village.trim()) nextErrors.village = "Select or enter your village / block.";
-    if (!accepted) nextErrors.terms = "Please accept the terms to continue.";
+      nextErrors.phone = t("signup.errPhone");
+    if (!password) nextErrors.password = t("signup.errPasswordRequired");
+    else if (password.length < 8) nextErrors.password = t("signup.errPasswordShort");
+    if (!role) nextErrors.role = t("signup.errRole");
+    if (!location.state) nextErrors.state = t("signup.errState");
+    if (!location.district) nextErrors.district = t("signup.errDistrict");
+    if (!location.village.trim()) nextErrors.village = t("signup.errVillage");
+    if (!accepted) nextErrors.terms = t("signup.errTerms");
 
     setErrors(nextErrors);
     setFormError("");
@@ -89,10 +91,10 @@ export default function Signup() {
         navigate("/complete-profile?next=/dashboard", { replace: true });
       }
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Could not create your account.";
+      const message = err instanceof Error ? err.message : t("signup.errGeneric");
       setFormError(
-        /already registered|already exists/i.test(message)
-          ? "An account with this email already exists. Try signing in instead."
+        /already registered|already exists|user_already_exists/i.test(message)
+          ? t("signup.errExists")
           : message
       );
     } finally {
@@ -102,20 +104,20 @@ export default function Signup() {
 
   if (sentTo) {
     return (
-      <AuthLayout badge="Almost there">
+      <AuthLayout badge={t("signup.sentBadge")}>
         <div className="flex flex-col items-start">
           <span className="grid h-12 w-12 place-items-center rounded-full bg-brand-100 text-brand-700">
             <Mail className="h-6 w-6" />
           </span>
           <h1 className="mt-4 font-display text-[26px] font-extrabold tracking-tight text-forest sm:text-3xl">
-            Check your email
+            {t("signup.sentTitle")}
           </h1>
           <p className="mt-2 text-sm leading-relaxed text-slate-500">
-            We sent a confirmation link to <strong className="text-forest">{sentTo}</strong>.
-            Click it to activate your account, then sign in.
+            {t("signup.sentBody1")} <strong className="text-forest">{sentTo}</strong>.{" "}
+            {t("signup.sentBody2")}
           </p>
           <Link to="/login" className="btn-primary mt-6 h-11 w-full text-[15px]">
-            Go to sign in
+            {t("signup.sentCta")}
             <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
@@ -124,12 +126,12 @@ export default function Signup() {
   }
 
   return (
-    <AuthLayout badge="Free to start · No card needed" wide>
+    <AuthLayout badge={t("signup.badge")} wide>
       <h1 className="font-display text-[26px] font-extrabold tracking-tight text-forest sm:text-3xl">
-        Create your account
+        {t("signup.title")}
       </h1>
       <p className="mt-2 text-sm text-slate-500">
-        Set up your profile in two minutes and get your first field brief tomorrow morning.
+        {t("signup.subtitle")}
       </p>
 
       <div className="mt-7">
@@ -138,7 +140,7 @@ export default function Signup() {
         <div className="my-6 flex items-center gap-3">
           <span className="h-px flex-1 bg-slate-200" />
           <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">
-            or sign up with email
+            {t("signup.orEmail")}
           </span>
           <span className="h-px flex-1 bg-slate-200" />
         </div>
@@ -146,28 +148,28 @@ export default function Signup() {
         <form onSubmit={handleSubmit} noValidate className="space-y-4">
           <div className="grid gap-4 sm:grid-cols-2">
             <TextField
-              label="Full name"
+              label={t("signup.fullName")}
               name="name"
               icon={User}
               autoComplete="name"
-              placeholder="Anil Mondal"
+              placeholder={t("signup.fullNamePlaceholder")}
               error={errors.name}
               onChange={() => clearError("name")}
             />
             <TextField
-              label="Mobile"
+              label={t("signup.mobile")}
               name="phone"
               type="tel"
               icon={Phone}
               autoComplete="tel"
               placeholder="98765 43210"
-              hint="Optional"
+              hint={t("signup.mobileHint")}
               error={errors.phone}
             />
           </div>
 
           <TextField
-            label="Email address"
+            label={t("signup.email")}
             name="email"
             type="email"
             icon={Mail}
@@ -179,12 +181,12 @@ export default function Signup() {
 
           <div>
             <TextField
-              label="Password"
+              label={t("signup.password")}
               name="password"
               type="password"
               icon={Lock}
               autoComplete="new-password"
-              placeholder="Create a strong password"
+              placeholder={t("signup.passwordPlaceholder")}
               value={password}
               onChange={(e) => {
                 setPassword(e.target.value);
@@ -205,7 +207,7 @@ export default function Signup() {
           />
 
           <div className="rounded-xl border border-slate-200 bg-slate-50/60 p-4">
-            <h2 className="mb-3 text-sm font-semibold text-forest">Where do you farm / work?</h2>
+            <h2 className="mb-3 text-sm font-semibold text-forest">{t("signup.whereTitle")}</h2>
             <LocationFields
               value={location}
               onChange={(next) => {
@@ -228,11 +230,11 @@ export default function Signup() {
                 className="mt-0.5 h-4 w-4 shrink-0 rounded border-slate-300 text-brand-700 focus:ring-brand-500"
               />
               <span>
-                I agree to the{" "}
+                {t("signup.termsText1")}{" "}
                 <a href="#terms" className="font-semibold text-brand-700 hover:underline">
-                  Terms of Use
+                  {t("signup.termsLink")}
                 </a>{" "}
-                and consent to my data being used to personalise agricultural advice.
+                {t("signup.termsText2")}
               </span>
             </label>
             {errors.terms && (
@@ -248,11 +250,11 @@ export default function Signup() {
             {loading ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />
-                Creating account…
+                {t("signup.submitting")}
               </>
             ) : (
               <>
-                Create free account
+                {t("signup.submit")}
                 <ArrowRight className="h-4 w-4" />
               </>
             )}
@@ -274,15 +276,15 @@ export default function Signup() {
               className="flex items-start gap-2.5 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800"
             >
               <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />
-              <p>Please fix the highlighted fields and try again.</p>
+              <p>{t("signup.errFix")}</p>
             </div>
           )}
         </form>
 
         <p className="mt-7 text-center text-sm text-slate-600">
-          Already have an account?{" "}
+          {t("signup.haveAccount")}{" "}
           <Link to="/login" className="font-semibold text-brand-700 hover:underline">
-            Sign in
+            {t("signup.signIn")}
           </Link>
         </p>
       </div>

@@ -208,10 +208,10 @@ export default function CreatorUpload() {
     return (
       <CreatorShell title="Upload Video">
         <div className="creator-card p-8 text-center">
-          <span className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-white/5 text-[#16C784]">
+          <span className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-white/5 text-[var(--cr-green)]">
             <VideoIcon className="h-6 w-6" />
           </span>
-          <p className="mt-3 text-sm font-semibold text-white">Create your channel first</p>
+          <p className="creator-heading mt-3 text-sm font-semibold">Create your channel first</p>
           <p className="mx-auto mt-1 max-w-md text-xs text-slate-400">
             Videos belong to a channel. Set up your channel name and banner, then come back here.
           </p>
@@ -240,7 +240,7 @@ export default function CreatorUpload() {
                 )}
                 <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
                   <div className="min-w-0">
-                    <p className="truncate text-[12px] font-semibold text-white">{file.name}</p>
+                    <p className="creator-heading truncate text-[12px] font-semibold">{file.name}</p>
                     <p className="text-[11px] text-slate-400">
                       {formatBytes(file.size)}
                       {duration ? ` · ${Math.floor(duration / 60)}:${String(duration % 60).padStart(2, "0")}` : ""}
@@ -266,8 +266,8 @@ export default function CreatorUpload() {
                 onClick={() => fileInput.current?.click()}
                 className="m-4 flex w-[calc(100%-2rem)] flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-white/15 bg-white/[0.02] py-12 transition hover:border-[#16C784]/50"
               >
-                <Upload className="h-7 w-7 text-[#16C784]" />
-                <span className="text-xs font-semibold text-white">Click to choose a video</span>
+                <Upload className="h-7 w-7 text-[var(--cr-green)]" />
+                <span className="creator-heading text-xs font-semibold">Click to choose a video</span>
                 <span className="text-[10px] text-slate-500">
                   MP4, WebM or MOV · up to {formatBytes(MAX_VIDEO_BYTES)}
                 </span>
@@ -463,8 +463,8 @@ export default function CreatorUpload() {
                   onClick={() => thumbInput.current?.click()}
                   className="flex w-full flex-col items-center gap-1.5 rounded-lg border-2 border-dashed border-white/15 py-8 hover:border-[#16C784]/50"
                 >
-                  <Clapperboard className="h-6 w-6 text-[#16C784]" />
-                  <span className="text-[11px] font-semibold text-white">Upload a thumbnail</span>
+                  <Clapperboard className="h-6 w-6 text-[var(--cr-green)]" />
+                  <span className="creator-heading text-[11px] font-semibold">Upload a thumbnail</span>
                   <span className="text-[10px] text-slate-500">1280×720 recommended</span>
                 </button>
               )}

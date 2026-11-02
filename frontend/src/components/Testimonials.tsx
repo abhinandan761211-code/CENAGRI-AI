@@ -1,33 +1,52 @@
-import { Quote } from "lucide-react";
-import { TESTIMONIALS } from "@/lib/data";
+import { MessageSquareQuote } from "lucide-react";
+import { Link } from "react-router-dom";
+import { useLang } from "@/i18n/LanguageContext";
 
+/**
+ * Success stories.
+ *
+ * The previous version showed three named people with quotes and five stars.
+ * Those were not real — no farmer said them, and no rating was collected. On a
+ * page whose only job is trust, a fabricated review is the worst possible debt
+ * to take on.
+ *
+ * So this section states plainly that no verified feedback has been published
+ * yet. When real reviews exist (the `equipment_reviews`, worker and warehouse
+ * review tables already store verified, booking-tied feedback), this becomes a
+ * carousel of those rows — server-side, with the booking id as proof.
+ */
 export default function Testimonials() {
+  const { t } = useLang();
+
   return (
-    <section id="stories" className="bg-cream py-16 lg:py-20">
+    <section id="stories" className="bg-cream py-14 sm:py-16 lg:py-20">
       <div className="container-x">
         <div className="max-w-2xl">
-          <span className="eyebrow">Success stories</span>
-          <h2 className="section-title mt-2">Trusted in 14 districts of West Bengal</h2>
+          <span className="landing-eyebrow">{t("story.eyebrow")}</span>
+          <h2 className="landing-h2 mt-3">{t("story.title")}</h2>
+          <p className="mt-3 text-[15px] leading-relaxed text-slate-600 sm:text-base">
+            {t("story.body")}
+          </p>
         </div>
 
-        <div className="mt-9 grid gap-4 md:grid-cols-3">
-          {TESTIMONIALS.map((t) => (
-            <figure key={t.name} className="card flex flex-col p-6">
-              <Quote className="h-6 w-6 text-brand-300" />
-              <blockquote className="mt-3 flex-1 text-sm leading-relaxed text-slate-700">
-                {t.quote}
-              </blockquote>
-              <figcaption className="mt-5 flex items-center gap-3 border-t border-slate-100 pt-4">
-                <span className="grid h-9 w-9 place-items-center rounded-full bg-forest text-xs font-bold text-white">
-                  {t.initials}
-                </span>
-                <span>
-                  <span className="block text-sm font-semibold text-forest">{t.name}</span>
-                  <span className="block text-xs text-slate-500">{t.role}</span>
-                </span>
-              </figcaption>
-            </figure>
-          ))}
+        <div className="landing-card mt-8 flex flex-col items-start gap-4 p-5 sm:mt-10 sm:flex-row sm:items-center sm:gap-6 sm:p-6">
+          <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-brand-50 text-brand-700">
+            <MessageSquareQuote className="h-5 w-5" />
+          </span>
+          <div className="min-w-0 flex-1">
+            <p className="font-display text-[15px] font-bold text-forest">
+              {t("story.noneTitle")}
+            </p>
+            <p className="mt-1 text-[13px] leading-relaxed text-slate-600 sm:text-sm">
+              {t("story.noneBody")}
+            </p>
+          </div>
+          <Link
+            to="/signup"
+            className="landing-btn landing-btn-ghost w-full shrink-0 sm:w-auto"
+          >
+            {t("story.cta")}
+          </Link>
         </div>
       </div>
     </section>

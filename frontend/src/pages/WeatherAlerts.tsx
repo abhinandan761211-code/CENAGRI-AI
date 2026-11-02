@@ -25,7 +25,7 @@ const ICONS = {
 const SEVERITY_STYLE: Record<WeatherAlert["severity"], string> = {
   high: "border-red-200 bg-red-50 text-red-800",
   medium: "border-amber-200 bg-amber-50 text-amber-900",
-  low: "border-slate-200 bg-slate-50 text-slate-700",
+  low: "border-slate-200 bg-slate-100 text-slate-200",
 };
 
 /**
@@ -78,15 +78,15 @@ export default function WeatherAlerts() {
         <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3">
           <p className="text-xs text-amber-900">
             <span className="font-bold">Weather is not configured.</span> Add{" "}
-            <code className="rounded bg-white px-1">VITE_OPENWEATHER_KEY</code> to the frontend
-            <code className="mx-1 rounded bg-white px-1">.env</code> to load live conditions.
+            <code className="rounded bg-slate-100 px-1">VITE_OPENWEATHER_KEY</code> to the frontend
+            <code className="mx-1 rounded bg-slate-100 px-1">.env</code> to load live conditions.
           </p>
         </div>
       )}
 
       {isWeatherConfigured && !district && (
-        <div className="rounded-lg border border-slate-200 bg-white px-4 py-3">
-          <p className="text-xs text-slate-600">
+        <div className="rounded-lg border border-slate-200 bg-slate-100/5 px-4 py-3">
+          <p className="text-xs text-slate-500">
             Add your state and district to your profile to see weather for your area.
           </p>
         </div>
@@ -120,7 +120,7 @@ export default function WeatherAlerts() {
                     {weather.temp}°C
                   </span>
                 </p>
-                <p className="mt-1 text-sm text-slate-600">{titleCase(weather.description)}</p>
+                <p className="mt-1 text-sm text-slate-500">{titleCase(weather.description)}</p>
               </div>
               <dl className="grid grid-cols-3 gap-4 text-center">
                 {[
@@ -131,8 +131,8 @@ export default function WeatherAlerts() {
                   const I = Icon as typeof Thermometer;
                   return (
                     <div key={label as string}>
-                      <I className="mx-auto h-4 w-4 text-brand-600" />
-                      <dt className="mt-1 text-[10px] uppercase tracking-wide text-slate-400">
+                      <I className="mx-auto h-4 w-4 text-brand-700" />
+                      <dt className="mt-1 text-[10px] uppercase tracking-wide text-slate-500">
                         {label as string}
                       </dt>
                       <dd className="text-xs font-semibold text-forest">{value as string}</dd>
@@ -148,12 +148,12 @@ export default function WeatherAlerts() {
             <h2 className="flex items-center gap-2 font-display text-lg font-bold text-forest">
               <AlertTriangle className="h-4 w-4 text-amber-600" />
               Alerts
-              <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-600">
+              <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-500">
                 {alerts.length}
               </span>
             </h2>
             {alerts.length === 0 ? (
-              <p className="mt-2 rounded-lg border border-slate-200 bg-white px-4 py-3 text-xs text-slate-500">
+              <p className="mt-2 rounded-lg border border-slate-200 bg-slate-100/5 px-4 py-3 text-xs text-slate-500">
                 No alerts for the next few days — the forecast shows nothing crossing spraying,
                 heat, cold or wind thresholds.
               </p>
@@ -165,7 +165,7 @@ export default function WeatherAlerts() {
                     className={`rounded-lg border px-4 py-3 ${SEVERITY_STYLE[alert.severity]}`}
                   >
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="rounded bg-white/70 px-1.5 py-0.5 text-[10px] font-bold uppercase">
+                      <span className="rounded bg-slate-100/70 px-1.5 py-0.5 text-[10px] font-bold uppercase">
                         {alert.severity}
                       </span>
                       <p className="text-sm font-semibold">{alert.title}</p>
@@ -178,8 +178,8 @@ export default function WeatherAlerts() {
             )}
           </section>
 
-          {/* Five-day outlook */}
-          <section>
+          {/* Five-day outlook — the target of the sidebar's "Crop Calendar" link. */}
+          <section id="calendar" className="scroll-mt-24">
             <h2 className="flex items-center gap-2 font-display text-lg font-bold text-forest">
               <CloudSun className="h-4 w-4 text-brand-700" /> Five-day outlook
             </h2>

@@ -4,31 +4,40 @@ import {
   ArrowLeft,
   BarChart3,
   Bell,
+  Bookmark,
   Clapperboard,
   Coins,
+  Compass,
   HelpCircle,
+  History,
   Home,
+  ListVideo,
+  LayoutDashboard,
   LogOut,
   Menu,
   MessageSquare,
   Radio,
   Search,
   Settings,
+  TrendingUp,
   Upload,
   User,
   Users,
   Video,
   X,
 } from "lucide-react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import type { LucideIcon } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { homeForRole } from "@/lib/roleHome";
 import {
   compactCount,
   listCreatorNotifications,
 } from "@/lib/creator";
 import type { CreatorNotification, CreatorProfile } from "@/lib/creator";
 import { useCreatorChannel } from "@/hooks/useCreatorChannel";
+// The light variant (`light`) collects its palette tokens from account.css.
+import "@/styles/account.css";
 
 /**
  * Dark, YouTube-inspired chrome for the Content Creator module.
@@ -72,20 +81,14 @@ export const CREATOR_ROUTES: Record<CreatorNavKey, string> = {
 
 /** Public (non-creator) destinations that also live in this module. */
 export const HUB_ROUTE = "/video-hub";
+/**
+ * The Create mode of the hub page. Watching and creating are one screen now,
+ * so the studio is a mode flag on the hub rather than a separate app at
+ * `/creator` (that URL redirects here — see App.tsx).
+ */
+export const STUDIO_ROUTE = `${HUB_ROUTE}?mode=create`;
 export const WATCH_ROUTE = "/watch";
 
-const NAV: { key: CreatorNavKey; label: string; icon: LucideIcon }[] = [
-  { key: "home", label: "Home", icon: Home },
-  { key: "channel", label: "My Channel", icon: User },
-  { key: "upload", label: "Upload Video", icon: Upload },
-  { key: "shorts", label: "Shorts", icon: Clapperboard },
-  { key: "live", label: "Live Streaming", icon: Radio },
-  { key: "analytics", label: "Analytics", icon: BarChart3 },
-  { key: "monetization", label: "Monetization", icon: Coins },
-  { key: "comments", label: "Comments", icon: MessageSquare },
-  { key: "messages", label: "Messages", icon: Users },
-  { key: "notifications", label: "Notifications", icon: Bell },
-];
 
 const NOTIF_ICON: Record<CreatorNotification["kind"], LucideIcon> = {
   subscriber: Users,
@@ -99,6 +102,55 @@ const NOTIF_ICON: Record<CreatorNotification["kind"], LucideIcon> = {
 
 export type ShellSearch = { label: string; keywords: string; to: string };
 
+/**
+ * The single rail used everywhere in the module.
+ *
+ * Watch and Create are two groups of one navigation, not two products. A
+ * farmer browsing the hub sees the studio entries in the same list, so
+ * "where do I upload?" is answered on the same screen as "what can I watch?".
+ * `studioOnly` marks an entry that needs the creator rail (channel, analytics
+ * and so on) — those are filtered out for the browsing rail.
+ */
+export type VideoNavItem = {
+  key: string;
+  label: string;
+  icon: LucideIcon;
+  to: string;
+  studioOnly?: boolean;
+};
+
+export const VIDEO_NAV: { group: string; items: VideoNavItem[] }[] = [
+  {
+    group: "Watch",
+    items: [
+      { key: "home", label: "Kisan Video Hub", icon: Home, to: HUB_ROUTE },
+      { key: "shorts", label: "Shorts", icon: Clapperboard, to: `${HUB_ROUTE}#shorts` },
+      { key: "following", label: "Following", icon: Users, to: `${HUB_ROUTE}?tab=following` },
+      { key: "live", label: "Live Streaming", icon: Radio, to: `${HUB_ROUTE}#live` },
+      { key: "categories", label: "Categories", icon: Compass, to: `${HUB_ROUTE}#categories` },
+      { key: "trending", label: "Trending Videos", icon: TrendingUp, to: `${HUB_ROUTE}?tab=trending` },
+      { key: "saved", label: "Saved Videos", icon: Bookmark, to: `${HUB_ROUTE}?tab=saved` },
+      { key: "history", label: "Watch History", icon: History, to: `${HUB_ROUTE}?tab=history` },
+      { key: "playlists", label: "Playlists", icon: ListVideo, to: `${HUB_ROUTE}?tab=playlists` },
+    ],
+  },
+  {
+    group: "Create",
+    items: [
+      /* The studio is the Create mode of the same hub page, not a second app. */
+      { key: "studio", label: "Creator Studio", icon: LayoutDashboard, to: STUDIO_ROUTE },
+      { key: "upload", label: "Create content", icon: Upload, to: CREATOR_ROUTES.upload },
+      { key: "channel", label: "My Videos", icon: User, to: CREATOR_ROUTES.channel },
+      { key: "analytics", label: "Analytics", icon: BarChart3, to: CREATOR_ROUTES.analytics, studioOnly: true },
+      { key: "comments", label: "Comments", icon: MessageSquare, to: CREATOR_ROUTES.comments, studioOnly: true },
+      { key: "monetization", label: "Monetization", icon: Coins, to: CREATOR_ROUTES.monetization, studioOnly: true },
+    ],
+  },
+];
+
+/** Flat list of hub destinations, used by the mobile bar and the search index. */
+export const HUB_NAV = VIDEO_NAV[0].items;
+
 export default function CreatorShell({
   title,
   subtitle,
@@ -106,6 +158,9 @@ export default function CreatorShell({
   onSearch,
   searchEntries,
   searchPlaceholder = "Search your videos…",
+  hub = false,
+  suggestions,
+  light = true,
   children,
 }: {
   title?: string;
@@ -120,11 +175,30 @@ export default function CreatorShell({
   /** Local search index used by the creator-side pages. */
   searchEntries?: ShellSearch[];
   searchPlaceholder?: string;
+  /**
+   * True while browsing (Video Hub, Shorts, Watch). The rail is the same in
+   * both modes — Watch + Create groups — the flag only decides which entries
+   * light up, whether studio-only rows such as Analytics are shown, and
+   * whether the mobile bottom bar replaces the drawer.
+   */
+  hub?: boolean;
+  /** Suggestion rows shown under the hub search box. */
+  suggestions?: ShellSearch[];
+  /**
+   * Light account palette. ON by default: the creator module now matches the
+   * Farmer / Buyer / Retailer / Worker accounts instead of being a dark island.
+   * Pass `light={false}` only for a deliberately dark surface.
+   *
+   * Every colour is driven by the `.acct-root` tokens in creator.css, so the
+   * module and the rest of the app share one palette.
+   */
+  light?: boolean;
   children: ReactNode;
 }) {
   const { user, profile, needsRole, needsDetails, signOut } = useAuth();
   const navigate = useNavigate();
   const { pathname } = useLocation();
+  const [searchParams] = useSearchParams();
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [hovered, setHovered] = useState(false);
@@ -140,12 +214,22 @@ export default function CreatorShell({
   const searchRef = useRef<HTMLDivElement | null>(null);
   const profileRef = useRef<HTMLDivElement | null>(null);
 
-  const { channel, canCreate } = useCreatorChannel();
-  const role = profile?.role;
+  const { channel, state: channelState, canCreate } = useCreatorChannel();
 
-  // Same role gate as the other dashboards; a farmer can *watch* videos but
-  // only a Content Creator reaches the studio pages.
-  const isCreator = role === "Content Creator" || Boolean(channel);
+  /** The hub page's Create tab — same URL, `?mode=create`. */
+  const studioMode = pathname === HUB_ROUTE && searchParams.get("mode") === "create";
+
+  /**
+   * Creator mode is open to EVERY account, not just the "Content Creator"
+   * role: a farmer, buyer or retailer can open a studio inside their own
+   * account, and the role only describes their primary business.
+   *
+   * Gating on the channel *state* rather than the role means an account with
+   * no channel still gets in and is shown the "create your channel" form —
+   * that form is what actually enables creator mode. Errors are excluded so a
+   * broken table does not silently present an empty studio.
+   */
+  const isCreator = channelState === "ready";
 
   useEffect(() => {
     if (!user || !isCreator) return;
@@ -174,6 +258,14 @@ export default function CreatorShell({
     };
   }, []);
 
+  /**
+   * The account this studio was opened from — a farmer goes back to the farmer
+   * dashboard, a buyer to the buyer dashboard and so on. A pure Content Creator
+   * already lives here, so they get no back button.
+   */
+  const accountHome = homeForRole(profile?.role);
+  const showBackToAccount = accountHome !== CREATOR_BASE;
+
   const displayName = channel?.channel_name ?? profile?.full_name ?? user?.email?.split("@")[0] ?? "Creator";
   const initials = displayName
     .split(" ")
@@ -184,10 +276,6 @@ export default function CreatorShell({
 
   const unread = notifications.filter((n) => !n.read_at && !seen.includes(n.id)).length;
 
-  const activeKey: CreatorNavKey | null =
-    (Object.entries(CREATOR_ROUTES).find(([, path]) => path === pathname)?.[0] as
-      | CreatorNavKey
-      | undefined) ?? null;
 
   const results = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -217,7 +305,7 @@ export default function CreatorShell({
   const railLabel = hovered ? "" : "lg:hidden";
 
   return (
-    <div className="creator-root">
+    <div className={light ? "creator-root acct-root" : "creator-root"}>
       <div className="flex min-h-screen">
         {/* Edge strip so the collapsed rail is easy to hit. */}
         <div
@@ -232,9 +320,8 @@ export default function CreatorShell({
           onMouseLeave={leave}
           onFocusCapture={enter}
           aria-label="Creator studio"
-          className={`creator-sidebar fixed inset-y-0 left-0 z-40 shrink-0 overflow-y-auto overflow-x-hidden border-r transition-[transform,width] duration-200 ease-out lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 ${
-            sidebarOpen ? "translate-x-0" : "-translate-x-full"
-          } ${hovered ? "w-64" : "w-64 lg:w-16"}`}
+          className={`creator-sidebar fixed inset-y-0 left-0 z-40 shrink-0 overflow-y-auto overflow-x-hidden border-r transition-[transform,width] duration-200 ease-out lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"
+            } ${hovered ? "w-64" : "w-64 lg:w-16"}`}
         >
           <div className="flex h-16 items-center justify-between gap-2 border-b border-white/10 px-3">
             <Link
@@ -260,29 +347,41 @@ export default function CreatorShell({
             </button>
           </div>
 
-          <nav className="space-y-1 p-2" aria-label="Creator">
-            {NAV.map(({ key, label, icon: Icon }) => {
-              const active = key === activeKey;
-              const locked = key === "live" || key === "monetization";
+          <nav className="space-y-1 p-2" aria-label="Kisan Video Hub">
+            {VIDEO_NAV.map(({ group, items }) => {
+              const shown = items.filter((item) => !item.studioOnly || !hub);
+              if (shown.length === 0) return null;
               return (
-                <Link
-                  key={key}
-                  to={CREATOR_ROUTES[key]}
-                  title={label}
-                  onClick={() => setSidebarOpen(false)}
-                  aria-current={active ? "page" : undefined}
-                  className={`creator-nav-item ${active ? "is-active" : ""} ${
-                    hovered ? "" : "lg:justify-center"
-                  }`}
-                >
-                  <Icon className="h-[18px] w-[18px] shrink-0" />
-                  <span className={`flex-1 truncate ${railLabel}`}>{label}</span>
-                  {locked && hovered && (
-                    <span className="rounded bg-white/10 px-1.5 py-0.5 text-[9px] font-bold uppercase text-slate-300">
-                      soon
-                    </span>
-                  )}
-                </Link>
+                <div key={group} className="pb-1">
+                  {/* Group headings only make sense on the expanded rail. */}
+                  <p
+                    className={`px-3 pb-1 pt-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 ${
+                      hovered ? "" : "lg:hidden"
+                    }`}
+                  >
+                    {group}
+                  </p>
+                  {shown.map(({ key, label, icon: Icon, to }) => {
+                    const active = hub
+                      ? key === "home" && !studioMode
+                      : Object.entries(CREATOR_ROUTES).find(([, path]) => path === pathname)?.[0] === key;
+                    return (
+                      <Link
+                        key={key}
+                        to={to}
+                        title={label}
+                        onClick={() => setSidebarOpen(false)}
+                        aria-current={active ? "page" : undefined}
+                        className={`creator-nav-item ${active ? "is-active" : ""} ${
+                          hovered ? "" : "lg:justify-center"
+                        }`}
+                      >
+                        <Icon className="h-[18px] w-[18px] shrink-0" />
+                        <span className={`flex-1 truncate ${railLabel}`}>{label}</span>
+                      </Link>
+                    );
+                  })}
+                </div>
               );
             })}
 
@@ -308,22 +407,38 @@ export default function CreatorShell({
               <span className={`flex-1 truncate ${railLabel}`}>Help &amp; Support</span>
             </Link>
 
-            <div className="my-2 border-t border-white/10" />
+            {!hub && (
+              <>
+                <div className="my-2 border-t border-white/10" />
+                <Link
+                  to={HUB_ROUTE}
+                  title="Browse Kisan Video Hub"
+                  onClick={() => setSidebarOpen(false)}
+                  className={`creator-nav-item ${hovered ? "" : "lg:justify-center"}`}
+                >
+                  <ArrowLeft className="h-[18px] w-[18px] shrink-0" />
+                  <span className={`flex-1 truncate ${railLabel}`}>Watch videos</span>
+                </Link>
+              </>
+            )}
 
-            <Link
-              to={HUB_ROUTE}
-              title="Kisan Video Hub"
-              onClick={() => setSidebarOpen(false)}
-              className={`creator-nav-item ${hovered ? "" : "lg:justify-center"}`}
-            >
-              <ArrowLeft className="h-[18px] w-[18px] shrink-0" />
-              <span className={`flex-1 truncate ${railLabel}`}>Kisan Video Hub</span>
-            </Link>
+            {/* Back out of the studio into the account that opened it. */}
+            {showBackToAccount && (
+              <Link
+                to={accountHome}
+                title="Back to my account"
+                onClick={() => setSidebarOpen(false)}
+                className={`creator-nav-item ${hovered ? "" : "lg:justify-center"}`}
+              >
+                <ArrowLeft className="h-[18px] w-[18px] shrink-0" />
+                <span className={`flex-1 truncate ${railLabel}`}>Back to my account</span>
+              </Link>
+            )}
           </nav>
 
           {hovered && channel && (
             <div className="px-3 pb-4">
-              <div className="rounded-xl border border-white/10 bg-white/5 p-3">
+              <div className="creator-rail-card rounded-xl p-3">
                 <p className="truncate text-[12px] font-bold text-white">{channel.channel_name}</p>
                 <p className="mt-0.5 text-[11px] text-slate-400">
                   {compactCount(channel.subscriber_count)} subscribers
@@ -359,7 +474,7 @@ export default function CreatorShell({
               </button>
 
               {(onSearch || (searchEntries && searchEntries.length > 0)) && (
-                <div ref={searchRef} className="relative hidden min-w-0 flex-1 sm:block">
+                <div ref={searchRef} className={`relative min-w-0 flex-1 ${hub ? "" : "hidden sm:block"}`}>
                   <div className="creator-search">
                     <Search className="h-4 w-4 shrink-0 text-slate-400" />
                     <input
@@ -381,6 +496,17 @@ export default function CreatorShell({
                       aria-label="Search"
                       className="w-full bg-transparent text-sm text-white outline-none placeholder:text-slate-500"
                     />
+                    <button
+                      type="button"
+                      aria-label="Search"
+                      onClick={() => {
+                        setSearchOpen(false);
+                        if (onSearch) onSearch(query);
+                      }}
+                      className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-white/10 text-slate-300 hover:text-white"
+                    >
+                      <Search className="h-3.5 w-3.5" />
+                    </button>
                     {query && (
                       <button
                         type="button"
@@ -396,7 +522,37 @@ export default function CreatorShell({
                     )}
                   </div>
 
-                  {searchOpen && !onSearch && query.trim() && results.length > 0 && (
+                  {/* Suggestions: popular searches and topics under a \
+                      focused, empty box; local matches once something is typed. */}
+                  {searchOpen && suggestions && !onSearch && (
+                    <ul className="creator-menu absolute left-0 right-0 top-full z-40 mt-1.5 max-h-80 overflow-y-auto">
+                      <li className="px-3.5 pb-1 pt-2 text-[10px] font-bold uppercase tracking-wide text-slate-500">
+                        {query.trim() ? "Matches" : "Try searching for"}
+                      </li>
+                      {(query.trim() ? results : suggestions).slice(0, 7).map((entry) => (
+                        <li key={`${entry.label}-${entry.to}`}>
+                          <Link
+                            to={entry.to}
+                            onClick={() => {
+                              setSearchOpen(false);
+                              setQuery("");
+                            }}
+                            className="flex items-center gap-2 px-3.5 py-2 text-xs font-semibold text-slate-200 hover:bg-white/10 hover:text-white"
+                          >
+                            <Search className="h-3 w-3 shrink-0 text-slate-500" />
+                            {entry.label}
+                          </Link>
+                        </li>
+                      ))}
+                      {query.trim() && results.length === 0 && (
+                        <li className="px-3.5 py-6 text-center text-[11px] text-slate-400">
+                          No suggestion for “{query.trim()}”. Press Enter to search the hub.
+                        </li>
+                      )}
+                    </ul>
+                  )}
+
+                  {searchOpen && !onSearch && !suggestions && query.trim() && results.length > 0 && (
                     <ul className="creator-menu absolute left-0 right-0 top-full z-40 mt-1.5">
                       {results.map((entry) => (
                         <li key={entry.to}>
@@ -418,15 +574,31 @@ export default function CreatorShell({
               )}
 
               <div className="ml-auto flex items-center gap-2">
-                {canCreate && (
+                {/* Way back to the account the studio was opened from, so a
+                    farmer / buyer / shop can leave the studio without hunting
+                    through the menu. Hidden on phones to keep the bar light —
+                    the drawer's "Back to my account" entry covers it there. */}
+                {showBackToAccount && (
                   <Link
-                    to={CREATOR_ROUTES.upload}
-                    className="creator-btn-primary hidden h-9 items-center gap-1.5 px-3.5 text-xs sm:inline-flex"
+                    to={accountHome}
+                    title="Back to my account"
+                    aria-label="Back to my account"
+                    className="creator-icon-btn hidden sm:inline-flex"
                   >
-                    <Upload className="h-3.5 w-3.5" />
-                    Create
+                    <ArrowLeft className="h-4 w-4" />
                   </Link>
                 )}
+
+                {/* Present in both modes: watching and publishing are the same
+                    module, so the studio is never more than one click away. */}
+                <Link
+                  to={CREATOR_ROUTES.upload}
+                  title={canCreate ? "Upload a video" : "Open a creator channel"}
+                  className="creator-btn-primary hidden h-9 items-center gap-1.5 px-3.5 text-xs sm:inline-flex"
+                >
+                  <Upload className="h-3.5 w-3.5" />
+                  Create
+                </Link>
 
                 <div className="relative">
                   <button
@@ -446,7 +618,7 @@ export default function CreatorShell({
 
                   {notifOpen && (
                     <div className="creator-menu absolute right-0 top-full z-40 mt-2 w-80">
-                      <div className="flex items-center justify-between border-b border-white/10 px-3.5 py-2.5">
+                      <div className="creator-menu-head flex items-center justify-between px-3.5 py-2.5">
                         <p className="text-xs font-bold text-white">Notifications</p>
                         <button
                           type="button"
@@ -466,14 +638,17 @@ export default function CreatorShell({
                           const Icon = NOTIF_ICON[n.kind] ?? Bell;
                           const read = Boolean(n.read_at) || seen.includes(n.id);
                           return (
-                            <li key={n.id} className={`border-b border-white/5 last:border-0 ${read ? "opacity-55" : ""}`}>
+                            <li
+                              key={n.id}
+                              className={`creator-menu-row ${read ? "opacity-55" : ""}`}
+                            >
                               <Link
                                 to={n.link ?? CREATOR_ROUTES.notifications}
                                 onClick={() => {
                                   setNotifOpen(false);
                                   setSeen((s) => [...s, n.id]);
                                 }}
-                                className="block px-3.5 py-2.5 hover:bg-white/5"
+                                className="creator-menu-row-link block px-3.5 py-2.5"
                               >
                                 <p className="flex items-center gap-1.5 text-xs font-semibold text-white">
                                   <Icon className="h-3.5 w-3.5 text-[#16C784]" />
@@ -492,7 +667,7 @@ export default function CreatorShell({
                       <Link
                         to={CREATOR_ROUTES.notifications}
                         onClick={() => setNotifOpen(false)}
-                        className="block border-t border-white/10 px-3.5 py-2 text-center text-[11px] font-semibold text-[#16C784]"
+                        className="creator-menu-foot block px-3.5 py-2 text-center text-[11px] font-semibold text-[#16C784]"
                       >
                         View all
                       </Link>
@@ -504,7 +679,7 @@ export default function CreatorShell({
                   <button
                     type="button"
                     onClick={() => setProfileOpen((v) => !v)}
-                    className="grid h-9 w-9 place-items-center overflow-hidden rounded-full bg-[#16C784] text-xs font-bold text-[#0B1020] ring-offset-2 ring-offset-[#10182A] hover:ring-2 hover:ring-[#16C784]"
+                    className="creator-avatar grid h-9 w-9 place-items-center overflow-hidden rounded-full text-xs font-bold"
                     aria-label="Creator profile"
                     aria-haspopup="menu"
                     aria-expanded={profileOpen}
@@ -518,7 +693,7 @@ export default function CreatorShell({
 
                   {profileOpen && (
                     <div role="menu" className="creator-menu absolute right-0 top-full z-40 mt-2 w-60">
-                      <div className="border-b border-white/10 px-3.5 py-3">
+                      <div className="creator-menu-head px-3.5 py-3">
                         <p className="truncate text-xs font-bold text-white">{displayName}</p>
                         <p className="truncate text-[11px] text-slate-400">
                           {profile?.email ?? user?.email}
@@ -536,6 +711,19 @@ export default function CreatorShell({
                         <User className="h-[18px] w-[18px]" />
                         My channel
                       </Link>
+                      {/* Leave the studio and go back to this account's own
+                          dashboard (farmer / buyer / shop). */}
+                      {showBackToAccount && (
+                        <Link
+                          to={accountHome}
+                          role="menuitem"
+                          onClick={() => setProfileOpen(false)}
+                          className="creator-menu-item"
+                        >
+                          <ArrowLeft className="h-[18px] w-[18px]" />
+                          Back to my account
+                        </Link>
+                      )}
                       <Link
                         to={CREATOR_ROUTES.settings}
                         role="menuitem"
@@ -552,7 +740,7 @@ export default function CreatorShell({
                           setProfileOpen(false);
                           void handleSignOut();
                         }}
-                        className="creator-menu-item border-t border-white/10 text-rose-400 hover:text-rose-300"
+                        className="creator-menu-item creator-menu-danger"
                       >
                         <LogOut className="h-[18px] w-[18px]" />
                         Sign out
@@ -564,16 +752,18 @@ export default function CreatorShell({
             </div>
           </header>
 
-          <main className="space-y-5 p-4 sm:p-6">
+          <main className={`space-y-5 p-4 sm:p-6 ${hub ? "pb-24 lg:pb-6" : ""}`}>
             {(title || subtitle || action) && (
               <div className="flex flex-wrap items-end justify-between gap-3">
                 <div className="min-w-0">
                   {title && (
-                    <h1 className="text-xl font-extrabold tracking-tight text-white sm:text-2xl">
+                    <h1 className="creator-page-title text-xl font-extrabold tracking-tight text-white sm:text-2xl">
                       {title}
                     </h1>
                   )}
-                  {subtitle && <p className="mt-0.5 text-xs text-slate-400">{subtitle}</p>}
+                  {subtitle && (
+                    <p className="creator-page-subtitle mt-0.5 text-xs text-slate-400">{subtitle}</p>
+                  )}
                 </div>
                 {action}
               </div>
@@ -582,6 +772,32 @@ export default function CreatorShell({
           </main>
         </div>
       </div>
+
+      {/* Mobile bottom bar: the four destinations a phone user reaches for
+          most. Everything else stays in the drawer behind the menu button. */}
+      {hub && (
+        <nav
+          aria-label="Kisan Video Hub"
+          className="creator-mobile-bar fixed inset-x-0 bottom-0 z-30 flex items-stretch border-t lg:hidden"
+        >
+          {[
+            { to: HUB_ROUTE, label: "Home", icon: Home },
+            { to: `/video-hub#shorts`, label: "Shorts", icon: Clapperboard },
+            { to: `/video-hub#live`, label: "Live", icon: Radio },
+            { to: `/video-hub?tab=saved`, label: "Saved", icon: Bookmark },
+            { to: CREATOR_BASE, label: "Studio", icon: User },
+          ].map(({ to, label, icon: Icon }) => (
+            <Link
+              key={label}
+              to={to}
+              className="creator-mobile-tab flex flex-1 flex-col items-center gap-0.5 py-2 text-[10px] font-semibold"
+            >
+              <Icon className="h-[18px] w-[18px]" />
+              {label}
+            </Link>
+          ))}
+        </nav>
+      )}
     </div>
   );
 }
@@ -601,10 +817,10 @@ export function CreatorStat({
   tone?: "green" | "teal" | "violet" | "amber";
 }) {
   const tones = {
-    green: "text-[#16C784] bg-[#16C784]/10",
-    teal: "text-[#2ED3B7] bg-[#2ED3B7]/10",
-    violet: "text-violet-300 bg-violet-400/10",
-    amber: "text-amber-300 bg-amber-400/10",
+    green: "creator-stat-green",
+    teal: "creator-stat-teal",
+    violet: "creator-stat-violet",
+    amber: "creator-stat-amber",
   } as const;
 
   return (
@@ -615,7 +831,7 @@ export function CreatorStat({
           <Icon className="h-4 w-4" />
         </span>
       </div>
-      <p className="mt-2 text-2xl font-extrabold tracking-tight text-white">{value}</p>
+      <p className="creator-stat-value mt-2 text-2xl font-extrabold tracking-tight">{value}</p>
       {hint && <p className="mt-0.5 text-[11px] text-slate-400">{hint}</p>}
     </div>
   );
@@ -635,9 +851,9 @@ export function CreatorSection({
 }) {
   return (
     <section className="creator-card overflow-hidden">
-      <div className="flex flex-wrap items-start justify-between gap-2 border-b border-white/10 px-4 py-3">
+      <div className="creator-section-head flex flex-wrap items-start justify-between gap-2 px-4 py-3">
         <div>
-          <h2 className="text-sm font-bold text-white">{title}</h2>
+          <h2 className="creator-section-title text-sm font-bold">{title}</h2>
           {description && <p className="mt-0.5 text-[11px] text-slate-400">{description}</p>}
         </div>
         {action}

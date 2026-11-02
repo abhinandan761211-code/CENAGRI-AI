@@ -15,7 +15,7 @@ import CreatorShell, {
   CreatorSection,
   CreatorStat,
 } from "@/components/creator/CreatorShell";
-import { TrendChart } from "@/pages/creator/CreatorHome";
+import { TrendChart } from "@/components/creator/CreatorHomePanel";
 import { useCreatorChannel } from "@/hooks/useCreatorChannel";
 import { useRetailerData } from "@/hooks/useRetailerData";
 import {
@@ -173,7 +173,7 @@ export default function CreatorAnalytics() {
                       {index + 1}
                     </span>
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-[13px] font-semibold text-white">{video.title}</p>
+                      <p className="creator-heading truncate text-[13px] font-semibold">{video.title}</p>
                       <p className="text-[11px] text-slate-400">
                         {compactCount(video.view_count)} views · {compactCount(video.like_count)} likes ·{" "}
                         {compactCount(video.comment_count)} comments

@@ -1,26 +1,31 @@
 /* ───────────────────────────────────────────────────────────────────────────
    Creator / Kisan Video Hub theme.
 
-   A dark media-platform palette, isolated from the light farmer/retailer
-   dashboards. Scoped under `.creator-root` so importing this file never changes
-   another screen. Colours come from the brief:
-     background #0B1020 · sidebar #10182A · cards #151F32
-     primary green #16C784 · teal #2ED3B7
+   Uses the SAME light account palette as the Farmer, Buyer, Retailer and
+   Worker dashboards, so switching accounts never changes the visual language.
+   Scoped under `.creator-root` so importing this file never touches another
+   screen:
+     background #F8FAFC · sidebar/cards #FFFFFF · line #E2E8F0
+     text #172033 · brand green #16A34A · deep green #0F3D2E
    ─────────────────────────────────────────────────────────────────────────── */
-
 .creator-root {
-  --cr-bg: #0b1020;
-  --cr-sidebar: #10182a;
-  --cr-card: #151f32;
-  --cr-card-hover: #1b2740;
-  --cr-border: rgba(255, 255, 255, 0.08);
-  --cr-green: #16c784;
-  --cr-teal: #2ed3b7;
+  /* Palette tokens. The dark variant (`<CreatorShell light={false}>`) swaps
+     these back below, so every `var(--cr-…)` rule works in both modes. */
+  --cr-bg: #f8fafc;
+  --cr-sidebar: #ffffff;
+  --cr-card: #ffffff;
+  --cr-card-hover: #f1f5f9;
+  --cr-border: #e2e8f0;
+  --cr-green: #16a34a;
+  --cr-teal: #0f766e;
+  --cr-ink: #172033;
+  --cr-muted: #64748b;
+  --cr-deep: #0f3d2e;
 
   min-height: 100vh;
   background: var(--cr-bg);
-  color: #ffffff;
-  color-scheme: dark;
+  color: var(--cr-ink);
+  color-scheme: light;
 }
 
 /* ── Surfaces ───────────────────────────────────────────────────────────── */
@@ -32,7 +37,7 @@
 }
 
 .creator-header {
-  background: rgba(11, 16, 32, 0.92);
+  background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--cr-border);
 }
@@ -49,9 +54,10 @@
     border-color 0.15s ease,
     transform 0.15s ease;
 }
+
 .creator-card-hover:hover {
   background: var(--cr-card-hover);
-  border-color: rgba(22, 199, 132, 0.35);
+  border-color: color-mix(in srgb, var(--cr-green) 35%, transparent);
   transform: translateY(-2px);
 }
 
@@ -66,18 +72,20 @@
   padding: 0.5rem 0.75rem;
   font-size: 13px;
   font-weight: 500;
-  color: #cbd5e1;
+  color: #334155;
   transition:
     background-color 0.15s ease,
     color 0.15s ease;
 }
+
 .creator-nav-item:hover {
-  background: rgba(255, 255, 255, 0.07);
-  color: #ffffff;
+  background: #f1f5f9;
+  color: var(--cr-deep);
 }
+
 .creator-nav-item.is-active {
-  background: var(--cr-green);
-  color: #0b1020;
+  background: #dcfce7;
+  color: #15803d;
   font-weight: 700;
 }
 
@@ -89,13 +97,15 @@
   gap: 0.5rem;
   border-radius: 0.5rem;
   border: 1px solid var(--cr-border);
-  background: rgba(255, 255, 255, 0.05);
+  background: #f8fafc;
   padding: 0.5rem 0.75rem;
   transition: border-color 0.15s ease;
 }
+
 .creator-search:focus-within {
   border-color: var(--cr-green);
-  background: rgba(255, 255, 255, 0.08);
+  background: #ffffff;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--cr-green) 12%, transparent);
 }
 
 .creator-icon-btn {
@@ -106,12 +116,14 @@
   place-items: center;
   border-radius: 9999px;
   border: 1px solid var(--cr-border);
-  color: #cbd5e1;
+  color: #475569;
+  background: #ffffff;
   transition: background-color 0.15s ease;
 }
+
 .creator-icon-btn:hover {
-  background: rgba(255, 255, 255, 0.08);
-  color: #ffffff;
+  background: #f1f5f9;
+  color: var(--cr-deep);
 }
 
 .creator-btn-primary {
@@ -122,12 +134,15 @@
   border-radius: 0.5rem;
   background: var(--cr-green);
   font-weight: 700;
-  color: #0b1020;
+  color: #ffffff;
+  box-shadow: 0 1px 2px rgba(15, 61, 46, 0.18);
   transition: filter 0.15s ease;
 }
+
 .creator-btn-primary:hover {
-  filter: brightness(1.08);
+  filter: brightness(0.94);
 }
+
 .creator-btn-primary:disabled {
   opacity: 0.55;
   cursor: not-allowed;
@@ -140,13 +155,16 @@
   gap: 0.375rem;
   border-radius: 0.5rem;
   border: 1px solid var(--cr-border);
+  background: #ffffff;
   font-weight: 600;
-  color: #e2e8f0;
+  color: #334155;
   transition: background-color 0.15s ease;
 }
+
 .creator-btn-ghost:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: #f1f5f9;
 }
+
 .creator-btn-ghost:disabled {
   opacity: 0.5;
   cursor: not-allowed;
@@ -158,24 +176,26 @@
   gap: 0.375rem;
   border-radius: 9999px;
   border: 1px solid var(--cr-border);
-  background: rgba(255, 255, 255, 0.05);
+  background: #ffffff;
   padding: 0.375rem 0.75rem;
   font-size: 11px;
   font-weight: 600;
-  color: #cbd5e1;
+  color: #334155;
   transition:
     background-color 0.15s ease,
     color 0.15s ease;
   white-space: nowrap;
 }
+
 .creator-chip:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: #ffffff;
+  background: #f1f5f9;
+  color: var(--cr-deep);
 }
+
 .creator-chip.is-active {
-  background: #ffffff;
-  color: #0b1020;
-  border-color: #ffffff;
+  background: var(--cr-green);
+  color: #ffffff;
+  border-color: var(--cr-green);
 }
 
 /* ── Menus ──────────────────────────────────────────────────────────────── */
@@ -184,8 +204,8 @@
   overflow: hidden;
   border-radius: 0.75rem;
   border: 1px solid var(--cr-border);
-  background: #121a2c;
-  box-shadow: 0 18px 48px -12px rgba(0, 0, 0, 0.7);
+  background: #ffffff;
+  box-shadow: 0 18px 48px -12px rgba(15, 23, 42, 0.22);
 }
 
 .creator-menu-item {
@@ -197,12 +217,13 @@
   text-align: left;
   font-size: 13px;
   font-weight: 500;
-  color: #cbd5e1;
+  color: #334155;
   transition: background-color 0.15s ease;
 }
+
 .creator-menu-item:hover {
-  background: rgba(255, 255, 255, 0.07);
-  color: #ffffff;
+  background: #f1f5f9;
+  color: var(--cr-deep);
 }
 
 /* ── Form controls ──────────────────────────────────────────────────────── */
@@ -211,27 +232,31 @@
   width: 100%;
   border-radius: 0.5rem;
   border: 1px solid var(--cr-border);
-  background: rgba(255, 255, 255, 0.05);
+  background: #ffffff;
   padding: 0.5rem 0.75rem;
   font-size: 0.875rem;
-  color: #ffffff;
+  color: var(--cr-ink);
   outline: none;
   transition: border-color 0.15s ease;
 }
+
 .creator-input::placeholder {
   color: #64748b;
 }
+
 .creator-input:focus {
   border-color: var(--cr-green);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--cr-green) 12%, transparent);
 }
+
 .creator-input:disabled {
   opacity: 0.55;
 }
 
-/* Selects need the option list to stay readable on dark. */
+/* Selects: options inherit the page palette rather than the OS default. */
 .creator-input option {
-  background: #121a2c;
-  color: #ffffff;
+  background: #ffffff;
+  color: var(--cr-ink);
 }
 
 /* ── Scrollbars ─────────────────────────────────────────────────────────── */
@@ -240,10 +265,12 @@
   width: 8px;
   height: 8px;
 }
+
 .creator-root *::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.15);
+  background: #cbd5e1;
   border-radius: 9999px;
 }
+
 .creator-root *::-webkit-scrollbar-track {
   background: transparent;
 }
@@ -255,10 +282,380 @@
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
+
 .shorts-scroller::-webkit-scrollbar {
   display: none;
 }
+
 .shorts-slide {
   scroll-snap-align: start;
   scroll-snap-stop: always;
+}
+/* ── Light variant ──────────────────────────────────────────────────────────
+   `<CreatorShell light>` adds `.acct-root`, so the studio can sit inside a
+   farmer / buyer / Shop account without a dark island. creator.css keeps its
+   dark rules untouched; these override the ones that were written with literal
+   colours instead of `var(--cr-…)`. */
+.creator-root.acct-root {
+  color: #1e293b;
+  color-scheme: light;
+}
+
+.creator-root.acct-root .creator-nav-item {
+  background: transparent;
+  color: #334155;
+}
+
+.creator-root.acct-root .creator-search,
+.creator-root.acct-root .creator-icon-btn {
+  background: #ffffff;
+  border-color: #e2e8f0;
+  color: #64748b;
+}
+
+.creator-root.acct-root .creator-search:focus-within,
+.creator-root.acct-root .creator-icon-btn:hover {
+  background: #f8fafc;
+  color: #0f172a;
+}
+
+.creator-root.acct-root .creator-menu {
+  background: #ffffff;
+  border-color: #e2e8f0;
+  box-shadow: 0 18px 48px -12px rgba(15, 23, 42, 0.25);
+}
+
+.creator-root.acct-root .creator-btn-ghost:hover {
+  background: #f0fdf4;
+}
+
+.creator-root.acct-root .creator-nav-item:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+.creator-root.acct-root .creator-nav-item.is-active {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.creator-root.acct-root .creator-sidebar {
+  background: #ffffff;
+  border-color: #e2e8f0;
+  color: #0f172a;
+}
+
+/* Icons on the collapsed rail: slate at rest, brand green on the active item.
+   They inherit `currentColor`, so each state has to set it explicitly here —
+   with `is-active` repeated so the shared white-text mapping cannot win. */
+.creator-root.acct-root .creator-nav-item svg {
+  color: #64748b;
+}
+
+.creator-root.acct-root .creator-nav-item:hover svg {
+  color: #0f172a;
+}
+
+.creator-root.acct-root .creator-nav-item.is-active svg,
+.creator-root.acct-root .creator-nav-item.is-active:hover svg {
+  color: #15803d;
+}
+
+/* Page title / subtitle sit outside any card, where the light palette would
+   otherwise leave the studio's `text-white` headings white on cream. */
+.creator-root.acct-root .creator-page-title {
+  color: #0f172a;
+}
+
+.creator-root.acct-root .creator-page-subtitle {
+  color: #64748b;
+}
+
+.creator-root.acct-root .creator-header {
+  color: #0f172a;
+}
+
+.creator-root.acct-root .creator-chip:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+.creator-root.acct-root .creator-chip.is-active {
+  background: #15803d;
+  border-color: #15803d;
+  color: #ffffff;
+}
+
+.creator-root.acct-root .creator-btn-primary {
+  color: #ffffff;
+}
+
+.creator-root.acct-root .creator-btn-ghost {
+  color: #15803d;
+}
+
+.creator-root.acct-root .creator-menu-item {
+  color: #334155;
+}
+
+.creator-root.acct-root .creator-menu-item:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+.creator-root.acct-root .creator-input {
+  background: #ffffff;
+  border-color: #e2e8f0;
+  color: #0f172a;
+}
+
+.creator-root.acct-root .creator-input option {
+  background: #ffffff;
+  color: #0f172a;
+}
+
+.creator-root.acct-root *::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+}
+
+/* ── Dark-mode utility remap ────────────────────────────────────────────────
+   The module's components were written against a dark palette and use
+   utilities such as `text-white`, `text-slate-400` and `bg-white/5` inline.
+   Rewriting 250 class names across 15 files would be fragile, so the light
+   theme maps those utilities inside `.creator-root` exactly as account.css
+   does for its own pages.
+
+   Scoped to `.creator-root` — nothing outside the creator module changes.
+   `.dark-surface` is the opt-out for genuinely dark islands (the video
+   player, Shorts stage), where white text must stay white. */
+
+.creator-root {
+  --tw-dark-on: 1;
+}
+
+/* Text */
+.creator-root :where(.text-white) {
+  color: var(--cr-ink);
+}
+.creator-root :where(.text-slate-200, .text-slate-300) {
+  color: #334155;
+}
+.creator-root :where(.text-slate-400) {
+  color: var(--cr-muted);
+}
+.creator-root :where(.text-slate-500) {
+  color: #94a3b8;
+}
+.creator-root :where(.text-slate-600, .text-slate-700) {
+  color: #cbd5e1;
+}
+
+/* Surfaces written as translucent white, which is invisible on white. */
+.creator-root :where([class*="bg-white/5"], [class*="bg-white/[0.05]"], [class*="bg-white/[0.06]"]) {
+  background-color: #f1f5f9;
+}
+.creator-root :where([class*="bg-white/10"], [class*="hover:bg-white/10"]) {
+  background-color: #e2e8f0;
+}
+.creator-root :where([class*="bg-white/[0.02]"], [class*="bg-white/[0.06]"]) {
+  background-color: #f8fafc;
+}
+.creator-root :where([class*="border-white/10"], [class*="border-white/15"], [class*="border-white/20"]) {
+  border-color: var(--cr-border);
+}
+.creator-root :where([class*="divide-white/5"], [class*="divide-white/10"]) > * + * {
+  border-color: var(--cr-border);
+}
+
+/* Brand green: the old neon #16C784 is replaced by the account green. */
+.creator-root :where([class*="text-[#16C784]"], [class*="text-[#2ED3B7]"]) {
+  color: var(--cr-green);
+}
+.creator-root :where([class*="bg-[#16C784]"], [class*="bg-[#2ED3B7]"]) {
+  background-color: var(--cr-green);
+}
+.creator-root :where([class*="border-[#16C784]"], [class*="border-[#2ED3B7]"]) {
+  border-color: var(--cr-green);
+}
+.creator-root :where([class*="bg-[#151F32]"], [class*="bg-[#151f32]"]) {
+  background-color: #f1f5f9;
+}
+.creator-root :where([class*="ring-offset-[#10182A]"]) {
+  --tw-ring-offset-color: #ffffff;
+}
+
+/* Accent text that assumed a dark background. */
+.creator-root :where(.text-rose-300) {
+  color: #e11d48;
+}
+.creator-root :where(.text-amber-300) {
+  color: #b45309;
+}
+.creator-root :where(.text-emerald-300) {
+  color: #047857;
+}
+
+/* ── Opt-out ───────────────────────────────────────────────────────────────
+   Video and Shorts players sit on black by design. Everything inside keeps
+   the dark values so overlays stay legible. These rules are repeated at the end
+   of the file as well: they must win over every light-palette mapping. */
+
+/* ── Light-palette pieces ───────────────────────────────────────────────────
+   The chrome below was written against the old dark palette with literal
+   colours (`border-white/10`, `text-rose-400`, `text-[#16C784]`). Those classes
+   are invisible or illegible on a white surface, so each one gets a named class
+   here and the palette lives in this file instead of inline. Everything below
+   reads `var(--cr-…)`, so it follows the theme without a second override set. */
+
+/* Account avatar chip in the header. */
+.creator-avatar {
+  background: var(--cr-green);
+  color: #ffffff;
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--cr-green) 35%, transparent);
+  transition: box-shadow 0.15s ease;
+}
+
+.creator-avatar:hover {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--cr-green) 25%, transparent);
+}
+
+/* Menu internals: header strip, rows and footer link. */
+.creator-menu-head {
+  border-bottom: 1px solid var(--cr-border);
+}
+
+.creator-menu-row {
+  border-bottom: 1px solid var(--cr-border);
+}
+
+.creator-menu-row:last-child {
+  border-bottom: 0;
+}
+
+.creator-menu-row-link:hover {
+  background: var(--cr-card-hover);
+}
+
+.creator-menu-foot {
+  border-top: 1px solid var(--cr-border);
+  color: var(--cr-green);
+}
+
+.creator-menu-foot:hover {
+  background: color-mix(in srgb, var(--cr-green) 8%, transparent);
+}
+
+/* Destructive row (sign out): rose on any palette. */
+.creator-menu-danger {
+  color: #e11d48;
+}
+
+.creator-menu-danger:hover {
+  background: rgba(225, 29, 72, 0.08);
+  color: #be123c;
+}
+
+/* Channel summary in the expanded sidebar. */
+.creator-rail-card {
+  border: 1px solid var(--cr-border);
+  background: var(--cr-card-hover);
+}
+
+/* Mobile bottom bar. */
+.creator-mobile-bar {
+  border-color: var(--cr-border);
+  background: color-mix(in srgb, var(--cr-sidebar) 95%, transparent);
+  backdrop-filter: blur(10px);
+}
+
+.creator-mobile-tab {
+  color: var(--cr-muted);
+  transition: color 0.15s ease;
+}
+
+.creator-mobile-tab:hover,
+.creator-mobile-tab:focus-visible {
+  color: var(--cr-green);
+}
+
+/* Stat tiles: value and the four icon tones. */
+.creator-stat-value {
+  color: var(--cr-ink);
+}
+
+.creator-stat-green {
+  color: var(--cr-green);
+  background: color-mix(in srgb, var(--cr-green) 12%, transparent);
+}
+
+.creator-stat-teal {
+  color: var(--cr-teal);
+  background: color-mix(in srgb, var(--cr-teal) 12%, transparent);
+}
+
+.creator-stat-violet {
+  color: #7c3aed;
+  background: rgba(124, 58, 237, 0.1);
+}
+
+.creator-stat-amber {
+  color: #b45309;
+  background: rgba(180, 83, 9, 0.1);
+}
+
+/* Card section header: title on white, description under it. */
+.creator-section-head {
+  border-bottom: 1px solid var(--cr-border);
+}
+
+.creator-section-title {
+  color: var(--cr-ink);
+}
+
+/* Standalone headings inside a page (channel name, video titles on a card). */
+.creator-heading {
+  color: var(--cr-ink);
+}
+
+/* Follow button / link that turns brand green on hover. */
+.creator-link-green {
+  color: var(--cr-green);
+}
+
+.creator-link-green:hover {
+  text-decoration: underline;
+}
+/* ── Opt-out (kept last so it always wins) ───────────────────────────────────
+   Video and Shorts players sit on black by design. Everything inside keeps the
+   dark values so overlays stay legible. */
+.creator-root :where(.dark-surface) .text-white,
+.creator-root :where(.dark-surface).text-white {
+  color: #ffffff;
+}
+.creator-root :where(.dark-surface) :where(.text-slate-200, .text-slate-300) {
+  color: #cbd5e1;
+}
+.creator-root :where(.dark-surface) :where(.text-slate-400) {
+  color: #94a3b8;
+}
+/* Thumbnail surface and the row hover used by feed cards. */
+.creator-thumb {
+  background: var(--cr-card-hover);
+}
+
+.creator-row-link {
+  transition: background-color 0.15s ease;
+}
+
+.creator-row-link:hover {
+  background: var(--cr-card-hover);
+}
+/* Channel banner: branded gradient when no image is uploaded. */
+.creator-banner {
+  background: linear-gradient(
+    120deg,
+    color-mix(in srgb, var(--cr-green) 28%, #ffffff),
+    color-mix(in srgb, var(--cr-teal) 18%, #ffffff) 55%,
+    #f8fafc
+  );
 }

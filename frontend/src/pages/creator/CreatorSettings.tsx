@@ -300,7 +300,7 @@ export default function CreatorSettings() {
           <CreatorSection title="Account">
             <div className="p-4 text-[11px] leading-relaxed text-slate-400">
               Signed in as{" "}
-              <span className="font-semibold text-white">{profile?.email ?? user?.email}</span>
+              <span className="creator-heading font-semibold">{profile?.email ?? user?.email}</span>
               {profile?.role && <> · role: {profile.role}</>}
             </div>
           </CreatorSection>

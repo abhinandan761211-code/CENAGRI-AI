@@ -1,6 +1,8 @@
 import { Boxes, CalendarDays, Snowflake, Thermometer, Warehouse } from "lucide-react";
 import { FeatureShell } from "@/components/farm/FeatureShell";
 import { FarmerSection, FarmerStats } from "@/components/farm/FarmerShell";
+import { SchemaBanner } from "@/components/farm/SchemaBanner";
+import { useTableExists } from "@/lib/schemaCheck";
 
 /**
  * Storage & Warehouse — demo preview.
@@ -10,6 +12,8 @@ import { FarmerSection, FarmerStats } from "@/components/farm/FarmerShell";
  * put a farmer's crop at risk when it turned out to be full.
  */
 export default function StorageWarehouse() {
+  const schema = useTableExists("warehouses");
+
   return (
     <FeatureShell
       title="Storage & Warehouse"
@@ -17,6 +21,10 @@ export default function StorageWarehouse() {
       demo
       demoNote="Warehouse space and bookings need the `warehouses` and `storage_bookings` tables (in database/supabase/features.sql). Free capacity is never estimated here: an invented 'space available' could spoil a crop when the store turns out to be full."
     >
+      {schema.exists === false && (
+        <SchemaBanner file={schema.file} tables={["warehouses", "storage_bookings"]} />
+      )}
+
       <FarmerStats
         items={[
           { label: "Stores nearby", value: "0", icon: Warehouse, hint: "None listed in your district" },
@@ -56,7 +64,7 @@ export default function StorageWarehouse() {
       </FarmerSection>
 
       <FarmerSection title="Before you store" description="What a booking needs" icon={Boxes}>
-        <ul className="divide-y divide-slate-100">
+        <ul className="divide-y divide-white/10">
           {[
             ["Quantity and crop", "Storage is priced per quintal per month, so the weight and crop decide the cost."],
             ["Start and end date", "Most godowns book by the month. Cold storage often runs until you sell."],

@@ -117,7 +117,7 @@ export default function CreatorComments() {
 
                 <div className="min-w-0 flex-1">
                   <p className="text-[11px] text-slate-400">
-                    <span className="font-semibold text-white">{row.author_name}</span> ·{" "}
+                    <span className="creator-heading font-semibold">{row.author_name}</span> ·{" "}
                     {timeAgo(row.created_at)} · on{" "}
                     <Link to={`/watch/${row.video_id}`} className="text-[#16C784] hover:underline">
                       {row.video_title}

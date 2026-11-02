@@ -1,62 +1,76 @@
 import type { Feature, NavItem, Role, VideoCard } from "@/types";
 
+/** Header links. `id` is the section each link scrolls to on this page. */
 export const NAV_ITEMS: NavItem[] = [
   { label: "Home", href: "#home", active: true },
-  { label: "How It Works", href: "#how-it-works" },
-  { label: "Solutions", href: "#solutions" },
+  { label: "Modules", href: "#solutions" },
+  { label: "AI", href: "#ai" },
   { label: "For Whom", href: "#for-whom" },
-  { label: "Success Stories", href: "#stories" },
-  { label: "Resources", href: "#resources" },
+  { label: "How It Works", href: "#how-it-works" },
+  { label: "Videos", href: "#resources" },
+  { label: "FAQ", href: "#faq" },
 ];
 
+/**
+ * The account types the platform actually supports. `signupRole` is the value
+ * the signup form expects, so the card can skip the "pick your role" step.
+ */
 export const ROLES: Role[] = [
   {
     title: "Farmer",
-    description: "Get crop advice, weather alerts and market prices in Bengali — right on your phone.",
+    description: "Crop advice, weather alerts, mandi prices and buyers — in your own language.",
     image: "/images/role-farmer.jpg",
-    href: "#for-farmer",
+    href: "/signup?role=Farmer",
+    signupRole: "Farmer",
   },
   {
     title: "Buyer",
-    description: "Source fresh produce directly from verified farms with transparent pricing.",
+    description: "Source graded produce straight from verified farms, with agreed prices.",
     image: "/images/role-buyer.jpg",
-    href: "#for-buyer",
+    href: "/signup?role=Buyer",
+    signupRole: "Buyer",
   },
   {
     title: "Shop / Retailer",
-    description: "Keep shelves stocked with in-season produce and set competitive retail prices.",
+    description: "Keep shelves stocked with in-season produce and track your margins.",
     image: "/images/role-shop.jpg",
-    href: "#for-shop",
+    href: "/signup?role=Retailer",
+    signupRole: "Retailer",
   },
   {
     title: "Worker / Labour",
-    description: "Find farm work nearby, negotiate fair wages and build a verified work record.",
+    description: "Find farm work nearby, agree a fair wage and build a verified work record.",
     image: "/images/role-worker.jpg",
-    href: "#for-worker",
+    href: "/signup?role=Worker",
+    signupRole: "Worker",
   },
   {
     title: "Equipment Owner",
     description: "Rent out tractors, pumps and harvesters to farmers who need them today.",
     image: "/images/role-equipment.jpg",
-    href: "#for-equipment",
+    href: "/signup?role=Equipment",
+    signupRole: "Equipment",
   },
   {
     title: "Transporter",
     description: "Match your vehicle with farm loads and get paid per trip, on time.",
     image: "/images/role-transporter.jpg",
-    href: "#for-transporter",
+    href: "/signup?role=Transporter",
+    signupRole: "Transporter",
   },
   {
     title: "Warehouse",
-    description: "List cold storage and godown space with live occupancy and booking.",
+    description: "List cold storage and godown space with live occupancy and bookings.",
     image: "/images/role-warehouse.jpg",
-    href: "#for-warehouse",
+    href: "/signup?role=Warehouse",
+    signupRole: "Warehouse",
   },
   {
     title: "Content Creator",
-    description: "Share farming knowledge and earn from content that reaches real growers.",
+    description: "Share farming knowledge on Kisan Video Hub and earn from what you teach.",
     image: "/images/role-creator.jpg",
-    href: "#for-creator",
+    href: "/signup?role=Content%20Creator",
+    signupRole: "Content Creator",
   },
 ];
 
@@ -71,13 +85,13 @@ export const WHY_CHOOSE: Feature[] = [
     icon: "chat",
     title: "Works in Bengali",
     description:
-      "Ask questions in your own language, by voice or text, and get answers a farmer can act on.",
+      "Ask a question in your own language and get an answer a farmer can act on. Bengali, Hindi and English.",
   },
   {
     icon: "shield",
     title: "Trusted Data",
     description:
-      "Powered by ICAR advisories, IMD weather feeds and verified mandi price sources.",
+      "Built on IMD weather feeds, ICAR advisories and verified mandi price sources.",
   },
   {
     icon: "logo",
@@ -94,26 +108,7 @@ export const VIDEOS: VideoCard[] = [
   { title: "Weather alerts explained", duration: "02:47", image: "/images/video-4.jpg" },
 ];
 
-export const TESTIMONIALS = [
-  {
-    quote:
-      "আগে বাজারে দাম জানতে অনেক দূর যেতে হতো। এখন CenAGRI-AI থেকে প্রতিদিন সকালে পাই দাম আর পরামর্শ।",
-    name: "Anil Mondal",
-    role: "Paddy farmer, Bardhaman",
-    initials: "AM",
-  },
-  {
-    quote:
-      "We source tomatoes from 40 farms through the platform now. Quality grading and payments are predictable.",
-    name: "Priya Sharma",
-    role: "Fresh produce buyer, Kolkata",
-    initials: "PS",
-  },
-  {
-    quote:
-      "Equipment rental used to be word of mouth. Now I book a harvester in minutes and rates are fixed upfront.",
-    name: "Gopal Das",
-    role: "Farmer, Nadia district",
-    initials: "GD",
-  },
-];
+// The landing page used to export a `TESTIMONIALS` array here with three named
+// people and five-star ratings. None of it was real. It has been deleted rather
+// than left unused, so it cannot be re-imported by accident. Real reviews live
+// against real bookings in the database and are published only with consent.

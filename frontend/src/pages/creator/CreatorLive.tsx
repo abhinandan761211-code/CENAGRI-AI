@@ -33,7 +33,7 @@ export default function CreatorLive() {
                 {index + 1}
               </span>
               <div>
-                <p className="text-[13px] font-semibold text-white">{title}</p>
+                <p className="creator-heading text-[13px] font-semibold">{title}</p>
                 <p className="mt-0.5 text-[11px] leading-relaxed text-slate-400">{body}</p>
               </div>
             </li>
@@ -48,7 +48,7 @@ export default function CreatorLive() {
           </span>
           <div>
             <p className="text-[11px] uppercase tracking-wide text-slate-500">Broadcast</p>
-            <p className="text-sm font-bold text-slate-300">Not available</p>
+            <p className="creator-heading text-sm font-bold">Not available</p>
           </div>
         </div>
         <div className="creator-card flex items-center gap-3 p-4">
@@ -57,7 +57,7 @@ export default function CreatorLive() {
           </span>
           <div>
             <p className="text-[11px] uppercase tracking-wide text-slate-500">Live viewers</p>
-            <p className="text-sm font-bold text-slate-300">—</p>
+            <p className="creator-heading text-sm font-bold">—</p>
           </div>
         </div>
       </div>

@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { MapPin } from "lucide-react";
 import { blocksOf, districtsOf, hasBlockList, STATE_NAMES } from "@/lib/locations";
+import { useLang } from "@/i18n/LanguageContext";
 
 export type LocationValue = {
   state: string;
@@ -25,7 +26,7 @@ type Props = {
   errors?: Partial<Record<keyof LocationValue, string>>;
   /** Show the state select (off when a flow is state-agnostic). */
   showState?: boolean;
-  /** Label for the third level. Defaults to "Village / Block". */
+  /** Label for the third level. Defaults to the translated "Village / Block". */
   villageLabel?: string;
   required?: { state?: boolean; district?: boolean; village?: boolean };
 };
@@ -43,9 +44,11 @@ export default function LocationFields({
   onChange,
   errors = {},
   showState = true,
-  villageLabel = "Village / Block",
+  villageLabel,
   required = { state: true, district: true, village: true },
 }: Props) {
+  const { t } = useLang();
+  const villageLabelText = villageLabel ?? t("loc.village");
   const districts = useMemo(() => districtsOf(value.state), [value.state]);
   const blocks = useMemo(() => blocksOf(value.state, value.district), [value.state, value.district]);
 
@@ -65,14 +68,14 @@ export default function LocationFields({
   }
 
   const requiredMark = (flag?: boolean) =>
-    flag ? null : <span className="ml-1 font-normal text-slate-400">(optional)</span>;
+    flag ? null : <span className="ml-1 font-normal text-slate-400">{t("loc.optional")}</span>;
 
   return (
     <div className="space-y-4">
       {showState && (
         <div>
           <label htmlFor="loc-state" className={labelClass}>
-            State
+            {t("loc.state")}
             {requiredMark(required.state)}
           </label>
           <select
@@ -84,22 +87,22 @@ export default function LocationFields({
             aria-invalid={!!errors.state}
             className={fieldClass(errors.state)}
           >
-            <option value="">Select state / UT…</option>
-            <optgroup label="Serving now">
+            <option value="">{t("loc.selectState")}</option>
+            <optgroup label={t("loc.groupLaunch")}>
               {STATE_NAMES.launch.map((state) => (
                 <option key={state} value={state}>
                   {state}
                 </option>
               ))}
             </optgroup>
-            <optgroup label="All states">
+            <optgroup label={t("loc.groupAll")}>
               {STATE_NAMES.states.map((state) => (
                 <option key={state} value={state}>
                   {state}
                 </option>
               ))}
             </optgroup>
-            <optgroup label="Union territories">
+            <optgroup label={t("loc.groupUT")}>
               {STATE_NAMES.unionTerritories.map((state) => (
                 <option key={state} value={state}>
                   {state}
@@ -111,8 +114,7 @@ export default function LocationFields({
             <p className="mt-1.5 text-xs font-medium text-red-600">{errors.state}</p>
           ) : (
             <p className="mt-1.5 text-xs text-slate-500">
-              Advisories and mandi prices are fullest for West Bengal today — every
-              other state is welcome and being expanded.
+              {t("loc.stateHint")}
             </p>
           )}
         </div>
@@ -120,7 +122,7 @@ export default function LocationFields({
 
       <div>
         <label htmlFor="loc-district" className={labelClass}>
-          District
+          {t("loc.district")}
           {requiredMark(required.district)}
         </label>
         <select
@@ -134,7 +136,7 @@ export default function LocationFields({
           className={fieldClass(errors.district)}
         >
           <option value="">
-            {districtDisabled ? "Select a state first" : "Select district…"}
+            {districtDisabled ? t("loc.selectStateFirst") : t("loc.selectDistrict")}
           </option>
           {districts.map((district) => (
             <option key={district} value={district}>
@@ -149,7 +151,7 @@ export default function LocationFields({
 
       <div>
         <label htmlFor="loc-village" className={labelClass}>
-          {villageLabel}
+          {villageLabelText}
           {requiredMark(required.village)}
         </label>
 
@@ -164,7 +166,7 @@ export default function LocationFields({
             className={fieldClass(errors.village)}
           >
             <option value="">
-              {villageDisabled ? "Select a district first" : "Select village / block…"}
+              {villageDisabled ? t("loc.selectDistrictFirst") : t("loc.selectVillage")}
             </option>
             {(blocks ?? []).map((block) => (
               <option key={block} value={block}>
@@ -184,7 +186,7 @@ export default function LocationFields({
               onChange={(e) => pickVillage(e.target.value)}
               disabled={villageDisabled}
               placeholder={
-                villageDisabled ? "Select a district first" : "e.g. Ketugram, Katwa"
+                villageDisabled ? t("loc.selectDistrictFirst") : t("loc.villagePlaceholder")
               }
               aria-invalid={!!errors.village}
               className={`${fieldClass(errors.village)} pl-10`}
@@ -203,7 +205,7 @@ export default function LocationFields({
           <p className="mt-1.5 text-xs font-medium text-red-600">{errors.village}</p>
         ) : (
           <p className="mt-1.5 text-xs text-slate-500">
-            Used to pin weather alerts and nearby mandi prices.
+            {t("loc.villageHint")}
           </p>
         )}
       </div>

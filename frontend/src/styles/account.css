@@ -1,0 +1,417 @@
+/* ───────────────────────────────────────────────────────────────────────────
+   Account theme — the colour code the Shop (retailer) account uses.
+
+   Retailer screens are written with Tailwind's light utility palette:
+
+     background  cream #F7FAF5   ·  surfaces  white
+     lines       slate-200       ·  muted text slate-500
+     headings    forest #1D4B3A  ·  body text  slate-700/800
+     brand      brand-700 #15803D (primary), brand-50/100/200 (tints)
+
+   Every other account (farmer, buyer, Shop) renders inside `.acct-root`, so the
+   same light palette reaches their Pages, cards, tables and forms without
+   touching the markup — only the Content Creator studio keeps its own dark
+   theme (it does not use this file at all).
+
+   Rules are attribute selectors on the *class token*, so `text-forest` matches
+   but `group-hover:text-forest` does not. That keeps hover variants working.
+   All of it sits in `@layer components`, i.e. BEFORE Tailwind utilities, so an
+   explicit `dark:` or arbitrary colour in the markup still wins.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+/* The Tailwind layer names only exist in the entry stylesheet, so this file
+   declares the directives itself for Tailwind's CSS pipeline. Nothing is
+   re-emitted in the build output; it just lets the rules below land in the
+   `components` layer, BEFORE utilities, so a class written in the markup still
+   wins over the remaps here. */
+@tailwind base;
+@tailwind components;
+
+@layer components {
+  .acct-root {
+    /* Palette tokens, in case a screen wants to read them directly. */
+    --ac-bg: #f7faf5;
+    --ac-sidebar: #ffffff;
+    --ac-card: #ffffff;
+    --ac-line: #e2e8f0;
+    --ac-ink: #1d4b3a;
+    --ac-muted: #64748b;
+    --ac-brand: #15803d;
+    --ac-brand-tint: #f0fdf4;
+
+    /* Creator-studio tokens, swapped from creator.css's dark set when the
+       studio is opened in this palette (`<CreatorShell light>`). */
+    --cr-bg: #f7faf5;
+    --cr-sidebar: #ffffff;
+    --cr-card: #ffffff;
+    --cr-card-hover: #f8fafc;
+    --cr-border: #e2e8f0;
+    --cr-green: #16a34a;
+    --cr-teal: #0d9488;
+
+    background: var(--ac-bg);
+    color: #334155;
+    color-scheme: light;
+  }
+
+  /* ── Page background ───────────────────────────────────────────────────── */
+  .acct-root[class*="bg-cream"],
+  .acct-root [class*="bg-cream"] {
+    background-color: #f7faf5;
+  }
+
+  .acct-root [class*="bg-sand"] {
+    background-color: #f0f4ea;
+  }
+
+  /* ── Surfaces ──────────────────────────────────────────────────────────── */
+  .acct-root [class*="bg-white"] {
+    background-color: #ffffff;
+  }
+
+  .acct-root [class*="bg-slate-50"] {
+    background-color: #f8fafc;
+  }
+
+  .acct-root [class*="bg-slate-100"] {
+    background-color: #f1f5f9;
+  }
+
+  .acct-root [class*="bg-slate-200"] {
+    background-color: #e2e8f0;
+  }
+
+  .acct-root [class*="hover:bg-white"]:hover {
+    background-color: #ffffff;
+  }
+
+  .acct-root [class*="bg-forest"] {
+    background-color: #1d4b3a;
+  }
+
+  .acct-root [class*="bg-forest-dark"] {
+    background-color: #12352a;
+  }
+
+  .acct-root [class*="bg-forest-light"] {
+    background-color: #2b6350;
+  }
+
+  /* Brand tints / fills, exactly as the Shop account writes them. */
+  .acct-root [class*="bg-brand-50"] {
+    background-color: #f0fdf4;
+  }
+
+  .acct-root [class*="bg-brand-100"] {
+    background-color: #dcfce7;
+  }
+
+  .acct-root [class*="bg-brand-200"] {
+    background-color: #bbf7d0;
+  }
+
+  .acct-root [class*="bg-brand-300"] {
+    background-color: #86efac;
+  }
+
+  .acct-root [class*="bg-brand-400"] {
+    background-color: #4ade80;
+  }
+
+  .acct-root [class*="bg-brand-500"] {
+    background-color: #22c55e;
+  }
+
+  .acct-root [class*="bg-brand-600"] {
+    background-color: #16a34a;
+  }
+
+  .acct-root [class*="bg-brand-700"] {
+    background-color: #15803d;
+  }
+
+  .acct-root [class*="bg-brand-800"] {
+    background-color: #166534;
+  }
+
+  .acct-root [class*="bg-brand-900"] {
+    background-color: #14532d;
+  }
+
+  .acct-root [class*="hover:bg-brand-50"]:hover {
+    background-color: #f0fdf4;
+  }
+
+  .acct-root [class*="hover:bg-brand-100"]:hover {
+    background-color: #dcfce7;
+  }
+
+  .acct-root [class*="hover:bg-brand-800"]:hover {
+    background-color: #166534;
+  }
+
+  /* The dark shell's translucent fills become the light rails' hover. */
+  .acct-root [class*="bg-white/"] {
+    background-color: #f1f5f9;
+  }
+
+  .acct-root [class*="hover:bg-white/"]:hover {
+    background-color: #e2e8f0;
+  }
+
+  /* Dark-shell green buttons become the brand chip in the light theme. */
+  .acct-root [class*="bg-[#16C784]"],
+  .acct-root [class*="bg-[#34d399]"] {
+    background-color: #16a34a;
+    color: #ffffff;
+  }
+
+  /* ── Borders ───────────────────────────────────────────────────────────── */
+  .acct-root [class*="border-slate-100"] {
+    border-color: #f1f5f9;
+  }
+
+  .acct-root [class*="border-slate-200"] {
+    border-color: #e2e8f0;
+  }
+
+  .acct-root [class*="border-slate-300"] {
+    border-color: #cbd5e1;
+  }
+
+  .acct-root [class*="border-brand-200"] {
+    border-color: #bbf7d0;
+  }
+
+  .acct-root [class*="border-brand-300"] {
+    border-color: #86efac;
+  }
+
+  .acct-root [class*="border-brand-500"] {
+    border-color: #22c55e;
+  }
+
+  .acct-root [class*="border-brand-700"] {
+    border-color: #15803d;
+  }
+
+  .acct-root [class*="hover:border-brand-300"]:hover {
+    border-color: #86efac;
+  }
+
+  .acct-root [class*="hover:border-brand-400"]:hover {
+    border-color: #4ade80;
+  }
+
+  .acct-root [class*="border-white/"] {
+    border-color: #e2e8f0;
+  }
+
+  /* ── Text ──────────────────────────────────────────────────────────────── */
+  /* Brand ink by default — the dark-shell pages paint their headings with
+     `text-white`, which only stays white on a dark surface (the forest
+     banner). Keeping white as the blanket default left every page title
+     invisible on the light palette. */
+  .acct-root .text-white,
+  .acct-root [class*="text-white/"] {
+    color: #0f172a;
+  }
+
+  /* …and white again inside the dark surfaces, where it was authored for. */
+  .acct-root [class*="bg-forest"] .text-white,
+  .acct-root [class*="bg-forest"] [class*="text-white/"],
+  .acct-root [class*="bg-brand-6"] .text-white,
+  .acct-root [class*="bg-brand-7"] .text-white,
+  .acct-root [class*="bg-brand-8"] .text-white,
+  .acct-root [class*="bg-brand-9"] .text-white,
+  .acct-root .creator-chip.is-active .text-white {
+    color: #ffffff;
+  }
+
+  .acct-root [class*="text-forest"] {
+    color: #1d4b3a;
+  }
+
+  .acct-root [class*="text-slate-400"] {
+    color: #94a3b8;
+  }
+
+  .acct-root [class*="text-slate-500"] {
+    color: #64748b;
+  }
+
+  .acct-root [class*="text-slate-600"] {
+    color: #475569;
+  }
+
+  .acct-root [class*="text-slate-700"] {
+    color: #334155;
+  }
+
+  .acct-root [class*="text-slate-800"] {
+    color: #1e293b;
+  }
+
+  .acct-root [class*="text-slate-900"] {
+    color: #0f172a;
+  }
+
+  .acct-root [class*="text-brand-700"] {
+    color: #15803d;
+  }
+
+  .acct-root [class*="text-brand-800"] {
+    color: #166534;
+  }
+
+  .acct-root [class*="text-brand-400"] {
+    color: #4ade80;
+  }
+
+  /* Hover colours — the light rails and rows. */
+  .acct-root [class*="hover:text-forest"]:hover {
+    color: #1d4b3a;
+  }
+
+  .acct-root [class*="hover:text-white"]:hover {
+    color: #1d4b3a;
+  }
+
+  .acct-root [class*="hover:text-slate-600"]:hover {
+    color: #475569;
+  }
+
+  /* ── Focus rings ───────────────────────────────────────────────────────── */
+  .acct-root [class*="ring-brand"] {
+    --tw-ring-color: #4ade80;
+  }
+
+  .acct-root [class*="focus-within:border-brand-500"]:focus-within {
+    border-color: #22c55e;
+  }
+
+  .acct-root [class*="focus:border-brand-500"]:focus {
+    border-color: #22c55e;
+  }
+
+  /* ── Rows, chips and cards inside the light palette ────────────────────── */
+  /* Card radius / border, the same as the Shop account's `.card`. */
+  .acct-root .card {
+    background: #ffffff;
+    border: 1px solid rgba(226, 232, 240, 0.8);
+    border-radius: 1rem;
+  }
+
+  /* Active tab / chip: brand ink on a light rail, not white-on-white. */
+  .acct-root .creator-chip.is-active {
+    background: #15803d;
+    border-color: #15803d;
+    color: #ffffff;
+  }
+
+  /* Creator studio opened from a non-creator rail (`<CreatorShell light>`).
+     The studio is authored for its own dark theme, so the light palette has to
+     be restored for all of it — including the page's own page-level headings —
+     or the light blank page reads white-on-white. */
+  .acct-root .creator-root,
+  .acct-root.creator-root {
+    background-color: #f7faf5;
+  }
+
+  .acct-root .text-rose-300 {
+    color: #be123c;
+  }
+
+  /* Video titles / card headings that sit on dark cards in the studio theme. */
+  .acct-root .creator-card {
+    background: #ffffff;
+    border-color: #e2e8f0;
+  }
+
+  .acct-root .creator-card .text-white,
+  .acct-root .creator-card [class*="text-white/"] {
+    color: #0f172a;
+  }
+
+  .acct-root .creator-card [class*="hover:text-[#16C784]"]:hover {
+    color: #16a34a;
+  }
+
+  .acct-root [class*="hover:bg-white/"]:hover {
+    background-color: #f1f5f9;
+  }
+
+  .acct-root [class*="border-white/"] {
+    border-color: #e2e8f0;
+  }
+
+  /* Stat tiles: the studio's neon tones on a light surface. */
+  .acct-root .text-\[\#16C784\] {
+    color: #16a34a;
+  }
+
+  .acct-root .text-\[\#2ED3B7\] {
+    color: #0d9488;
+  }
+
+  .acct-root .text-violet-300 {
+    color: #7c3aed;
+  }
+
+  .acct-root .text-amber-300 {
+    color: #b45309;
+  }
+
+  /* ── AccountShell chrome ───────────────────────────────────────────────── */
+  /* The shell is authored with the Shop account's utilities already, so it
+     needs almost nothing here — these rules only keep the rail readable when
+     a dark-shell class slips in. */
+  .acct-root .creator-sidebar {
+    background: #ffffff;
+    border-color: #e2e8f0;
+  }
+
+  .acct-root .creator-header {
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  /* ── Hero banner ───────────────────────────────────────────────────────── */
+  /* The hero keeps its dark-forest fill (the Shop account's own greeting
+     banner), so white ink and translucent panels stay legible on it. These
+     win over the light remaps above by coming later in the same layer. */
+  .acct-root [class*="bg-forest"].text-white,
+  .acct-root [class*="bg-forest"] .text-white,
+  .acct-root [class*="bg-forest"] .text-\[26px\],
+  .acct-root [class*="bg-forest"] h1 {
+    color: #ffffff;
+  }
+
+  .acct-root [class*="bg-forest"] [class*="text-white/8"] {
+    color: rgba(255, 255, 255, 0.92);
+  }
+
+  .acct-root [class*="bg-forest"] [class*="text-white/7"] {
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  .acct-root [class*="bg-forest"] [class*="text-white/5"] {
+    color: rgba(255, 255, 255, 0.72);
+  }
+
+  /* The eyebrow pill and the aside tiles on the banner. */
+  .acct-root [class*="bg-forest"] [class*="bg-white/"] {
+    background-color: rgba(255, 255, 255, 0.14);
+  }
+
+  .acct-root [class*="bg-forest"] [class*="border-white/"] {
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+
+  /* Header chips (weather, search pill) stay on white: the dark shell painted
+     them with translucent white, which is invisible on a light header. */
+  .acct-root .creator-header [class*="bg-white/"] {
+    background-color: #ffffff;
+  }
+}

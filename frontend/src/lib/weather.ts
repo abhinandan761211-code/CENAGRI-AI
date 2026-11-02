@@ -82,28 +82,83 @@ async function getJson<T>(url: string): Promise<T> {
 const GEO_TTL = 7 * 24 * 60 * 60 * 1000;
 const geoCache = new Map<string, { at: number; value: GeoResult }>();
 
+/**
+ * States that are stored under their official name but known to
+ * OpenWeatherMap's geocoder under a different (often older) one.
+ * Odisha in particular: the plain state name returns nothing, while
+ * "Orissa" resolves correctly.
+ */
+const STATE_ALIASES: Record<string, string[]> = {
+  Odisha: ["Orissa"],
+  Uttarakhand: ["Uttaranchal"],
+  Puducherry: ["Pondicherry"],
+};
+
+/** Every spelling worth trying for a state, in order. */
+function stateSpellings(state: string): string[] {
+  return [state, ...(STATE_ALIASES[state] ?? [])];
+}
+
+/** True when a geocode result belongs to the state we asked for. */
+function inState(result: GeoResult, state: string): boolean {
+  const actual = result.state?.trim().toLowerCase();
+  if (!actual) return false;
+  return stateSpellings(state).some((name) => name.toLowerCase() === actual);
+}
+
+/**
+ * District name → coordinates.
+ *
+ * OpenWeatherMap's geocoder is name-based and often returns a same-named
+ * place in a different state: "Gajapati,IN" resolves to a village in
+ * Karnataka instead of the Odisha district. Asking for the district *with*
+ * the state (`Gajapati,Odisha,IN`) narrows it down, so we try that first and
+ * only accept a result that really sits in the farmer's state. A name-only
+ * lookup is the last resort — it is still better than showing nothing, but it
+ * is never used when a state match exists.
+ */
 async function geocode(district: string, state?: string): Promise<GeoResult> {
   const cacheKey = `${district}|${state ?? ""}`.toLowerCase();
   const hit = geoCache.get(cacheKey);
   if (hit && Date.now() - hit.at < GEO_TTL) return hit.value;
 
-  let results = await getJson<GeoResult[]>(
-    `${API}/geo/1.0/direct?q=${encodeURIComponent(`${district},${REGION}`)}&limit=5&appid=${key}`
-  );
+  const lookups = state
+    ? [
+        ...stateSpellings(state).map((name) => `${district},${name},${REGION}`),
+        `${district},${REGION}`,
+      ]
+    : [`${district},${REGION}`];
 
-  // Several districts share a name ("Aurangabad" exists twice) — prefer the
-  // state on the user's profile when the API returns it.
-  if (results.length > 1 && state) {
-    const wanted = state.toLowerCase();
-    const sameState = results.find((r) => r.state?.toLowerCase() === wanted);
-    if (sameState) results = [sameState];
+  let fallback: GeoResult | undefined;
+  let best: GeoResult | undefined;
+
+  for (const query of lookups) {
+    let results: GeoResult[];
+    try {
+      results = await getJson<GeoResult[]>(
+        `${API}/geo/1.0/direct?q=${encodeURIComponent(query)}&limit=5&appid=${key}`
+      );
+    } catch {
+      // One spelling failing must not abort the whole lookup.
+      continue;
+    }
+    if (!results.length) continue;
+
+    const exact = state ? results.find((r) => inState(r, state)) : undefined;
+    if (exact) {
+      best = exact;
+      break;
+    }
+
+    // Remember the first name-only hit, used only if no state matches.
+    if (!fallback) fallback = results[0];
   }
 
-  const first = results[0];
-  if (!first) throw new Error(`Could not find "${district}" on the weather map.`);
+  const found = best ?? fallback;
+  if (!found) throw new Error(`Could not find "${district}" on the weather map.`);
 
-  geoCache.set(cacheKey, { at: Date.now(), value: first });
-  return first;
+  geoCache.set(cacheKey, { at: Date.now(), value: found });
+  return found;
 }
 
 /** Forecast cache is short — 10 minutes keeps the free tier comfortable. */
@@ -129,7 +184,7 @@ export async function getWeather(
 
   const raw = await getJson<OwmForecast>(
     `${API}/data/2.5/forecast?lat=${place.lat}&lon=${place.lon}` +
-      `&units=metric&appid=${key}`
+    `&units=metric&appid=${key}`
   );
 
   const now = raw.list[0];
@@ -186,107 +241,106 @@ export function titleCase(text: string): string {
   return text.charAt(0).toUpperCase() + text.slice(1);
 }
 
-/* ── Alerts derived from the live forecast ───────────────────────────────
- * These are computed from real OpenWeatherMap numbers, so they appear and
- * disappear with the weather. Thresholds are deliberately conservative for
- * West Bengal field work; tune them with agronomy input, not by eye.
- */
+/* ── Derived alerts ──────────────────────────────────────────────────── */
 
 export type WeatherAlert = {
+  /** Stable across refreshes so the bell can remember what was read. */
   id: string;
   severity: "high" | "medium" | "low";
   title: string;
-  body: string;
-  /** Which day it applies to ("Today", "Tue"). */
+  /** When it applies — "Today" or a weekday name. */
   when: string;
+  /** What the farmer should actually do about it. */
+  body: string;
 };
 
-/** Rain probability (0–100) worth warning about. */
-const RAIN_CHANCE = 60;
-/** Daily rainfall proxy: high chance + heavy cloud cover. */
-const HEAT_C = 38;
-const COLD_C = 10;
-const WIND_KPH = 40;
-const HUMIDITY = 85;
+/** mm-of-rain-chance / temperature thresholds worth waking a farmer for. */
+const THRESHOLDS = {
+  heavyRainChance: 70,
+  heat: 38,
+  cold: 8,
+  highWind: 35,
+};
 
 /**
- * Build alerts for the next few days. Returns an empty array when nothing
- * crosses a threshold — the caller shows "no alerts" rather than inventing one.
+ * Turn a forecast into farm alerts.
+ *
+ * Everything here is arithmetic on numbers OpenWeatherMap returned — no
+ * invented advisories. Wells, spraying and harvesting are all decisions that
+ * depend on rain and wind, so each alert says what to do, not just what the
+ * weather is. Returns an empty list when there is no forecast yet.
  */
-export function deriveAlerts(weather: WeatherNow | null): WeatherAlert[] {
+export function deriveAlerts(weather: WeatherNow | null | undefined): WeatherAlert[] {
   if (!weather) return [];
 
   const alerts: WeatherAlert[] = [];
   const today = weather.forecast[0];
 
-  // Spraying is the most time-sensitive field decision near rain.
-  if (today && today.rainChance >= RAIN_CHANCE) {
+  const wettest = weather.forecast.reduce<DayForecast | undefined>(
+    (best, day) => (!best || day.rainChance > best.rainChance ? day : best),
+    undefined
+  );
+  if (wettest && wettest.rainChance >= THRESHOLDS.heavyRainChance) {
     alerts.push({
-      id: "rain-today",
+      id: `rain-${wettest.date}`,
+      severity: wettest.rainChance >= 85 ? "high" : "medium",
+      title: `${wettest.rainChance}% rain chance on ${wettest.day}`,
+      when: `${wettest.day}${wettest === today ? " (today)" : ""} · ${wettest.tempMin}–${wettest.tempMax}°C`,
+      body:
+        "Delay spraying, urea top-dressing and harvesting on that day. Check field drainage " +
+        "before the rain so standing water does not damage the roots.",
+    });
+  }
+
+  if (today && today.tempMax >= THRESHOLDS.heat) {
+    alerts.push({
+      id: `heat-${today.date}`,
       severity: "high",
-      title: `${today.rainChance}% chance of rain today`,
-      body:
-        "Do not spray pesticide or herbicide now — rain will wash it off and waste the dose. " +
-        "Hold off on irrigation too if your field already holds moisture.",
+      title: `Heat wave risk: up to ${Math.round(today.tempMax)}°C today`,
       when: "Today",
+      body:
+        "Irrigate early morning or after sunset and mulch the beds. Avoid transplanting " +
+        "seedlings in the afternoon heat.",
     });
   }
 
-  for (const day of weather.forecast.slice(0, 3)) {
-    if (day.rainChance >= RAIN_CHANCE && day.date !== today?.date) {
-      alerts.push({
-        id: `rain-${day.date}`,
-        severity: "medium",
-        title: `Rain likely ${day.day} (${day.rainChance}%)`,
-        body: "Plan spraying and harvesting around it; check drainage before the rain arrives.",
-        when: day.day,
-      });
-    }
-    if (day.tempMax >= HEAT_C) {
-      alerts.push({
-        id: `heat-${day.date}`,
-        severity: "high",
-        title: `Heat stress risk ${day.day} — ${day.tempMax}°C`,
-        body:
-          "Water early morning or evening, and avoid midday field work. " +
-          "Heat at flowering stage cuts yield the most.",
-        when: day.day,
-      });
-    }
-    if (day.tempMin <= COLD_C) {
-      alerts.push({
-        id: `cold-${day.date}`,
-        severity: "medium",
-        title: `Cold spell ${day.day} — ${day.tempMin}°C`,
-        body: "Frost risk for vegetables and young seedlings. Cover nursery beds overnight.",
-        when: day.day,
-      });
-    }
-  }
-
-  if (weather.windKph >= WIND_KPH) {
+  if (today && today.tempMin <= THRESHOLDS.cold) {
     alerts.push({
-      id: "wind",
+      id: `cold-${today.date}`,
       severity: "medium",
-      title: `Strong wind — ${weather.windKph} km/h`,
+      title: `Cold night ahead: ${Math.round(today.tempMin)}°C`,
+      when: "Tonight",
       body:
-        "Spray drift will carry product onto neighbouring fields. " +
-        "Stake tall crops and secure shade nets.",
-      when: "Now",
+        "Cover nursery beds and young seedlings at night. Frost can damage flowering " +
+        "mustard and potato.",
     });
   }
 
-  if (weather.humidity >= HUMIDITY) {
+  if (weather.windKph >= THRESHOLDS.highWind) {
     alerts.push({
-      id: "humidity",
-      severity: "low",
-      title: `High humidity — ${weather.humidity}%`,
-      body:
-        "Fungal diseases spread faster in prolonged leaf wetness. " +
-        "Watch for early spots and keep rows ventilated.",
+      id: `wind-${weather.place}-${Math.round(weather.windKph)}`,
+      severity: "medium",
+      title: `Strong wind: ${weather.windKph} km/h`,
       when: "Now",
+      body:
+        "Skip pesticide spraying — it will drift and miss the crop. Stake tall plants and " +
+        "secure shade nets.",
     });
   }
 
-  return alerts;
+  if (today && today.rainChance < 30 && today.tempMax >= 33) {
+    alerts.push({
+      id: `dry-${today.date}`,
+      severity: "low",
+      title: "Dry and hot — irrigation likely needed",
+      when: `Next 24h · ${today.rainChance}% rain chance`,
+      body:
+        "Check the top 5 cm of soil. If it crumbles instead of clumping, water in the " +
+        "evening to reduce evaporation.",
+    });
+  }
+
+  // Highest severity first; the bell only shows the top few anyway.
+  const rank = { high: 0, medium: 1, low: 2 } as const;
+  return alerts.sort((a, b) => rank[a.severity] - rank[b.severity]);
 }

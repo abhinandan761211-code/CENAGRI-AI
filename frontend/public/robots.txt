@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+# App surfaces behind authentication — nothing to index here.
+Disallow: /dashboard
+Disallow: /complete-profile
+
+Sitemap: /sitemap.xml

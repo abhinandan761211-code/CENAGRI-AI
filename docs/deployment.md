@@ -17,7 +17,64 @@ After the first deploy, add the production domain to Supabase
 
 ---
 
-## Vercel
+## Netlify (frontend) + Render (backend)
+
+This is the production setup. The frontend is a static build; the FastAPI
+backend runs in a Docker container.
+
+### 1. Backend on Render
+
+1. Push the repo to GitHub.
+2. Render → **New +** → **Blueprint** → pick the repo. `render.yaml` is read
+   automatically and creates the `cenagri-api` service.
+3. Fill the secrets Render prompts for (`sync: false`): `DATABASE_URL`,
+   `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_JWT_SECRET`,
+   `DATA_GOV_API_KEY`, `LLM_API_KEY`, `CORS_ORIGINS`.
+4. Wait for the deploy. `GET https://<service>.onrender.com/health` must return
+   `{"status":"ok"}`. If it fails, the container is not listening on `$PORT` —
+   `backend/Dockerfile` reads it, so check the Render log for a startup crash.
+
+> **Free plan sleeps after 15 minutes idle.** The first request then takes
+> ~30–50 s to wake. That is Render's behaviour, not an app bug. Upgrade to
+> `starter` for an always-on instance.
+
+### 2. Frontend on Netlify
+
+1. Netlify → **Add new site** → **Import an existing project** → pick the repo.
+   `netlify.toml` sets base `frontend`, command `npm run build`, publish `dist`.
+2. Add environment variables (Site settings → Environment variables):
+
+   | Name | Value |
+   |---|---|
+   | `VITE_SUPABASE_URL` | your Supabase project URL |
+   | `VITE_SUPABASE_ANON_KEY` | Supabase anon (public) key |
+   | `VITE_SITE_URL` | `https://<your-site>.netlify.app` |
+   | `VITE_API_BASE_URL` | leave empty to use the proxy, or `https://<service>.onrender.com/api/v1` |
+
+3. Deploy.
+
+### 3. Wire the two together
+
+- **Preview the Render host:** `netlify.toml` proxies `/api/*` to
+  `https://cenagri-api.onrender.com` by default. If your Render service got a
+  different name, edit that one line. With the proxy in place, leave
+  `VITE_API_BASE_URL` unset — no CORS applies because the browser calls Netlify.
+- **Calling Render directly instead?** Set `VITE_API_BASE_URL` to the full
+  `https://…/api/v1` and set Render's `CORS_ORIGINS` to your Netlify origin
+  exactly (scheme + host, **no trailing slash**).
+- **Supabase:** Authentication → URL Configuration → set Site URL and Redirect
+  URLs to the Netlify domain, or login/email links come back to localhost.
+
+### 4. Database
+
+Run the SQL files **in this order** on the production Supabase project:
+
+```
+schema.sql → features.sql → worker.sql → transporter.sql
+→ warehouse.sql → equipment.sql
+```
+
+## Vercel (alternative)
 
 Repo root contains `vercel.json`, so it works with zero settings:
 
@@ -57,9 +114,11 @@ docker compose -f infrastructure/docker/docker-compose.yml up --build
 
 ## Checklist before going live
 
-- [ ] `database/supabase/schema.sql` executed on the production project
-- [ ] Email **Confirm email** enabled
-- [ ] Google provider configured with the production redirect URI
-- [ ] Production URL added to Supabase Redirect URLs
+- [ ] `schema.sql` and every module file executed, in the order above
+- [ ] `/health` on the Render URL returns `{"status":"ok"}`
+- [ ] `CORS_ORIGINS` (Render) matches the Netlify origin exactly, if not proxying
+- [ ] Email **Confirm email** enabled in Supabase
+- [ ] Google provider redirect URI points at the production domain
+- [ ] Production URLs added to Supabase Redirect URLs
 - [ ] `.env` files never committed (`git status` check)
 - [ ] `npm run build` passes locally

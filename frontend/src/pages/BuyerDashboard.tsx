@@ -10,6 +10,7 @@ import {
   Store,
   Truck,
   Users,
+  Video,
 } from "lucide-react";
 import { Navigate, useNavigate } from "react-router-dom";
 import AccountShell, { ShellHero, ShellQuickActions } from "@/components/account/AccountShell";
@@ -110,6 +111,7 @@ export default function BuyerDashboard() {
     { label: "Suppliers", icon: Users, to: "/cenfriend" },
     { label: "Logistics", icon: Truck, to: "/transport" },
     { label: "Inventory", icon: Package, to: "/storage" },
+    { label: "Creator Studio", icon: Video, to: "/creator/settings" },
   ];
 
   async function handleSignOut() {

@@ -54,6 +54,34 @@ export const CATEGORY_FALLBACK: { slug: string; label: string }[] = [
 
 export const LANGUAGES = ["Bengali", "Hindi", "English", "Odia", "Assamese", "Other"] as const;
 
+/**
+ * Human labels for the category rail and for watch-page chips.
+ *
+ * The slugs are the ones already stored in `videos.category` and seeded by
+ * database/supabase/creator.sql, so this map never renames data — it only
+ * phrases it the way the hub's navigation does.
+ */
+export const CATEGORY_LABEL: Record<string, string> = {
+  "crop-farming": "Crop Management",
+  "organic-farming": "Organic Farming",
+  "modern-agriculture": "Agriculture Technology",
+  "dairy-farming": "Dairy Farming",
+  "poultry-farming": "Poultry & Livestock",
+  "fish-farming": "Fish Farming",
+  "agriculture-machinery": "Tractor & Equipment",
+  "government-schemes": "Government Schemes",
+  "success-stories": "Success Stories",
+  "crop-disease": "Crop Disease",
+  "farmer-education": "Farming Tutorials",
+  "mandi-prices": "Market Updates",
+};
+
+/** Readable name for a slug, falling back to the slug itself. */
+export function categoryLabel(slug: string | null | undefined): string {
+  if (!slug) return "Uncategorised";
+  return CATEGORY_LABEL[slug] ?? CATEGORY_FALLBACK.find((c) => c.slug === slug)?.label ?? slug;
+}
+
 export const SEASONS = ["Kharif", "Rabi", "Zaid", "Year-round"] as const;
 export type Season = (typeof SEASONS)[number];
 
@@ -454,10 +482,10 @@ export async function publishVideo(id: string, publishAt: string | null): Promis
   const patch = scheduled
     ? { status: "review" as VideoStatus, publish_at: publishAt }
     : {
-        status: "published" as VideoStatus,
-        publish_at: null,
-        published_at: new Date().toISOString(),
-      };
+      status: "published" as VideoStatus,
+      publish_at: null,
+      published_at: new Date().toISOString(),
+    };
 
   const { data, error } = await client()
     .from("videos")
@@ -936,4 +964,100 @@ export async function getTopVideos(creatorId: string, limit = 5): Promise<Video[
     .limit(limit);
   if (error) throw error;
   return (data ?? []) as Video[];
+}
+
+/* ── Live streaming (demo data) ────────────────────────────────────────── */
+
+/**
+ * A live broadcast as the hub renders it.
+ *
+ * This is DEMO DATA, not a live API. CenAGRI has no ingest server (RTMP/SRT),
+ * transcoder or HLS player yet — see CreatorLive. Every consumer must show the
+ * `isDemo` notice so nobody mistakes a sample card for a real stream. When the
+ * ingest pipeline exists, replace `listLiveStreams` with a real query against a
+ * `live_streams` table and delete the `DEMO_LIVE_STREAMS` array.
+ */
+export type LiveStream = {
+  id: string;
+  title: string;
+  channelName: string;
+  channelId: string | null;
+  handle: string | null;
+  isVerified: boolean;
+  avatarUrl: string | null;
+  thumbnailUrl: string;
+  viewerCount: number;
+  startedMinutesAgo: number;
+  category: string;
+  isDemo: true;
+};
+
+export const DEMO_LIVE_STREAMS: LiveStream[] = [
+  {
+    id: "live-wheat-sowing",
+    title: "Live from the field: wheat sowing prep & seed treatment",
+    channelName: "Kisan Agronomy Lab",
+    channelId: null,
+    handle: "kisanagronomy",
+    isVerified: true,
+    avatarUrl: null,
+    thumbnailUrl: "/images/video-2.jpg",
+    viewerCount: 1284,
+    startedMinutesAgo: 42,
+    category: "crop-farming",
+    isDemo: true,
+  },
+  {
+    id: "live-mandi-rates",
+    title: "Today's mandi rates — paddy & wheat across districts",
+    channelName: "Mandi Bhav Daily",
+    channelId: null,
+    handle: "mandibhav",
+    isVerified: true,
+    avatarUrl: null,
+    thumbnailUrl: "/images/video-3.jpg",
+    viewerCount: 862,
+    startedMinutesAgo: 18,
+    category: "mandi-prices",
+    isDemo: true,
+  },
+  {
+    id: "live-tractor-service",
+    title: "Tractor maintenance Q&A — bring your questions",
+    channelName: "Farm Machinery Basics",
+    channelId: null,
+    handle: "farmmachinery",
+    isVerified: false,
+    avatarUrl: null,
+    thumbnailUrl: "/images/video-4.jpg",
+    viewerCount: 331,
+    startedMinutesAgo: 96,
+    category: "agriculture-machinery",
+    isDemo: true,
+  },
+  {
+    id: "live-dairy-farm",
+    title: "Morning shift at a 40-cow dairy unit",
+    channelName: "Dairy Seva",
+    channelId: null,
+    handle: "dairyseva",
+    isVerified: true,
+    avatarUrl: null,
+    thumbnailUrl: "/images/video-1.jpg",
+    viewerCount: 517,
+    startedMinutesAgo: 7,
+    category: "dairy-farming",
+    isDemo: true,
+  },
+];
+
+/**
+ * Streams currently "on air".
+ *
+ * Demo-only: resolves the constant above. Kept async and in this module so the
+ * hub page depends on one function that can later become a Supabase query
+ * without touching the UI.
+ */
+export async function listLiveStreams(limit = 4): Promise<LiveStream[]> {
+  return DEMO_LIVE_STREAMS.slice(0, limit);
 }

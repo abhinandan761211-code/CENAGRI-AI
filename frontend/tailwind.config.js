@@ -4,8 +4,18 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["Inter", "ui-sans-serif", "system-ui", "sans-serif"],
-        display: ["Poppins", "Inter", "ui-sans-serif", "system-ui", "sans-serif"],
+        // `var(--locale-font)` first: for an Indian language the LanguageContext
+        // sets it to that script's family, so one sentence renders in one face.
+        // For English it is empty and the browser skips straight to Inter.
+        sans: ["var(--locale-font)", "Inter", "ui-sans-serif", "system-ui", "sans-serif"],
+        display: [
+          "var(--locale-font)",
+          "Poppins",
+          "Inter",
+          "ui-sans-serif",
+          "system-ui",
+          "sans-serif",
+        ],
       },
       colors: {
         brand: {

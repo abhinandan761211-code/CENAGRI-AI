@@ -1,6 +1,7 @@
 import { Check } from "lucide-react";
 import { USER_ROLES } from "@/types";
 import type { UserRole } from "@/types";
+import { useLang } from "@/i18n/LanguageContext";
 
 type Props = {
   value: UserRole | "";
@@ -10,9 +11,11 @@ type Props = {
 
 /** The "I am a…" pill group — shared by signup and the post-OAuth role step. */
 export default function RoleSelector({ value, onChange, error }: Props) {
+  const { t } = useLang();
+
   return (
     <fieldset>
-      <legend className="mb-2 block text-sm font-semibold text-forest">I am a…</legend>
+      <legend className="mb-2 block text-sm font-semibold text-forest">{t("signup.iam")}</legend>
       <div className="flex flex-wrap gap-2">
         {USER_ROLES.map((option) => {
           const active = value === option;
@@ -22,14 +25,13 @@ export default function RoleSelector({ value, onChange, error }: Props) {
               type="button"
               onClick={() => onChange(option)}
               aria-pressed={active}
-              className={`rounded-full border px-3.5 py-1.5 text-[13px] font-semibold transition ${
-                active
+              className={`rounded-full border px-3.5 py-1.5 text-[13px] font-semibold transition ${active
                   ? "border-brand-700 bg-brand-700 text-white shadow-sm"
                   : "border-slate-300 bg-white text-slate-600 hover:border-brand-400 hover:text-brand-800"
-              }`}
+                }`}
             >
               {active && <Check className="mr-1 inline h-3.5 w-3.5" />}
-              {option}
+              {t(`role.name.${option}` as Parameters<typeof t>[0])}
             </button>
           );
         })}

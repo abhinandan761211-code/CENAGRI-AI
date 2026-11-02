@@ -167,3 +167,44 @@ create policy "Farms are managed by owner"
   to authenticated
   using ((select auth.uid()) = owner_id)
   with check ((select auth.uid()) = owner_id);
+
+-- ── Crops (module: Crop Management) ────────────────────────────────────────
+-- One row per planted crop on a farmer's land. Powers the Crop Management
+-- dashboard: overview tiles, My Crops list, health, growth trend and the
+-- next fertiliser/irrigation action.
+create table if not exists public.crops (
+  id            uuid primary key default gen_random_uuid(),
+  owner_id      uuid not null references auth.users (id) on delete cascade,
+  farm_id       uuid references public.farms (id) on delete set null,
+  name          text not null,
+  variety       text,
+  area_ha       numeric(10,2) check (area_ha is null or area_ha > 0),
+  planted_on    date not null default current_date,
+  -- Growth is a rate, not a stored history: the trend chart is derived from
+  -- planted_on + growth_days + health, so it can never drift from the record.
+  growth_days   integer not null default 120 check (growth_days > 0),
+  health        smallint not null default 90 check (health between 0 and 100),
+  status        text not null default 'healthy'
+                  check (status in ('healthy','monitor','at_risk','harvested')),
+  next_action   text,
+  next_action_on date,
+  image_url     text,
+  created_at    timestamptz not null default now(),
+  updated_at    timestamptz not null default now()
+);
+create index if not exists crops_owner_idx on public.crops (owner_id, planted_on desc);
+create index if not exists crops_farm_idx on public.crops (farm_id);
+
+drop trigger if exists crops_touch_updated_at on public.crops;
+create trigger crops_touch_updated_at
+  before update on public.crops
+  for each row execute function public.touch_updated_at();
+
+alter table public.crops enable row level security;
+
+drop policy if exists "Crops are managed by owner" on public.crops;
+create policy "Crops are managed by owner"
+  on public.crops for all
+  to authenticated
+  using ((select auth.uid()) = owner_id)
+  with check ((select auth.uid()) = owner_id);
