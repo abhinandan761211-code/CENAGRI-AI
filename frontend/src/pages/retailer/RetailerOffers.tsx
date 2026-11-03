@@ -317,11 +317,10 @@ function OfferDialog({
                   type="button"
                   onClick={() => set("valueType", value)}
                   aria-pressed={form.valueType === value}
-                  className={`inline-flex h-9 flex-1 items-center justify-center gap-1.5 rounded-lg border text-xs font-semibold transition ${
-                    form.valueType === value
+                  className={`inline-flex h-9 flex-1 items-center justify-center gap-1.5 rounded-lg border text-xs font-semibold transition ${form.valueType === value
                       ? "border-brand-700 bg-brand-50 text-brand-800"
                       : "border-slate-300 text-slate-600 hover:bg-slate-50"
-                  }`}
+                    }`}
                 >
                   <Icon className="h-3.5 w-3.5" />
                   {label}

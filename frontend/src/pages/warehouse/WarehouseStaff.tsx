@@ -153,11 +153,10 @@ export default function WarehouseStaffPage() {
                       <select
                         value={s.status}
                         onChange={(e) => void handleStatus(s, e.target.value as WarehouseStaff["status"])}
-                        className={`rounded-full border-0 px-2 py-0.5 text-[10px] font-bold ${
-                          s.status === "active"
+                        className={`rounded-full border-0 px-2 py-0.5 text-[10px] font-bold ${s.status === "active"
                             ? "bg-emerald-100 text-emerald-800"
                             : "bg-amber-100 text-amber-800"
-                        }`}
+                          }`}
                       >
                         <option value="active">Active</option>
                         <option value="suspended">Suspended</option>

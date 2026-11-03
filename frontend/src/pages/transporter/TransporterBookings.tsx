@@ -77,9 +77,8 @@ export default function TransporterBookings() {
   return (
     <TransporterLayout
       title="My Bookings"
-      subtitle={`${rows.length} booking${rows.length === 1 ? "" : "s"} · ${pendingOffers.length} quote${
-        pendingOffers.length === 1 ? "" : "s"
-      } awaiting a response`}
+      subtitle={`${rows.length} booking${rows.length === 1 ? "" : "s"} · ${pendingOffers.length} quote${pendingOffers.length === 1 ? "" : "s"
+        } awaiting a response`}
       action={
         <Link
           to={TRANSPORTER_ROUTES.requests}
@@ -127,11 +126,10 @@ export default function TransporterBookings() {
             type="button"
             onClick={() => setTab(key)}
             aria-pressed={tab === key}
-            className={`shrink-0 rounded-lg px-3 py-1.5 text-[11.5px] font-semibold transition ${
-              tab === key
+            className={`shrink-0 rounded-lg px-3 py-1.5 text-[11.5px] font-semibold transition ${tab === key
                 ? "bg-brand-700 text-white"
                 : "bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-50"
-            }`}
+              }`}
           >
             {label}
             <span className={`ml-1.5 text-[10px] ${tab === key ? "text-white/70" : "text-slate-400"}`}>

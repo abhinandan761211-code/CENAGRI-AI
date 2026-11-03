@@ -130,11 +130,10 @@ export default function WarehousePricing() {
                       <button
                         type="button"
                         onClick={() => void handleToggle(plan)}
-                        className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
-                          plan.is_active
+                        className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${plan.is_active
                             ? "bg-emerald-100 text-emerald-800"
                             : "bg-slate-100 text-slate-600"
-                        }`}
+                          }`}
                       >
                         {plan.is_active ? "Active" : "Paused"}
                       </button>

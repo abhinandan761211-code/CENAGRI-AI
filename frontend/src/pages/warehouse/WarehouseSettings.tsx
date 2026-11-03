@@ -113,9 +113,8 @@ export default function WarehouseSettings() {
                   className={`flex items-start gap-2.5 px-4 py-2.5 ${n.read_at ? "" : "bg-brand-50/40"}`}
                 >
                   <span
-                    className={`mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full ${
-                      n.read_at ? "bg-slate-100 text-slate-500" : "bg-brand-100 text-brand-800"
-                    }`}
+                    className={`mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full ${n.read_at ? "bg-slate-100 text-slate-500" : "bg-brand-100 text-brand-800"
+                      }`}
                   >
                     <Bell className="h-3 w-3" />
                   </span>

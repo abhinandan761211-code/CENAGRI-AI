@@ -223,9 +223,8 @@ export function RequestCard({
         {footer ?? (
           <Link
             to={`/transporter/requests/${request.id}`}
-            className={`inline-flex h-8 items-center justify-center rounded-lg px-3 text-[11.5px] font-semibold text-white transition ${
-              offered ? "pointer-events-none bg-slate-300" : "bg-brand-700 hover:bg-brand-800"
-            }`}
+            className={`inline-flex h-8 items-center justify-center rounded-lg px-3 text-[11.5px] font-semibold text-white transition ${offered ? "pointer-events-none bg-slate-300" : "bg-brand-700 hover:bg-brand-800"
+              }`}
           >
             {offered ? "Quoted" : "Quote"}
           </Link>
@@ -262,9 +261,8 @@ export function VehicleAlertLine({
         return (
           <li
             key={alert.kind}
-            className={`flex items-center gap-1.5 rounded-lg px-2 py-1 text-[10.5px] font-semibold ${
-              expired ? "bg-rose-50 text-rose-700" : "bg-amber-50 text-amber-800"
-            }`}
+            className={`flex items-center gap-1.5 rounded-lg px-2 py-1 text-[10.5px] font-semibold ${expired ? "bg-rose-50 text-rose-700" : "bg-amber-50 text-amber-800"
+              }`}
           >
             <AlertTriangle className="h-3 w-3 shrink-0" />
             {ALERT_LABEL[alert.kind]}{" "}
@@ -334,13 +332,12 @@ export function TripProgressRail({ status }: { status: BookingStatus }) {
         return (
           <li key={stage} className="flex items-center gap-1.5">
             <span
-              className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
-                isCurrent
+              className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${isCurrent
                   ? "bg-brand-700 text-white"
                   : done
                     ? "bg-emerald-100 text-emerald-800"
                     : "bg-slate-100 text-slate-400"
-              }`}
+                }`}
             >
               {BOOKING_STATUS_LABEL[stage]}
             </span>

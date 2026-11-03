@@ -188,9 +188,8 @@ export default function EquipmentOperators() {
                           <>
                             <p className="font-mono text-[10px] text-slate-600">{op.licence_no}</p>
                             <p
-                              className={`text-[10px] ${
-                                lic.expired ? "font-bold text-rose-700" : lic.expiringSoon ? "font-bold text-amber-700" : "text-slate-500"
-                              }`}
+                              className={`text-[10px] ${lic.expired ? "font-bold text-rose-700" : lic.expiringSoon ? "font-bold text-amber-700" : "text-slate-500"
+                                }`}
                             >
                               {op.licence_expiry ? `expires ${formatDate(op.licence_expiry)}` : "no expiry on file"}
                             </p>
@@ -408,9 +407,8 @@ function OperatorModal({
                 type="button"
                 onClick={() => toggleSkill(skill)}
                 aria-pressed={skills.includes(skill)}
-                className={`rounded-full px-2.5 py-1 text-[11px] font-semibold transition ${
-                  skills.includes(skill) ? "bg-brand-700 text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                }`}
+                className={`rounded-full px-2.5 py-1 text-[11px] font-semibold transition ${skills.includes(skill) ? "bg-brand-700 text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                  }`}
               >
                 {skill}
               </button>

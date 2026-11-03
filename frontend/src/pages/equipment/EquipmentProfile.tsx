@@ -169,9 +169,8 @@ export default function EquipmentProfile() {
                       </p>
                     </div>
                     <span
-                      className={`text-[10px] font-bold ${
-                        service.overdue ? "text-rose-700" : service.days != null && service.days <= 30 ? "text-amber-700" : "text-slate-400"
-                      }`}
+                      className={`text-[10px] font-bold ${service.overdue ? "text-rose-700" : service.days != null && service.days <= 30 ? "text-amber-700" : "text-slate-400"
+                        }`}
                     >
                       {service.label}
                     </span>

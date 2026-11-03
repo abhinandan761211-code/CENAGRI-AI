@@ -44,13 +44,12 @@ export function StatCard({
       <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1">
         {trend && (
           <span
-            className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold ${
-              trend.value == null
+            className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold ${trend.value == null
                 ? "bg-slate-100 text-slate-600"
                 : up
                   ? "bg-emerald-100 text-emerald-800"
                   : "bg-rose-100 text-rose-800"
-            }`}
+              }`}
           >
             {trend.value == null
               ? "No prior data"
@@ -173,9 +172,8 @@ export function Modal({
       onClick={onClose}
     >
       <div
-        className={`max-h-[92vh] w-full overflow-y-auto rounded-xl2 bg-white p-5 shadow-xl ${
-          wide ? "max-w-2xl" : "max-w-md"
-        }`}
+        className={`max-h-[92vh] w-full overflow-y-auto rounded-xl2 bg-white p-5 shadow-xl ${wide ? "max-w-2xl" : "max-w-md"
+          }`}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between gap-3">

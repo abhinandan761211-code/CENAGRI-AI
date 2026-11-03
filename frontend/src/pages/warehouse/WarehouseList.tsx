@@ -389,10 +389,10 @@ function WarehouseFormModal({
     const room = canAccommodate(
       warehouse
         ? {
-            capacity_kg: capacityKg,
-            reserved_kg: Number(warehouse.reserved_kg),
-            occupied_kg: Number(warehouse.occupied_kg),
-          }
+          capacity_kg: capacityKg,
+          reserved_kg: Number(warehouse.reserved_kg),
+          occupied_kg: Number(warehouse.occupied_kg),
+        }
         : { capacity_kg: capacityKg, reserved_kg: 0, occupied_kg: 0 },
       0
     );
@@ -636,11 +636,10 @@ function ChipPicker({
             type="button"
             onClick={() => onToggle(option)}
             aria-pressed={active}
-            className={`rounded-full px-2.5 py-1 text-[11px] font-semibold transition ${
-              active
+            className={`rounded-full px-2.5 py-1 text-[11px] font-semibold transition ${active
                 ? "bg-brand-700 text-white"
                 : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-            }`}
+              }`}
           >
             {option}
           </button>

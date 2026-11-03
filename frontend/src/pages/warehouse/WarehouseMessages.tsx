@@ -137,9 +137,8 @@ export default function WarehouseMessages() {
                     <button
                       type="button"
                       onClick={() => setSelectedId(t.id)}
-                      className={`flex w-full items-start gap-2.5 px-4 py-2.5 text-left transition hover:bg-slate-50 ${
-                        selected?.id === t.id ? "bg-brand-50" : ""
-                      }`}
+                      className={`flex w-full items-start gap-2.5 px-4 py-2.5 text-left transition hover:bg-slate-50 ${selected?.id === t.id ? "bg-brand-50" : ""
+                        }`}
                     >
                       <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-brand-100 text-brand-800">
                         {t.role === "Transporter" ? <Truck className="h-3.5 w-3.5" /> : <UserRound className="h-3.5 w-3.5" />}
@@ -189,17 +188,15 @@ export default function WarehouseMessages() {
                       className={`flex ${m.direction === "out" ? "justify-end" : "justify-start"}`}
                     >
                       <div
-                        className={`max-w-[80%] rounded-xl px-3 py-2 text-[11.5px] leading-relaxed ${
-                          m.direction === "out"
+                        className={`max-w-[80%] rounded-xl px-3 py-2 text-[11.5px] leading-relaxed ${m.direction === "out"
                             ? "bg-brand-700 text-white"
                             : "bg-slate-100 text-slate-800"
-                        }`}
+                          }`}
                       >
                         <p>{m.body}</p>
                         <p
-                          className={`mt-1 text-[9.5px] ${
-                            m.direction === "out" ? "text-white/70" : "text-slate-500"
-                          }`}
+                          className={`mt-1 text-[9.5px] ${m.direction === "out" ? "text-white/70" : "text-slate-500"
+                            }`}
                         >
                           {formatDateTime(m.created_at)}
                         </p>

@@ -86,9 +86,8 @@ export function WarehouseTypeTag({ type }: { type: WarehouseType | null }) {
   const isCold = type === "cold" || type === "fruit_veg";
   return (
     <span
-      className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold ${
-        isCold ? "bg-sky-100 text-sky-800" : "bg-amber-100 text-amber-800"
-      }`}
+      className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold ${isCold ? "bg-sky-100 text-sky-800" : "bg-amber-100 text-amber-800"
+        }`}
     >
       {isCold ? <Snowflake className="h-3 w-3" /> : <Sun className="h-3 w-3" />}
       {isCold ? "Cold" : "Dry"}

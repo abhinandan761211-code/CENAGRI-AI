@@ -102,9 +102,8 @@ export default function AdminAgriData() {
     >
       {notice && (
         <div
-          className={`rounded-lg border px-3 py-2 text-[11.5px] ${
-            notice.tone === "ok" ? "border-emerald-200 bg-emerald-50 text-emerald-800" : "border-rose-200 bg-rose-50 text-rose-800"
-          }`}
+          className={`rounded-lg border px-3 py-2 text-[11.5px] ${notice.tone === "ok" ? "border-emerald-200 bg-emerald-50 text-emerald-800" : "border-rose-200 bg-rose-50 text-rose-800"
+            }`}
         >
           {notice.text}
         </div>

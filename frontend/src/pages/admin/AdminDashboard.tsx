@@ -254,9 +254,8 @@ export default function AdminDashboard() {
                   {data.activity.slice(0, 7).map((item, index) => (
                     <li key={`${item.at}-${index}`} className="flex items-start gap-2">
                       <span
-                        className={`mt-1 h-1.5 w-1.5 shrink-0 rounded-full ${
-                          item.kind === "admin" ? "bg-emerald-500" : "bg-sky-400"
-                        }`}
+                        className={`mt-1 h-1.5 w-1.5 shrink-0 rounded-full ${item.kind === "admin" ? "bg-emerald-500" : "bg-sky-400"
+                          }`}
                       />
                       <div className="min-w-0">
                         <p className="truncate text-[11.5px] font-medium text-slate-700">{item.title}</p>

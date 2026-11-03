@@ -20,6 +20,22 @@ export function DemoBadge({ label = "Demo" }: { label?: string }) {
 }
 
 /**
+ * The "Demo preview" tile that sits on the dark hero banner. Authored for the
+ * dark surface explicitly, because the light-theme remaps turn a `bg-slate-100`
+ * panel white and its text near-white — invisible on the forest fill.
+ */
+function HeroStatusTile() {
+  return (
+    <div className="rounded-xl bg-white/10 p-3 ring-1 ring-inset ring-white/20">
+      <p className="text-[11px] font-semibold uppercase tracking-wide text-white/60">Status</p>
+      <p className="mt-1 flex items-center gap-1.5 text-sm font-bold text-white">
+        <MapPin className="h-3.5 w-3.5" /> Demo preview
+      </p>
+    </div>
+  );
+}
+
+/**
  * Page frame for the farmer feature pages.
  *
  * Renders the FULL farmer chrome (sidebar, header, hover rail, search, bell)
@@ -56,16 +72,7 @@ export function FeatureShell({
         title={title}
         description={description ?? ""}
         aside={
-          demo ? (
-            <div className="rounded-xl bg-slate-100 p-3">
-              <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-600">
-                Status
-              </p>
-              <p className="mt-1 flex items-center gap-1.5 text-sm font-bold">
-                <MapPin className="h-3.5 w-3.5" /> Demo preview
-              </p>
-            </div>
-          ) : undefined
+          demo ? <HeroStatusTile /> : undefined
         }
       />
 

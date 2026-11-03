@@ -190,16 +190,14 @@ export default function TransporterAvailability() {
                       key={key}
                       type="button"
                       onClick={() => setSelected(key)}
-                      className={`relative flex min-h-[56px] flex-col rounded-lg border p-1.5 text-left transition ${
-                        selected === key
+                      className={`relative flex min-h-[56px] flex-col rounded-lg border p-1.5 text-left transition ${selected === key
                           ? "border-brand-700 bg-brand-50"
                           : "border-slate-200 hover:border-brand-300 hover:bg-slate-50"
-                      } ${day.getMonth() === cursor.getMonth() ? "" : "opacity-40"}`}
+                        } ${day.getMonth() === cursor.getMonth() ? "" : "opacity-40"}`}
                     >
                       <span
-                        className={`text-[11px] font-bold ${
-                          isToday ? "w-fit rounded-full bg-brand-700 px-1.5 text-white" : "text-slate-700"
-                        }`}
+                        className={`text-[11px] font-bold ${isToday ? "w-fit rounded-full bg-brand-700 px-1.5 text-white" : "text-slate-700"
+                          }`}
                       >
                         {day.getDate()}
                       </span>
@@ -238,11 +236,10 @@ export default function TransporterAvailability() {
                       <button
                         type="button"
                         onClick={() => requestToggle(selected)}
-                        className={`rounded-full px-2.5 py-1 text-[10.5px] font-bold ${
-                          dayMap.get(selected)?.available === false
+                        className={`rounded-full px-2.5 py-1 text-[10.5px] font-bold ${dayMap.get(selected)?.available === false
                             ? "bg-slate-200 text-slate-700 hover:bg-slate-300"
                             : "bg-emerald-100 text-emerald-800 hover:bg-emerald-200"
-                        }`}
+                          }`}
                       >
                         {dayMap.get(selected)?.available === false ? "Unavailable" : "Available"}
                       </button>
@@ -288,9 +285,8 @@ export default function TransporterAvailability() {
                               {v.registration_no ?? v.vehicle_type}
                             </span>
                             <span
-                              className={`shrink-0 rounded-full px-1.5 py-0.5 text-[9.5px] font-bold ${
-                                busy ? "bg-amber-100 text-amber-800" : "bg-emerald-100 text-emerald-800"
-                              }`}
+                              className={`shrink-0 rounded-full px-1.5 py-0.5 text-[9.5px] font-bold ${busy ? "bg-amber-100 text-amber-800" : "bg-emerald-100 text-emerald-800"
+                                }`}
                             >
                               {busy ? "Booked" : "Free"}
                             </span>
@@ -315,9 +311,8 @@ export default function TransporterAvailability() {
                           <li key={d.id} className="flex items-center justify-between gap-2 text-[11px]">
                             <span className="truncate font-semibold text-slate-700">{d.full_name}</span>
                             <span
-                              className={`shrink-0 rounded-full px-1.5 py-0.5 text-[9.5px] font-bold ${
-                                busy ? "bg-amber-100 text-amber-800" : "bg-emerald-100 text-emerald-800"
-                              }`}
+                              className={`shrink-0 rounded-full px-1.5 py-0.5 text-[9.5px] font-bold ${busy ? "bg-amber-100 text-amber-800" : "bg-emerald-100 text-emerald-800"
+                                }`}
                             >
                               {busy ? "Booked" : "Free"}
                             </span>

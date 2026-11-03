@@ -86,9 +86,8 @@ export function AvailabilityBadge({ profile }: { profile: WorkerProfile | null }
   const open = profile?.is_open_to_work ?? true;
   return (
     <span
-      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-bold ${
-        open ? "bg-emerald-100 text-emerald-800" : "bg-slate-100 text-slate-600"
-      }`}
+      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-bold ${open ? "bg-emerald-100 text-emerald-800" : "bg-slate-100 text-slate-600"
+        }`}
     >
       <span className={`h-1.5 w-1.5 rounded-full ${open ? "bg-emerald-500" : "bg-slate-400"}`} />
       {open ? "Available for work" : "Not taking work"}
@@ -288,11 +287,10 @@ export function JobCard({
         {footer ?? (
           <Link
             to={`/worker/jobs/${job.id}`}
-            className={`inline-flex h-8 items-center justify-center rounded-lg px-3 text-[11.5px] font-semibold text-white transition ${
-              applied || isFull
+            className={`inline-flex h-8 items-center justify-center rounded-lg px-3 text-[11.5px] font-semibold text-white transition ${applied || isFull
                 ? "pointer-events-none bg-slate-300"
                 : "bg-brand-700 hover:bg-brand-800"
-            }`}
+              }`}
           >
             {applied ? "Applied" : isFull ? "Full" : "Apply"}
           </Link>

@@ -107,9 +107,8 @@ export default function RetailerOrders() {
                 role="tab"
                 aria-selected={active}
                 onClick={() => setTab(key)}
-                className={`flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold transition ${
-                  active ? "bg-slate-100 text-forest" : "text-slate-500 hover:bg-slate-50"
-                }`}
+                className={`flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold transition ${active ? "bg-slate-100 text-forest" : "text-slate-500 hover:bg-slate-50"
+                  }`}
               >
                 {key !== "all" && (
                   <span className={`h-1.5 w-1.5 rounded-full ${ORDER_STATUS_STYLE[key].dot}`} />
@@ -153,9 +152,8 @@ export default function RetailerOrders() {
                       setSort(value);
                       setSortOpen(false);
                     }}
-                    className={`block w-full px-3 py-1.5 text-left text-xs hover:bg-slate-50 ${
-                      sort === value ? "font-semibold text-forest" : "text-slate-600"
-                    }`}
+                    className={`block w-full px-3 py-1.5 text-left text-xs hover:bg-slate-50 ${sort === value ? "font-semibold text-forest" : "text-slate-600"
+                      }`}
                   >
                     {label}
                   </button>

@@ -19,6 +19,7 @@ import {
   X,
 } from "lucide-react";
 import { FarmerShell } from "@/components/farm/FarmerShell";
+import FarmerDashboardBody from "@/components/farm/FarmerDashboardBody";
 import { renderFarmerPanel } from "@/components/farm/farmerPanels";
 import { useAuth } from "@/hooks/useAuth";
 import { LOCATION_FIELD_NAMES, ROLE_FIELDS } from "@/lib/roleFields";
@@ -239,14 +240,11 @@ function WeatherGlyph({ kind }: { kind: "sun" | "cloud" | "rain" }) {
  * pages all share exactly one chrome in the creator-studio style.
  */
 export default function FarmerDashboard() {
-  return (
-    <FarmerShell panelContent={(name, close) => renderFarmerPanel(name, close)}>
-      <FarmerDashboardBody />
-    </FarmerShell>
-  );
+  return <FarmerDashboardBody />;
 }
 
-function FarmerDashboardBody() {
+/* eslint-disable @typescript-eslint/no-unused-vars */
+function LegacyFarmerDashboardBody() {
   const { user, profile, needsRole, needsDetails, signOut } = useAuth();
   const navigate = useNavigate();
   const { pathname, hash } = useLocation();

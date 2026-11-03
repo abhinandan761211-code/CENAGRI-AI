@@ -104,11 +104,10 @@ export default function WorkerNotifications() {
             type="button"
             onClick={() => setFilter(key)}
             aria-pressed={filter === key}
-            className={`rounded-lg px-3 py-1.5 text-[11.5px] font-semibold capitalize transition ${
-              filter === key
+            className={`rounded-lg px-3 py-1.5 text-[11.5px] font-semibold capitalize transition ${filter === key
                 ? "bg-brand-700 text-white"
                 : "bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-50"
-            }`}
+              }`}
           >
             {key}
             {key === "unread" && unread > 0 && (

@@ -217,13 +217,12 @@ function TicketDialog({ ticket, onClose, onChanged }: { ticket: Ticket; onClose:
               {data.messages.map((message) => (
                 <li
                   key={message.id}
-                  className={`rounded-lg px-3 py-2 text-[12px] ${
-                    message.is_internal
+                  className={`rounded-lg px-3 py-2 text-[12px] ${message.is_internal
                       ? "border border-amber-200 bg-amber-50 text-amber-900"
                       : message.author_kind === "admin"
                         ? "bg-emerald-50 text-emerald-900"
                         : "bg-white text-slate-700"
-                  }`}
+                    }`}
                 >
                   <p className="mb-0.5 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wide opacity-70">
                     <MessageSquare className="h-3 w-3" />

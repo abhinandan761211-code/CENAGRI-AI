@@ -148,9 +148,8 @@ export default function EquipmentCalendar() {
                     return (
                       <th
                         key={d}
-                        className={`w-[26px] border-l border-slate-100 py-1.5 text-center text-[9px] font-bold ${
-                          isToday ? "bg-brand-50 text-brand-800" : weekend ? "text-slate-400" : "text-slate-600"
-                        }`}
+                        className={`w-[26px] border-l border-slate-100 py-1.5 text-center text-[9px] font-bold ${isToday ? "bg-brand-50 text-brand-800" : weekend ? "text-slate-400" : "text-slate-600"
+                          }`}
                         title={formatDate(d)}
                       >
                         {date.getDate()}
@@ -175,15 +174,14 @@ export default function EquipmentCalendar() {
                                 ? `${formatDate(cell.date)} — ${cell.block?.kind}${cell.block?.reason ? `: ${cell.block.reason}` : ""}`
                                 : `${formatDate(cell.date)} — ${cell.state}`
                           }
-                          className={`h-6 rounded ${
-                            cell.state === "booked"
+                          className={`h-6 rounded ${cell.state === "booked"
                               ? "bg-blue-500"
                               : cell.state === "blocked"
                                 ? "bg-amber-400"
                                 : cell.state === "past"
                                   ? "bg-slate-100"
                                   : "bg-emerald-100"
-                          }`}
+                            }`}
                         />
                       </td>
                     ))}

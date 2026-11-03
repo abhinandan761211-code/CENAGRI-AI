@@ -104,9 +104,8 @@ export default function TransporterMessages() {
                     <button
                       type="button"
                       onClick={() => setActiveId(thread.id)}
-                      className={`flex w-full flex-col gap-0.5 px-3.5 py-2.5 text-left transition ${
-                        active.id === thread.id ? "bg-brand-50" : "hover:bg-slate-50"
-                      }`}
+                      className={`flex w-full flex-col gap-0.5 px-3.5 py-2.5 text-left transition ${active.id === thread.id ? "bg-brand-50" : "hover:bg-slate-50"
+                        }`}
                     >
                       <span className="truncate text-[12px] font-semibold text-forest">{thread.name}</span>
                       <span className="truncate text-[10.5px] text-slate-500">{last?.body ?? ""}</span>
@@ -123,17 +122,15 @@ export default function TransporterMessages() {
                 {active.rows.map((row) => (
                   <li key={row.id} className={`flex ${row.direction === "out" ? "justify-end" : "justify-start"}`}>
                     <div
-                      className={`max-w-[80%] rounded-xl px-3 py-2 text-[12px] leading-relaxed ${
-                        row.direction === "out"
+                      className={`max-w-[80%] rounded-xl px-3 py-2 text-[12px] leading-relaxed ${row.direction === "out"
                           ? "bg-brand-700 text-white"
                           : "bg-slate-100 text-slate-800"
-                      }`}
+                        }`}
                     >
                       <p className="whitespace-pre-line">{row.body}</p>
                       <p
-                        className={`mt-1 text-[9.5px] ${
-                          row.direction === "out" ? "text-white/60" : "text-slate-400"
-                        }`}
+                        className={`mt-1 text-[9.5px] ${row.direction === "out" ? "text-white/60" : "text-slate-400"
+                          }`}
                       >
                         {formatDateTime(row.created_at)}
                       </p>

@@ -133,9 +133,8 @@ export default function WorkerCalendar() {
               type="button"
               onClick={() => setView(v)}
               aria-pressed={view === v}
-              className={`rounded-md px-2.5 py-1 text-[11px] font-semibold capitalize transition ${
-                view === v ? "bg-brand-700 text-white" : "text-slate-600 hover:bg-slate-50"
-              }`}
+              className={`rounded-md px-2.5 py-1 text-[11px] font-semibold capitalize transition ${view === v ? "bg-brand-700 text-white" : "text-slate-600 hover:bg-slate-50"
+                }`}
             >
               {v}
             </button>
@@ -204,16 +203,14 @@ export default function WorkerCalendar() {
                           key={key}
                           type="button"
                           onClick={() => setSelected(key)}
-                          className={`relative flex min-h-[54px] flex-col rounded-lg border p-1.5 text-left transition ${
-                            selected === key
+                          className={`relative flex min-h-[54px] flex-col rounded-lg border p-1.5 text-left transition ${selected === key
                               ? "border-brand-700 bg-brand-50"
                               : "border-slate-200 hover:border-brand-300 hover:bg-slate-50"
-                          } ${inMonth ? "" : "opacity-40"}`}
+                            } ${inMonth ? "" : "opacity-40"}`}
                         >
                           <span
-                            className={`text-[11px] font-bold ${
-                              isToday ? "text-white" : "text-slate-700"
-                            } ${isToday ? "rounded-full bg-brand-700 px-1.5 w-fit" : ""}`}
+                            className={`text-[11px] font-bold ${isToday ? "text-white" : "text-slate-700"
+                              } ${isToday ? "rounded-full bg-brand-700 px-1.5 w-fit" : ""}`}
                           >
                             {day.getDate()}
                           </span>
@@ -255,11 +252,10 @@ export default function WorkerCalendar() {
                         key={key}
                         type="button"
                         onClick={() => setSelected(key)}
-                        className={`rounded-lg border p-2 text-left transition ${
-                          selected === key
+                        className={`rounded-lg border p-2 text-left transition ${selected === key
                             ? "border-brand-700 bg-brand-50"
                             : "border-slate-200 hover:border-brand-300"
-                        }`}
+                          }`}
                       >
                         <p className="text-[10px] font-bold uppercase text-slate-400">
                           {WEEKDAYS[(day.getDay() + 6) % 7]}
@@ -315,11 +311,10 @@ export default function WorkerCalendar() {
                       <button
                         type="button"
                         onClick={() => requestToggle(selected)}
-                        className={`rounded-full px-2.5 py-1 text-[10.5px] font-bold transition ${
-                          days.get(selected)?.available === false
+                        className={`rounded-full px-2.5 py-1 text-[10.5px] font-bold transition ${days.get(selected)?.available === false
                             ? "bg-slate-200 text-slate-700 hover:bg-slate-300"
                             : "bg-emerald-100 text-emerald-800 hover:bg-emerald-200"
-                        }`}
+                          }`}
                       >
                         {days.get(selected)?.available === false ? "Unavailable" : "Available"}
                       </button>

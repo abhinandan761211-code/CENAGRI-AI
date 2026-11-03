@@ -13,9 +13,32 @@ import CompleteProfile from "./pages/CompleteProfile";
 import Dashboard from "./pages/Dashboard";
 import FarmerDashboard from "./pages/FarmerDashboard";
 import BuyerDashboard from "./pages/BuyerDashboard";
-import CropAdvisory from "./pages/CropAdvisory";
-import MyFarm from "./pages/MyFarm";
-import WeatherAlerts from "./pages/WeatherAlerts";
+import CropAdvisory from "./pages/farmer/AdvisoryPage";
+import MyFarm from "./pages/farmer/FarmPage";
+import CropManagement from "./pages/farmer/CropPage";
+import CropCalendar from "./pages/farmer/CalendarPage";
+import DiseaseDetection from "./pages/farmer/DiseasePage";
+import WeatherAlerts from "./pages/farmer/WeatherPage";
+import MandiPage from "./pages/farmer/MandiPage";
+import SoilPage from "./pages/farmer/SoilPage";
+import IrrigationPage from "./pages/farmer/IrrigationPage";
+import ActivitiesPage from "./pages/farmer/ActivitiesPage";
+import OrdersSalesPage from "./pages/farmer/OrdersSalesPage";
+import ExpensesPage from "./pages/farmer/ExpensesPage";
+import LabourPage from "./pages/farmer/LabourPage";
+import SchemesPage from "./pages/farmer/SchemesPage";
+import InsurancePage from "./pages/farmer/InsurancePage";
+import GroupsPage from "./pages/farmer/GroupsPage";
+import MessagesPage, { NotificationsPage as FarmerNotificationsPage } from "./pages/farmer/MessagesPage";
+import ProfilePage from "./pages/farmer/ProfilePage";
+import PersonalPage from "./pages/farmer/PersonalPage";
+import FarmingInfoPage from "./pages/farmer/FarmingInfoPage";
+import DocumentsPage from "./pages/farmer/DocumentsPage";
+import LanguagePage from "./pages/farmer/LanguagePage";
+import NotificationSettingsPage from "./pages/farmer/NotificationSettingsPage";
+import PrivacyPage from "./pages/farmer/PrivacyPage";
+import HelpPage from "./pages/farmer/HelpPage";
+import AccountManagePage from "./pages/farmer/AccountManagePage";
 import Marketplace from "./pages/Marketplace";
 import CenFriend from "./pages/CenFriend";
 import EquipmentRental from "./pages/EquipmentRental";
@@ -349,10 +372,45 @@ export default function App() {
           <Route path="/watch/:id" element={<ProtectedRoute><WatchVideo /></ProtectedRoute>} />
           <Route path="/channel/:id" element={<ProtectedRoute><CreatorChannel /></ProtectedRoute>} />
 
-          {/* Farmer feature pages — every sidebar entry has a real route. */}
+          {/* ── Farmer feature pages — every sidebar entry has a real route,
+              all rendered inside the shared <FarmerShell> chrome. ── */}
           <Route path="/my-farm" element={<ProtectedRoute><MyFarm /></ProtectedRoute>} />
+          <Route path="/crops" element={<ProtectedRoute><CropManagement /></ProtectedRoute>} />
+          <Route path="/calendar" element={<ProtectedRoute><CropCalendar /></ProtectedRoute>} />
+          <Route path="/disease-detection" element={<ProtectedRoute><DiseaseDetection /></ProtectedRoute>} />
           <Route path="/advisory" element={<ProtectedRoute><CropAdvisory /></ProtectedRoute>} />
           <Route path="/weather" element={<ProtectedRoute><WeatherAlerts /></ProtectedRoute>} />
+          <Route path="/soil-health" element={<ProtectedRoute><SoilPage /></ProtectedRoute>} />
+          <Route path="/irrigation" element={<ProtectedRoute><IrrigationPage /></ProtectedRoute>} />
+          <Route path="/farm-activities" element={<ProtectedRoute><ActivitiesPage /></ProtectedRoute>} />
+
+          {/* Market & business */}
+          <Route path="/mandi" element={<ProtectedRoute><MandiPage /></ProtectedRoute>} />
+          <Route path="/orders-sales" element={<ProtectedRoute><OrdersSalesPage /></ProtectedRoute>} />
+          <Route path="/expenses" element={<ProtectedRoute><ExpensesPage /></ProtectedRoute>} />
+
+          {/* Farming services */}
+          <Route path="/farm-labour" element={<ProtectedRoute><LabourPage /></ProtectedRoute>} />
+          <Route path="/schemes" element={<ProtectedRoute><SchemesPage /></ProtectedRoute>} />
+          <Route path="/crop-insurance" element={<ProtectedRoute><InsurancePage /></ProtectedRoute>} />
+
+          {/* Community */}
+          <Route path="/farming-groups" element={<ProtectedRoute><GroupsPage /></ProtectedRoute>} />
+          <Route path="/messages" element={<ProtectedRoute><MessagesPage /></ProtectedRoute>} />
+          <Route path="/notifications" element={<ProtectedRoute><FarmerNotificationsPage /></ProtectedRoute>} />
+
+          {/* My Account */}
+          <Route path="/account" element={<Navigate to="/account/profile" replace />} />
+          <Route path="/account/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+          <Route path="/account/personal" element={<ProtectedRoute><PersonalPage /></ProtectedRoute>} />
+          <Route path="/account/farming" element={<ProtectedRoute><FarmingInfoPage /></ProtectedRoute>} />
+          <Route path="/account/documents" element={<ProtectedRoute><DocumentsPage /></ProtectedRoute>} />
+          <Route path="/account/language" element={<ProtectedRoute><LanguagePage /></ProtectedRoute>} />
+          <Route path="/account/notifications" element={<ProtectedRoute><NotificationSettingsPage /></ProtectedRoute>} />
+          <Route path="/account/privacy" element={<ProtectedRoute><PrivacyPage /></ProtectedRoute>} />
+          <Route path="/account/help" element={<ProtectedRoute><HelpPage /></ProtectedRoute>} />
+          <Route path="/account/manage" element={<ProtectedRoute><AccountManagePage /></ProtectedRoute>} />
+
           <Route path="/marketplace" element={<ProtectedRoute><Marketplace /></ProtectedRoute>} />
           <Route path="/cenfriend" element={<ProtectedRoute><CenFriend /></ProtectedRoute>} />
           <Route path="/equipment" element={<ProtectedRoute><EquipmentRental /></ProtectedRoute>} />

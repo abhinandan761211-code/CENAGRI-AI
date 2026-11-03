@@ -253,9 +253,8 @@ function ComposeDialog({ onClose, onDone }: { onClose: () => void; onDone: (text
                   key={role}
                   type="button"
                   onClick={() => setRoles(on ? roles.filter((r) => r !== role) : [...roles, role])}
-                  className={`rounded-full px-2.5 py-1 text-[11px] font-semibold transition ${
-                    on ? "bg-emerald-600 text-white" : "border border-slate-300 bg-white text-slate-600"
-                  }`}
+                  className={`rounded-full px-2.5 py-1 text-[11px] font-semibold transition ${on ? "bg-emerald-600 text-white" : "border border-slate-300 bg-white text-slate-600"
+                    }`}
                 >
                   {role}
                 </button>

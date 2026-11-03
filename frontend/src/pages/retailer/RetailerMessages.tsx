@@ -118,9 +118,8 @@ export default function RetailerMessages() {
                   <button
                     type="button"
                     onClick={() => setActiveKey(thread.key)}
-                    className={`flex w-full items-center gap-3 px-3 py-3 text-left transition ${
-                      selected ? "bg-brand-50" : "hover:bg-slate-50"
-                    }`}
+                    className={`flex w-full items-center gap-3 px-3 py-3 text-left transition ${selected ? "bg-brand-50" : "hover:bg-slate-50"
+                      }`}
                   >
                     <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-brand-100 text-[12px] font-bold text-brand-800">
                       {thread.name.slice(0, 2).toUpperCase()}
@@ -161,11 +160,10 @@ export default function RetailerMessages() {
                 return (
                   <div key={message.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
                     <div
-                      className={`max-w-[80%] rounded-xl px-3 py-2 text-xs leading-relaxed ${
-                        mine
+                      className={`max-w-[80%] rounded-xl px-3 py-2 text-xs leading-relaxed ${mine
                           ? "rounded-br-sm bg-brand-700 text-white"
                           : "rounded-bl-sm border border-slate-200 bg-white text-slate-700"
-                      }`}
+                        }`}
                     >
                       <p className="whitespace-pre-wrap">{message.body}</p>
                       <p className={`mt-1 text-[9px] ${mine ? "text-white/70" : "text-slate-400"}`}>

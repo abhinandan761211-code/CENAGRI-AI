@@ -243,9 +243,8 @@ export default function WarehouseInventory() {
                 type="button"
                 onClick={() => setOnlyInStorage((v) => !v)}
                 aria-pressed={onlyInStorage}
-                className={`inline-flex h-8 shrink-0 items-center gap-1 rounded-lg px-2.5 text-[11px] font-semibold ${
-                  onlyInStorage ? "bg-brand-700 text-white" : "bg-slate-100 text-slate-600"
-                }`}
+                className={`inline-flex h-8 shrink-0 items-center gap-1 rounded-lg px-2.5 text-[11px] font-semibold ${onlyInStorage ? "bg-brand-700 text-white" : "bg-slate-100 text-slate-600"
+                  }`}
               >
                 <SlidersHorizontal className="h-3 w-3" /> In storage
               </button>
@@ -321,8 +320,7 @@ export default function WarehouseInventory() {
                         </td>
                         <td className="px-4 py-2.5">
                           <span
-                            className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
-                              lot.status === "in_storage"
+                            className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${lot.status === "in_storage"
                                 ? "bg-emerald-100 text-emerald-800"
                                 : lot.status === "partially_released"
                                   ? "bg-orange-100 text-orange-800"
@@ -331,7 +329,7 @@ export default function WarehouseInventory() {
                                     : lot.status === "on_hold"
                                       ? "bg-amber-100 text-amber-800"
                                       : "bg-rose-100 text-rose-800"
-                            }`}
+                              }`}
                           >
                             {lot.status.replace("_", " ")}
                           </span>
@@ -462,15 +460,14 @@ function AdjustModal({
         </Field>
 
         <p
-          className={`text-[11.5px] font-semibold ${
-            delta === 0 ? "text-slate-500" : delta > 0 ? "text-emerald-700" : "text-rose-700"
-          }`}
+          className={`text-[11.5px] font-semibold ${delta === 0 ? "text-slate-500" : delta > 0 ? "text-emerald-700" : "text-rose-700"
+            }`}
         >
           {delta === 0
             ? "No change."
             : `${delta > 0 ? "+" : ""}${delta.toLocaleString("en-IN")} kg (${formatWeight(
-                Math.abs(delta)
-              )} ${delta > 0 ? "added back" : "removed"})`}
+              Math.abs(delta)
+            )} ${delta > 0 ? "added back" : "removed"})`}
         </p>
 
         <Field label="Reason" required hint="Be specific — 'bags torn in block B' is useful, 'loss' is not.">
@@ -539,9 +536,8 @@ function LedgerModal({ lot, onClose }: { lot: InventoryLot; onClose: () => void 
               return (
                 <li key={tx.id} className="flex items-start gap-3 px-3 py-2.5">
                   <span
-                    className={`mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full ${
-                      positive ? "bg-emerald-50 text-emerald-700" : "bg-rose-50 text-rose-700"
-                    }`}
+                    className={`mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full ${positive ? "bg-emerald-50 text-emerald-700" : "bg-rose-50 text-rose-700"
+                      }`}
                   >
                     <Droplets className="h-3 w-3" />
                   </span>

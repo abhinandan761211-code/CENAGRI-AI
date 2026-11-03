@@ -109,11 +109,10 @@ export default function WorkerApplications() {
               type="button"
               onClick={() => setTab(key)}
               aria-pressed={tab === key}
-              className={`shrink-0 rounded-lg px-3 py-1.5 text-[11.5px] font-semibold transition ${
-                tab === key
+              className={`shrink-0 rounded-lg px-3 py-1.5 text-[11.5px] font-semibold transition ${tab === key
                   ? "bg-brand-700 text-white"
                   : "bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-50"
-              }`}
+                }`}
             >
               {label}
               <span className={`ml-1.5 text-[10px] ${tab === key ? "text-white/70" : "text-slate-400"}`}>
@@ -302,9 +301,8 @@ export default function WorkerApplications() {
 function LifecycleStep({ label, done }: { label: string; done: boolean }) {
   return (
     <span
-      className={`rounded-full px-2 py-1 ${
-        done ? "bg-emerald-50 text-emerald-800" : "bg-slate-50 text-slate-400"
-      }`}
+      className={`rounded-full px-2 py-1 ${done ? "bg-emerald-50 text-emerald-800" : "bg-slate-50 text-slate-400"
+        }`}
     >
       {label}
     </span>

@@ -519,11 +519,10 @@ function ManageModal({
                   type="button"
                   disabled={busy}
                   onClick={() => onAdvance(s)}
-                  className={`inline-flex h-9 items-center justify-center rounded-lg text-[11.5px] font-semibold transition disabled:opacity-60 ${
-                    s === "cancelled" || s === "disputed" || s === "rejected"
+                  className={`inline-flex h-9 items-center justify-center rounded-lg text-[11.5px] font-semibold transition disabled:opacity-60 ${s === "cancelled" || s === "disputed" || s === "rejected"
                       ? "border border-rose-200 bg-white text-rose-600 hover:bg-rose-50"
                       : "bg-brand-700 text-white hover:bg-brand-800"
-                  }`}
+                    }`}
                 >
                   Mark as {BOOKING_LABEL[s].toLowerCase()}
                 </button>

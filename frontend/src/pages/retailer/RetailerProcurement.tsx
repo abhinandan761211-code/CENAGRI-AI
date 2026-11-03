@@ -75,9 +75,8 @@ export default function RetailerProcurement() {
               type="button"
               aria-selected={tab === key}
               onClick={() => setTab(key)}
-              className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
-                tab === key ? "bg-slate-100 text-forest" : "text-slate-500 hover:bg-slate-50"
-              }`}
+              className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${tab === key ? "bg-slate-100 text-forest" : "text-slate-500 hover:bg-slate-50"
+                }`}
             >
               {label}
               <span className="ml-1.5 text-[10px] text-slate-400">

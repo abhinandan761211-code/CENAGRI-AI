@@ -127,9 +127,8 @@ export default function AdminKyc() {
               setPage(1);
               setStatus(value);
             }}
-            className={`rounded-full px-3 py-1.5 text-[11.5px] font-semibold capitalize transition ${
-              status === value ? "bg-emerald-600 text-white" : "border border-slate-300 bg-white text-slate-600 hover:bg-slate-50"
-            }`}
+            className={`rounded-full px-3 py-1.5 text-[11.5px] font-semibold capitalize transition ${status === value ? "bg-emerald-600 text-white" : "border border-slate-300 bg-white text-slate-600 hover:bg-slate-50"
+              }`}
           >
             {value}
           </button>

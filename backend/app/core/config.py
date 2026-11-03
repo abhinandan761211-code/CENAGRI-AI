@@ -74,6 +74,16 @@ class Settings(BaseSettings):
         return bool(self.SUPABASE_URL and self.SUPABASE_SERVICE_ROLE_KEY and has_secret)
 
     @property
+    def user_api_enabled(self) -> bool:
+        """True when a signed-in user's token can be verified AND their rows read.
+
+        The farmer read APIs (overview, finance, advisory) run after the caller's
+        Supabase token is verified here, so they need the same three values the
+        admin panel does — but no session-age or MFA policy of their own.
+        """
+        return self.admin_enabled
+
+    @property
     def SUPABASE_JWKS_URL(self) -> str:
         """JWKS endpoint for modern (RS256/ES256) Supabase projects."""
         if not self.SUPABASE_URL:

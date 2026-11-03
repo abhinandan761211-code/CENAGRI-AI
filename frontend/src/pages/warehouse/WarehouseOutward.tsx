@@ -221,9 +221,8 @@ export default function WarehouseOutward() {
                     <td className="px-4 py-2.5 text-slate-600">{d.vehicle_no ?? "—"}</td>
                     <td className="px-4 py-2.5">
                       <span
-                        className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
-                          d.partial ? "bg-orange-100 text-orange-800" : "bg-emerald-100 text-emerald-800"
-                        }`}
+                        className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${d.partial ? "bg-orange-100 text-orange-800" : "bg-emerald-100 text-emerald-800"
+                          }`}
                       >
                         {d.partial ? "Partial" : "Full"}
                       </span>
@@ -355,9 +354,8 @@ function DispatchModal({
                   setKg(m === "full" ? String(available) : "");
                 }}
                 aria-pressed={mode === m}
-                className={`flex-1 rounded-lg px-3 py-2 text-[11.5px] font-semibold transition ${
-                  mode === m ? "bg-brand-700 text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                }`}
+                className={`flex-1 rounded-lg px-3 py-2 text-[11.5px] font-semibold transition ${mode === m ? "bg-brand-700 text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                  }`}
               >
                 {m === "full" ? `Full release (${formatWeight(available)})` : "Partial release"}
               </button>

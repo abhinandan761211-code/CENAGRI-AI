@@ -131,9 +131,8 @@ export default function WarehouseMonitoring() {
             {alerts.map(({ reading, section, level }) => (
               <li key={reading.id} className="flex items-start gap-2.5 px-4 py-2.5">
                 <AlertTriangle
-                  className={`mt-0.5 h-4 w-4 shrink-0 ${
-                    level === "critical" ? "text-rose-600" : "text-amber-600"
-                  }`}
+                  className={`mt-0.5 h-4 w-4 shrink-0 ${level === "critical" ? "text-rose-600" : "text-amber-600"
+                    }`}
                 />
                 <div className="min-w-0 flex-1">
                   <p className="text-[11.5px] font-semibold text-forest">
@@ -308,11 +307,10 @@ export default function WarehouseMonitoring() {
 function SourceTag({ source }: { source: "manual" | "sensor" }) {
   return (
     <span
-      className={`shrink-0 rounded-full px-1.5 py-0.5 text-[9.5px] font-bold ${
-        source === "sensor"
+      className={`shrink-0 rounded-full px-1.5 py-0.5 text-[9.5px] font-bold ${source === "sensor"
           ? "bg-sky-100 text-sky-800"
           : "bg-slate-100 text-slate-600"
-      }`}
+        }`}
     >
       {source === "sensor" ? "sensor" : "manual"}
     </span>

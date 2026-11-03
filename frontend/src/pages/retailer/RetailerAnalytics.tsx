@@ -86,9 +86,8 @@ export default function RetailerAnalytics() {
               type="button"
               aria-pressed={active}
               onClick={() => setPeriod(p.key)}
-              className={`flex-1 rounded-lg px-3 py-2 text-xs font-semibold transition ${
-                active ? "bg-slate-100 text-forest" : "text-slate-500 hover:bg-slate-50"
-              }`}
+              className={`flex-1 rounded-lg px-3 py-2 text-xs font-semibold transition ${active ? "bg-slate-100 text-forest" : "text-slate-500 hover:bg-slate-50"
+                }`}
             >
               {p.label}
             </button>

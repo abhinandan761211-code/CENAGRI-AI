@@ -140,7 +140,7 @@ export default function TransporterHome() {
     me.data?.service_districts?.length
       ? me.data.service_districts.slice(0, 3).join(", ")
       : [account?.details?.district, account?.details?.state].filter(Boolean).join(", ") ||
-        "Add your service area";
+      "Add your service area";
 
   return (
     <TransporterLayout
@@ -341,11 +341,10 @@ export default function TransporterHome() {
                           </p>
                         </div>
                         <span
-                          className={`shrink-0 rounded-full px-2 py-0.5 text-[9.5px] font-bold ${
-                            vehicle.available
+                          className={`shrink-0 rounded-full px-2 py-0.5 text-[9.5px] font-bold ${vehicle.available
                               ? "bg-emerald-100 text-emerald-800"
                               : "bg-slate-100 text-slate-600"
-                          }`}
+                            }`}
                         >
                           {vehicle.available ? "Available" : "Busy"}
                         </span>

@@ -101,11 +101,10 @@ export default function EquipmentAgreements() {
                     </p>
                   </div>
                   <span
-                    className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold ${
-                      a.renter_confirmed_at
+                    className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold ${a.renter_confirmed_at
                         ? "bg-emerald-100 text-emerald-800"
                         : "bg-amber-100 text-amber-800"
-                    }`}
+                      }`}
                   >
                     {a.renter_confirmed_at ? "Both confirmed" : "Awaiting renter"}
                   </span>
@@ -182,16 +181,14 @@ export default function EquipmentAgreements() {
           <div className="space-y-3">
             <div className="flex flex-wrap items-center gap-2">
               <span
-                className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
-                  viewing.owner_confirmed_at ? "bg-emerald-100 text-emerald-800" : "bg-slate-100 text-slate-600"
-                }`}
+                className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${viewing.owner_confirmed_at ? "bg-emerald-100 text-emerald-800" : "bg-slate-100 text-slate-600"
+                  }`}
               >
                 Owner {viewing.owner_confirmed_at ? "confirmed" : "not confirmed"}
               </span>
               <span
-                className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
-                  viewing.renter_confirmed_at ? "bg-emerald-100 text-emerald-800" : "bg-amber-100 text-amber-800"
-                }`}
+                className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${viewing.renter_confirmed_at ? "bg-emerald-100 text-emerald-800" : "bg-amber-100 text-amber-800"
+                  }`}
               >
                 Renter {viewing.renter_confirmed_at ? "confirmed" : "awaiting"}
               </span>

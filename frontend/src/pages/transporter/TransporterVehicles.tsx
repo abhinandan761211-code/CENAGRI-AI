@@ -267,13 +267,12 @@ export default function TransporterVehicles() {
                   .join(" · ")}
                 action={
                   <span
-                    className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
-                      onTrip
+                    className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${onTrip
                         ? "bg-amber-100 text-amber-800"
                         : vehicle.available
                           ? "bg-emerald-100 text-emerald-800"
                           : "bg-slate-100 text-slate-600"
-                    }`}
+                      }`}
                   >
                     {onTrip ? "On a trip" : vehicle.available ? "Available" : "Unavailable"}
                   </span>

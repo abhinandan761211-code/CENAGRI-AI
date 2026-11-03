@@ -123,9 +123,8 @@ export default function WorkerActiveWork() {
               <Panel
                 key={assignment.id}
                 title={assignment.title}
-                description={`${assignment.employer_name}${
-                  assignment.work_district ? ` · ${assignment.work_district}` : ""
-                }`}
+                description={`${assignment.employer_name}${assignment.work_district ? ` · ${assignment.work_district}` : ""
+                  }`}
                 action={<AssignmentStatusPill status={assignment.status} />}
               >
                 <div className="space-y-4 p-4 sm:p-5">
@@ -190,11 +189,10 @@ export default function WorkerActiveWork() {
                           type="button"
                           disabled={savingId === assignment.id || pct === assignment.progress_pct}
                           onClick={() => void setProgress(assignment, pct)}
-                          className={`rounded-lg border px-2.5 py-1 text-[11px] font-semibold transition disabled:cursor-not-allowed ${
-                            pct === assignment.progress_pct
+                          className={`rounded-lg border px-2.5 py-1 text-[11px] font-semibold transition disabled:cursor-not-allowed ${pct === assignment.progress_pct
                               ? "border-brand-700 bg-brand-700 text-white"
                               : "border-slate-200 bg-white text-slate-600 hover:border-brand-300 hover:text-brand-800 disabled:opacity-50"
-                          }`}
+                            }`}
                         >
                           {pct}%
                         </button>
@@ -230,13 +228,12 @@ export default function WorkerActiveWork() {
                                 <td className="px-3 py-1.5 text-slate-600">{formatDate(row.day)}</td>
                                 <td className="px-3 py-1.5">
                                   <span
-                                    className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
-                                      row.status === "present"
+                                    className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${row.status === "present"
                                         ? "bg-emerald-100 text-emerald-800"
                                         : row.status === "half_day"
                                           ? "bg-amber-100 text-amber-800"
                                           : "bg-slate-100 text-slate-600"
-                                    }`}
+                                      }`}
                                   >
                                     {ATTENDANCE_LABEL[row.status]}
                                   </span>

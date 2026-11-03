@@ -117,11 +117,10 @@ export default function ImageUploader({
             setDragging(false);
             void handleFile(e.dataTransfer.files[0]);
           }}
-          className={`flex h-24 w-full flex-col items-center justify-center gap-1.5 rounded-lg border-2 border-dashed transition disabled:opacity-60 ${
-            dragging
+          className={`flex h-24 w-full flex-col items-center justify-center gap-1.5 rounded-lg border-2 border-dashed transition disabled:opacity-60 ${dragging
               ? "border-brand-500 bg-brand-50"
               : "border-slate-300 bg-slate-50/60 hover:border-brand-400 hover:bg-brand-50/40"
-          }`}
+            }`}
         >
           {busy ? (
             <>

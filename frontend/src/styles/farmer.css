@@ -44,12 +44,22 @@
   border-bottom: 1px solid var(--cr-border);
 }
 
-.acct-root .creator-card {
+/* A card is white UNLESS it declares a dark or gradient surface. The hero
+   banner (`creator-card bg-forest`) and the weather card rely on this: without
+   the exclusion the white fill below wins and white text disappears. */
+.acct-root .creator-card:not([class*="bg-forest"]):not([class*="bg-gradient"]):not([class*="bg-linear"]) {
   background: var(--cr-card);
   border: 1px solid var(--cr-border);
   border-radius: 1rem;
   box-shadow: 0 1px 2px rgba(16, 42, 32, 0.04), 0 8px 24px -12px rgba(16, 42, 32, 0.18);
   color: #334155;
+}
+
+.acct-root .creator-card[class*="bg-forest"],
+.acct-root .creator-card[class*="bg-gradient"],
+.acct-root .creator-card[class*="bg-linear"] {
+  border: 1px solid transparent;
+  color: #ffffff;
 }
 
 /* The plain Tailwind `card` class from the light theme, in the account
@@ -322,4 +332,60 @@
 
 .acct-root *::-webkit-scrollbar-track {
   background: transparent;
+}
+/* ── Grouped, collapsible navigation (farmer sidebar) ───────────────────────
+   A group header row toggles its items. The active page's group is opened
+   automatically by the shell, and the header itself is tinted when the page
+   inside it is open — so a farmer can always see where they are. */
+.acct-root .farmer-nav-group {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #64748b;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.acct-root .farmer-nav-group:hover {
+  background: #f8fafc;
+  color: #1d4b3a;
+}
+
+.acct-root .farmer-nav-group.is-current {
+  color: #15803d;
+}
+
+/* A link inside a group is a notch quieter than a top-level row so the
+   hierarchy reads at a glance. */
+.acct-root .farmer-nav-group + div .creator-nav-item {
+  font-size: 12.5px;
+}
+
+/* Collapsed rail: group headers disappear, items centre themselves. */
+.acct-root .creator-sidebar.w-\[72px\] .creator-nav-item {
+  justify-content: center;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+/* ── Phone bottom bar ─────────────────────────────────────────────────────── */
+@media (max-width: 1023px) {
+  .acct-root main {
+    /* Keep the last row clear of the fixed bottom bar. */
+    scroll-padding-bottom: 5rem;
+  }
+}
+
+/* ── Long Hindi / Odia labels must not break the layout ──────────────────── */
+.acct-root .creator-nav-item span,
+.acct-root .farmer-nav-group span {
+  line-height: 1.35;
+  overflow-wrap: anywhere;
 }

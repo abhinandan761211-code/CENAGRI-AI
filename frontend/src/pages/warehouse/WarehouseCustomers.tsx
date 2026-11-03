@@ -164,9 +164,8 @@ export default function WarehouseCustomers() {
                   <button
                     type="button"
                     onClick={() => setSelected(c.id)}
-                    className={`flex w-full items-center gap-3 px-4 py-2.5 text-left transition hover:bg-slate-50 ${
-                      selected === c.id ? "bg-brand-50" : ""
-                    }`}
+                    className={`flex w-full items-center gap-3 px-4 py-2.5 text-left transition hover:bg-slate-50 ${selected === c.id ? "bg-brand-50" : ""
+                      }`}
                   >
                     <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-brand-100 text-[11px] font-extrabold text-brand-800">
                       {c.name

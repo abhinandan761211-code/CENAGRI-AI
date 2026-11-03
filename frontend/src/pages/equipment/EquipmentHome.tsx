@@ -203,8 +203,8 @@ export default function EquipmentHome() {
           value={
             reviewList.length > 0
               ? `${(
-                  reviewList.reduce((s, r) => s + r.equipment_rating, 0) / reviewList.length
-                ).toFixed(1)}/5`
+                reviewList.reduce((s, r) => s + r.equipment_rating, 0) / reviewList.length
+              ).toFixed(1)}/5`
               : "—"
           }
           hint={reviewList.length > 0 ? `${reviewList.length} review(s)` : "No reviews yet"}
@@ -284,9 +284,8 @@ export default function EquipmentHome() {
                     </p>
                   </div>
                   <span
-                    className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold ${
-                      overdue ? "bg-rose-100 text-rose-800" : "bg-amber-100 text-amber-800"
-                    }`}
+                    className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold ${overdue ? "bg-rose-100 text-rose-800" : "bg-amber-100 text-amber-800"
+                      }`}
                   >
                     {days == null ? "unset" : overdue ? `${Math.abs(days)}d overdue` : `in ${days}d`}
                   </span>

@@ -122,9 +122,8 @@ export default function RetailerNotifications() {
               type="button"
               aria-pressed={active}
               onClick={() => setFilter(key)}
-              className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
-                active ? "bg-slate-100 text-forest" : "text-slate-500 hover:bg-slate-50"
-              }`}
+              className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${active ? "bg-slate-100 text-forest" : "text-slate-500 hover:bg-slate-50"
+                }`}
             >
               {FILTER_LABEL[key]}
               <span className="ml-1.5 text-[10px] text-slate-400">{count}</span>
@@ -156,9 +155,8 @@ export default function RetailerNotifications() {
               return (
                 <li
                   key={notification.id}
-                  className={`card flex items-start gap-3 p-4 ${
-                    unread ? "border-l-4 border-l-brand-600" : ""
-                  }`}
+                  className={`card flex items-start gap-3 p-4 ${unread ? "border-l-4 border-l-brand-600" : ""
+                    }`}
                 >
                   <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-lg ${meta.className}`}>
                     <Icon className="h-[18px] w-[18px]" />

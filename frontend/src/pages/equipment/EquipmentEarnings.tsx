@@ -194,9 +194,8 @@ export default function EquipmentEarnings() {
             type="button"
             onClick={() => setTab(key)}
             aria-pressed={tab === key}
-            className={`shrink-0 rounded-lg px-3 py-1.5 text-[11.5px] font-semibold capitalize transition ${
-              tab === key ? "bg-brand-700 text-white" : "bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-50"
-            }`}
+            className={`shrink-0 rounded-lg px-3 py-1.5 text-[11.5px] font-semibold capitalize transition ${tab === key ? "bg-brand-700 text-white" : "bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-50"
+              }`}
           >
             {key === "earnings" ? "Payments" : "Expenses"}
             <span className={`ml-1.5 text-[10px] ${tab === key ? "text-white/70" : "text-slate-400"}`}>

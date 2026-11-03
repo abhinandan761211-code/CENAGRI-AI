@@ -177,9 +177,8 @@ export default function TransporterSettings() {
                       </span>
                     </span>
                     <span
-                      className={`shrink-0 rounded-full px-1.5 py-0.5 text-[9.5px] font-bold ${
-                        v.available ? "bg-emerald-100 text-emerald-800" : "bg-slate-100 text-slate-600"
-                      }`}
+                      className={`shrink-0 rounded-full px-1.5 py-0.5 text-[9.5px] font-bold ${v.available ? "bg-emerald-100 text-emerald-800" : "bg-slate-100 text-slate-600"
+                        }`}
                     >
                       {v.available ? "Available" : "Busy"}
                     </span>

@@ -74,16 +74,7 @@ export const FARMER_PANEL_DETAILS: Record<string, FarmerPanelDetail> = {
       needs: "Your alerts are already in the bell at the top of this page, built from the live forecast and today's mandi prices.",
       go: { label: "See weather & alerts", to: "/weather" },
     },
-    "Personal Information": {
-      what: "Your name, phone and address.",
-      needs: "These details are saved on your profile.",
-      go: { label: "Update my details", to: "/complete-profile?next=/farmer-account" },
-    },
-    "Farming Information": {
-      what: "Land size, main crops and irrigation source used for advice and alerts.",
-      needs: "These answers come from your profile. Individual fields and their areas live on My Farm.",
-      go: { label: "Open My Farm", to: "/my-farm" },
-    },
+
     "My Documents & KYC": {
       what: "Aadhaar, land records and bank details used to verify your account.",
       needs: "Document upload and verification are not connected yet. Nothing you upload here would be verified or stored safely, so the form is not shown.",
@@ -102,9 +93,30 @@ export const FARMER_PANEL_DETAILS: Record<string, FarmerPanelDetail> = {
       needs: "Your farms are only visible to your own account. Password changes are handled through the reset-password email link.",
       go: { label: "Reset my password", to: "/forgot-password" },
     },
+    "Personal Information": {
+      what: "Your name, phone and address, used on listings and for delivery.",
+      needs: "These details are saved on your profile. You can change the phone and address from your profile page.",
+      go: { label: "Edit my details", to: "/complete-profile?next=/farmer-account" },
+    },
+    "Farming Information": {
+      what: "Land size, main crops and irrigation source used for advice and alerts.",
+      needs: "These answers come from your profile. Individual fields and their areas live on My Farm.",
+      go: { label: "Open My Farm", to: "/my-farm" },
+    },
+    "My Profile": {
+      what: "How you appear to other farmers, buyers and advisors on the marketplace and CenFriend.",
+      needs: "Your name, photo and location are shown from your profile. Editing them lives on the complete-profile screen.",
+      go: { label: "Edit my profile", to: "/complete-profile?next=/farmer-account" },
+    },
+    "Help & Support": {
+      what: "Talk to the Kisan helpline, or read the guides for using the app.",
+      needs: "The helpline number is shown in the sidebar footer. There is no live chat connected yet.",
+      go: { label: "Ask the AI assistant", to: "/advisory" },
+    },
     "Account Management": {
       what: "Account type, profile and closing your account.",
       needs: "Sign out is available from the gear menu in the header. Changing account type or deleting the account is not available yet.",
+      go: { label: "Sign out from header", to: "/farmer-account" },
     },
   };
 
@@ -161,6 +173,11 @@ export function hasFarmerPanel(name: string) {
 /**
  * Body of a sidebar dialog: the guidance bullets for the Quick Actions, or the
  * "what this does / what it still needs" note for a feature that is not built.
+ */
+/**
+ * Kept for the dashboard's older imports: a short guidance body for one
+ * farmer panel. Every entry now has its own page, so this is only used by
+ * links that still point at a panel name.
  */
 export function renderFarmerPanel(name: string, close: () => void): ReactNode {
   return <FarmerPanelBody name={name} close={close} />;

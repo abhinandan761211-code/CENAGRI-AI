@@ -190,11 +190,10 @@ export default function WarehouseDocuments() {
             type="button"
             onClick={() => setTab(key)}
             aria-pressed={tab === key}
-            className={`shrink-0 rounded-lg px-3 py-1.5 text-[11.5px] font-semibold capitalize transition ${
-              tab === key
+            className={`shrink-0 rounded-lg px-3 py-1.5 text-[11.5px] font-semibold capitalize transition ${tab === key
                 ? "bg-brand-700 text-white"
                 : "bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-50"
-            }`}
+              }`}
           >
             {key}
             <span className={`ml-1.5 text-[10px] ${tab === key ? "text-white/70" : "text-slate-400"}`}>
@@ -362,13 +361,12 @@ export default function WarehouseDocuments() {
                     {formatINR(Number(invoice.total_inr))}
                   </span>
                   <span
-                    className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold capitalize ${
-                      invoice.status === "paid"
+                    className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold capitalize ${invoice.status === "paid"
                         ? "bg-emerald-100 text-emerald-800"
                         : invoice.status === "pending"
                           ? "bg-amber-100 text-amber-800"
                           : "bg-slate-100 text-slate-600"
-                    }`}
+                      }`}
                   >
                     {invoice.status}
                   </span>
