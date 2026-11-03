@@ -48,6 +48,29 @@
   border-radius: 0.875rem;
 }
 
+/*
+ * A card that declares its own surface wins. `background` above is the
+ * shorthand and sits in unlayered CSS, so it out-ranks every layered
+ * `bg-gradient-to-*` utility: the shorthand resets `background-image` to
+ * `none` and a white-filled `creator-card bg-gradient…` loses both its
+ * gradient (invisible) and its white text (invisible on white).
+ *
+ * These rules must therefore touch ONLY `background-color` — never the
+ * `background` shorthand and never `background-image`, or they would strip the
+ * `linear-gradient(...)` that `bg-gradient-to-*` sets for the weather hero.
+ */
+.creator-card[class*="bg-gradient"],
+.creator-card[class*="bg-linear"] {
+  background-color: transparent;
+  border-color: transparent;
+}
+
+/* A flat dark surface (`bg-forest` with no gradient) keeps its fill. */
+.creator-card[class*="bg-forest"]:not([class*="bg-gradient"]):not([class*="bg-linear"]) {
+  background-color: #1d4b3a;
+  border-color: transparent;
+}
+
 .creator-card-hover {
   transition:
     background-color 0.15s ease,

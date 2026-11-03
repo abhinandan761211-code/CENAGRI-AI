@@ -23,6 +23,14 @@ const profile = {
   state: "Chhattisgarh",
   district: "Raipur",
   village: null,
+  // Nested block the farmer pages read (`profile.details.district`, …).
+  details: {
+    state: "Chhattisgarh",
+    district: "Raipur",
+    village: "Abhanpur",
+    crops: ["Paddy"],
+    land_acres: 3,
+  },
   avatar_url: null,
 } as never;
 

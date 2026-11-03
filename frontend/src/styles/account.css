@@ -343,16 +343,25 @@
 
   /* …but a card that IS the dark surface keeps its forest fill. The banner
      (FarmerHero) is `creator-card bg-forest`; without this the white card rule
-     above wins and white text ends up on a near-white background. */
+     above wins and white text ends up on a near-white background.
+
+     `background-color`, NOT the `background` shorthand: the shorthand resets
+     `background-image` to `none`, which silently wiped the `linear-gradient`
+     set by `bg-gradient-to-*` on the weather hero (its `--tw-gradient-stops`
+     were correct, yet nothing painted). */
   .acct-root .creator-card[class*="bg-forest"]:not([class*="bg-gradient"]):not([class*="bg-linear"]) {
-    background: #1d4b3a;
+    background-color: #1d4b3a;
     border-color: transparent;
   }
 
-  /* A gradient banner keeps its gradient — only the white card fill is dropped. */
+  /* A gradient banner keeps its gradient — only the white card fill is dropped.
+     This must NOT set `background-color`, because that would sit on top of the
+     gradient (which paints into `background-image`). Leaving both alone lets
+     `bg-gradient-to-*` + `from-*`/`to-*` render as written. */
   .acct-root .creator-card[class*="bg-gradient"],
   .acct-root .creator-card[class*="bg-linear"] {
     background-color: transparent;
+    background-image: var(--tw-gradient-stops, none);
     border-color: transparent;
   }
 

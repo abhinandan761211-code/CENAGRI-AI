@@ -49,6 +49,17 @@ const SEVERITY: Record<WeatherAlert["severity"], { tone: "red" | "amber" | "slat
   low: { tone: "slate", label: "Note" },
 };
 
+/**
+ * The hero card sits on a dark green gradient, so the chips and labels in it
+ * need light text. The shared components are tuned for white cards (dark text
+ * on a pale tint), so on this gradient they are re-tinted with `white/x`
+ * classes: `Stat` replaced by a local tile, and the location chip inline.
+ */
+const HERO_TONES: Record<"green" | "blue", string> = {
+  green: "border-white/25 bg-white/10 text-white",
+  blue: "border-sky-200/40 bg-sky-300/20 text-sky-50",
+};
+
 export default function WeatherPage() {
   const { profile } = useAuth();
   const details = profile?.details ?? {};
@@ -92,10 +103,19 @@ export default function WeatherPage() {
         description="Today's conditions and the five-day outlook for your area, with alerts derived from that forecast."
         meta={
           <>
-            <Chip tone="green" icon={MapPin}>
+            <span
+              className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${HERO_TONES.green}`}
+            >
+              <MapPin className="h-3 w-3" />
               {place || "Location not set"}
-            </Chip>
-            {weather && <Chip tone="blue">Live data</Chip>}
+            </span>
+            {weather && (
+              <span
+                className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${HERO_TONES.blue}`}
+              >
+                Live data
+              </span>
+            )}
           </>
         }
         actions={
@@ -135,7 +155,10 @@ export default function WeatherPage() {
       ) : weather ? (
         <>
           <div className="grid gap-4 lg:grid-cols-[1.2fr_1fr]">
-            <section className="creator-card relative overflow-hidden rounded-xl2 bg-gradient-to-br from-forest to-brand-800 p-5 text-white sm:p-6">
+            <section
+              className="creator-card bg-forest relative overflow-hidden rounded-xl2 p-5 text-white sm:p-6"
+              style={{ backgroundImage: "linear-gradient(to bottom right, var(--forest, #1d4b3a), var(--brand-800, #166534))" }}
+            >
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
                   <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-white/75">
@@ -170,8 +193,8 @@ export default function WeatherPage() {
                     icon: CloudRain,
                   },
                 ].map(({ label, value, icon: Icon }) => (
-                  <div key={label} className="rounded-lg bg-white/10 px-2.5 py-2">
-                    <dt className="flex items-center gap-1 text-[10px] uppercase tracking-wide text-white/65">
+                  <div key={label} className="rounded-lg bg-white/10 px-2.5 py-2 ring-1 ring-inset ring-white/15">
+                    <dt className="flex items-center gap-1 text-[10px] uppercase tracking-wide text-white/70">
                       <Icon className="h-3 w-3" /> {label}
                     </dt>
                     <dd className="mt-0.5 text-sm font-bold">{value}</dd>
