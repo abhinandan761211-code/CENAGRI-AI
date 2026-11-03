@@ -17,7 +17,7 @@ import {
   Textarea,
   Toast,
   useToast,
-} from "@/components/farm/farmer-ui";
+} from "@/components/farm/farmerUI";
 import { useAuth } from "@/hooks/useAuth";
 
 /**

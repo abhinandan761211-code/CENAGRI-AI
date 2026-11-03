@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Check, Globe, Languages } from "lucide-react";
 
 import FarmerShell from "@/components/farm/FarmerShell";
-import { Chip, PageHeader, Panel, Stat } from "@/components/farm/farmer-ui";
+import { Chip, PageHeader, Panel, Stat } from "@/components/farm/farmerUI";
 import { useLang } from "@/i18n/LanguageContext";
 import { LANGUAGES, TRANSLATED } from "@/i18n/languages";
 import type { LanguageCode } from "@/i18n/languages";
