@@ -1,4 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
+// Static import on purpose: a dynamic import here would force a top-level
+// `await`, which esbuild rejects for the ES2020 browser targets this app builds for.
+import * as qaClient from "@/lib/qaFakeSupabase";
 
 const url = import.meta.env.VITE_SUPABASE_URL?.trim();
 const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY?.trim();
@@ -25,11 +28,9 @@ function useFakeClient(): boolean {
  */
 export const supabase =
   useFakeClient()
-    ? (
-      (await import("@/lib/qaFakeSupabase")).createClient("http://qa.local", "qa-anon-key", {
-        auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, flowType: "pkce" },
-      }) as unknown as ReturnType<typeof createClient>
-    )
+    ? (qaClient.createClient("http://qa.local", "qa-anon-key", {
+      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, flowType: "pkce" },
+    }) as unknown as ReturnType<typeof createClient>)
     : url && anonKey
       ? createClient(url, anonKey, {
         auth: {
