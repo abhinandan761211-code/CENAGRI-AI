@@ -77,7 +77,7 @@ export default function TransporterMessages() {
     <TransporterLayout title="Messages" subtitle="Talk to requesters about pickups and delivery">
       <div className="flex items-start gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-[11.5px] text-slate-600">
         <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-600" />
-        <span>Keep contact inside CenAGRI. Never share OTPs, bank details or vehicle keys with anyone.</span>
+        <span>Keep contact inside Kalika. Never share OTPs, bank details or vehicle keys with anyone.</span>
       </div>
 
       {messages.state === "loading" && <Loading label="Loading messages…" />}

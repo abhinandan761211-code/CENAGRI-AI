@@ -10,6 +10,7 @@ import {
   sendWorkerMessage,
 } from "@/lib/worker";
 import type { WorkerMessage } from "@/lib/worker";
+import { useLang } from "@/i18n/LanguageContext";
 
 /**
  * Messages with employers.
@@ -19,6 +20,7 @@ import type { WorkerMessage } from "@/lib/worker";
  * into `worker_messages` — there is no fake delivery state.
  */
 export default function WorkerMessages() {
+  const { t } = useLang();
   const messages = useWorkerData<WorkerMessage[]>(() => listWorkerMessages());
   const [activeId, setActiveId] = useState<string | null>(null);
   const [draft, setDraft] = useState("");
@@ -71,15 +73,15 @@ export default function WorkerMessages() {
   }
 
   return (
-    <WorkerLayout title="Messages" subtitle="Talk to employers about your work">
+    <WorkerLayout title={t("wk.m.title")} subtitle={t("wk.m.subtitle")}>
       <div className="flex items-start gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-[11.5px] text-slate-600">
         <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-600" />
         <span>
-          Keep contact inside CenAGRI. Never share OTPs, bank details or pay a fee to get work.
+          Keep contact inside Kalika. Never share OTPs, bank details or pay a fee to get work.
         </span>
       </div>
 
-      {messages.state === "loading" && <Loading label="Loading messages…" />}
+      {messages.state === "loading" && <Loading label={t("wk.c.loadingMessages")} />}
       {messages.state === "error" && (
         <ErrorNotice message={messages.error} onRetry={messages.reload} />
       )}
@@ -88,15 +90,15 @@ export default function WorkerMessages() {
         <div className="card">
           <EmptyState
             icon={MessageSquare}
-            title="No messages yet"
-            description="When an employer replies to an application, the conversation appears here. You can also message an employer from Active Work."
+            title={t("wk.m.none")}
+            description={t("wk.m.noneDesc")}
           />
         </div>
       )}
 
       {messages.state === "ready" && threads.length > 0 && active && (
         <div className="grid gap-4 lg:grid-cols-[260px_1fr]">
-          <Panel title="Conversations" className="h-fit">
+          <Panel title={t("wk.m.conversations")} className="h-fit">
             <ul className="divide-y divide-slate-100">
               {threads.map((thread) => {
                 const last = thread.rows[thread.rows.length - 1];
@@ -162,14 +164,14 @@ export default function WorkerMessages() {
                   }}
                   rows={2}
                   maxLength={4000}
-                  placeholder="Write a message…"
+                  placeholder={t("wk.m.writePlaceholder")}
                   className="flex-1 resize-none rounded-lg border border-slate-300 bg-white px-3 py-2 text-[12.5px] text-slate-800 outline-none focus:border-brand-500"
                 />
                 <button
                   type="button"
                   onClick={() => void handleSend()}
                   disabled={busy || !draft.trim()}
-                  aria-label="Send message"
+                  aria-label={t("wk.m.send")}
                   className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-700 text-white hover:bg-brand-800 disabled:opacity-50"
                 >
                   <Send className="h-4 w-4" />

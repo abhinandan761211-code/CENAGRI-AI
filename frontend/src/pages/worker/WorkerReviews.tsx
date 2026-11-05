@@ -21,6 +21,7 @@ import {
   reportReview,
 } from "@/lib/worker";
 import type { WorkAssignment, WorkerReview } from "@/lib/worker";
+import { useLang } from "@/i18n/LanguageContext";
 
 /**
  * Reviews & ratings.
@@ -30,6 +31,7 @@ import type { WorkAssignment, WorkerReview } from "@/lib/worker";
  * reviewer is one of its two parties — the UI cannot widen that.
  */
 export default function WorkerReviews() {
+  const { t } = useLang();
   const reviews = useWorkerData<WorkerReview[]>(() => listReviews());
   const assignments = useWorkerData<WorkAssignment[]>(() => listAssignments());
 
@@ -83,10 +85,10 @@ export default function WorkerReviews() {
 
   return (
     <WorkerLayout
-      title="Reviews & Ratings"
-      subtitle="What employers say about your work"
+      title={t("wk.r.title")}
+      subtitle={t("wk.r.subtitle")}
     >
-      {reviews.state === "loading" && <Loading label="Loading reviews…" />}
+      {reviews.state === "loading" && <Loading label={t("wk.c.loadingReviews")} />}
       {reviews.state === "error" && <ErrorNotice message={reviews.error} onRetry={reviews.reload} />}
 
       {reviews.state === "ready" && (
@@ -101,21 +103,21 @@ export default function WorkerReviews() {
             <section className="grid grid-cols-2 gap-3 lg:col-span-1 lg:grid-cols-1">
               <StatCard
                 icon={Star}
-                label="Average rating"
+                label={t("wk.r.average")}
                 value={aboutMe.length ? average.toFixed(1) : "—"}
                 hint={`${aboutMe.length} review${aboutMe.length === 1 ? "" : "s"}`}
               />
               <StatCard
                 icon={MessageSquareQuote}
-                label="Jobs completed"
+                label={t("wk.r.jobsCompleted")}
                 value={String(completed.length)}
                 hint="Reviewed after completion"
               />
             </section>
 
             <Panel
-              title="Rating breakdown"
-              description="How employers have rated you"
+              title={t("wk.r.breakdown")}
+              description={t("wk.r.breakdownDesc")}
               className="lg:col-span-2"
             >
               <div className="space-y-2 p-4 sm:p-5">
@@ -153,12 +155,12 @@ export default function WorkerReviews() {
             </Panel>
           </div>
 
-          <Panel title="Employer feedback" description="Written reviews from finished jobs">
+          <Panel title={t("wk.r.employerFeedback")} description={t("wk.r.recentDesc")}>
             {aboutMe.length === 0 ? (
               <EmptyState
                 icon={MessageSquareQuote}
-                title="No reviews yet"
-                description="After you complete a job, the employer can rate your work. Reviews appear here."
+                title={t("wk.r.none")}
+                description={t("wk.r.noneDesc")}
               />
             ) : (
               <ul className="divide-y divide-slate-100">
@@ -195,7 +197,7 @@ export default function WorkerReviews() {
                       )}
                       {review.is_reported && (
                         <p className="mt-1 text-[10.5px] font-semibold text-amber-700">
-                          Reported — under review by CenAGRI.
+                          Reported — under review by Kalika.
                         </p>
                       )}
                     </li>
@@ -205,12 +207,12 @@ export default function WorkerReviews() {
             )}
           </Panel>
 
-          <Panel title="Work history" description="Completed jobs eligible for review">
+          <Panel title={t("wk.r.workHistory")} description={t("wk.r.eligible")}>
             {completed.length === 0 ? (
               <EmptyState
                 icon={Star}
-                title="No completed jobs yet"
-                description="Once a job is marked complete, it is added to your work history and the employer can review you."
+                title={t("wk.r.noCompleted")}
+                description={t("wk.r.noCompletedDesc")}
               />
             ) : (
               <ul className="divide-y divide-slate-100">

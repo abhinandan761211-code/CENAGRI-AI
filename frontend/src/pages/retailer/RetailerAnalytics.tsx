@@ -15,11 +15,12 @@ import {
   topProducts,
 } from "@/lib/retailer";
 import type { Period, RetailerOrder, RetailerProduct, SalesPoint } from "@/lib/retailer";
+import { useLang } from "@/i18n/LanguageContext";
 
 const PERIODS: { key: Period; label: string; buckets: number; hint: string }[] = [
-  { key: "day", label: "Daily", buckets: 14, hint: "Last 14 days" },
-  { key: "week", label: "Weekly", buckets: 8, hint: "Last 8 weeks" },
-  { key: "month", label: "Monthly", buckets: 6, hint: "Last 6 months" },
+  { key: "day", label: "r.a.daily", buckets: 14, hint: "r.a.last14" },
+  { key: "week", label: "r.a.weekly", buckets: 8, hint: "r.a.last8w" },
+  { key: "month", label: "r.a.monthly", buckets: 6, hint: "r.a.last6m" },
 ];
 
 /**
@@ -29,6 +30,7 @@ const PERIODS: { key: Period; label: string; buckets: number; hint: string }[] =
  * window. The chart is a hand-rolled SVG so the module adds no dependency.
  */
 export default function RetailerAnalytics() {
+  const { t, tf } = useLang();
   const orders = useRetailerData<RetailerOrder[]>(() => listOrders(180), []);
   const products = useRetailerData<RetailerProduct[]>(() => listProducts(), []);
 
@@ -69,7 +71,7 @@ export default function RetailerAnalytics() {
   const maxCategorySales = Math.max(1, ...categories.map((c) => c.sales));
 
   return (
-    <RetailerLayout title="Sales Analytics" subtitle={config.hint}>
+    <RetailerLayout title={t("r.a.title")} subtitle={t(config.hint as never)}>
       {failed && (
         <div className="mb-4">
           <ErrorNotice message={failed.error} onRetry={() => void failed.reload()} />
@@ -89,7 +91,7 @@ export default function RetailerAnalytics() {
               className={`flex-1 rounded-lg px-3 py-2 text-xs font-semibold transition ${active ? "bg-slate-100 text-forest" : "text-slate-500 hover:bg-slate-50"
                 }`}
             >
-              {p.label}
+              {t(p.label as never)}
             </button>
           );
         })}
@@ -97,45 +99,45 @@ export default function RetailerAnalytics() {
 
       <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard
-          label="Sales"
+          label={t("r.a.sales")}
           value={loading ? "—" : formatINR(totalSales)}
           icon={IndianRupee}
-          hint={config.hint}
+          hint={t(config.hint as never)}
         />
         <StatCard
-          label="Profit"
+          label={t("r.k.profit")}
           value={loading ? "—" : formatINR(totalProfit)}
           icon={TrendingUp}
           tone="amber"
-          hint={`${margin.toFixed(1)}% margin`}
+          hint={tf("r.a.margin", { value: margin.toFixed(1) })}
         />
         <StatCard
-          label="Orders"
+          label={t("r.home.orders")}
           value={loading ? "—" : inWindow.length.toLocaleString("en-IN")}
           icon={ShoppingCart}
           tone="violet"
-          hint={config.hint}
+          hint={t(config.hint as never)}
         />
         <StatCard
-          label="Average order"
+          label={t("r.a.averageOrder")}
           value={loading ? "—" : formatINR(avgOrder)}
           icon={ChartNoAxesCombined}
-          hint="Per billed order"
+          hint={t("r.a.perOrder")}
         />
       </div>
 
       <div className="mt-4 space-y-4">
         <Panel
-          title={`${config.label} sales`}
-          description="Bars are sales; the line is profit."
+          title={tf("r.a.periodSales", { period: t(config.label as never) })}
+          description={t("r.a.barsHint")}
         >
           {loading ? (
-            <Loading label="Building the report…" />
+            <Loading label={t("r.a.building")} />
           ) : inWindow.length === 0 ? (
             <EmptyState
               icon={ChartNoAxesCombined}
-              title="No sales in this period"
-              description="Once orders are recorded for this window the daily, weekly and monthly trend appears here."
+              title={t("r.a.noSales")}
+              description={t("r.a.noSalesDesc")}
             />
           ) : (
             <div className="p-4 sm:p-5">
@@ -153,14 +155,14 @@ export default function RetailerAnalytics() {
         </Panel>
 
         <div className="grid gap-4 lg:grid-cols-2">
-          <Panel title="Sales by category" description="Where the money comes from">
+          <Panel title={t("r.a.byCategory")} description={t("r.a.whereMoney")}>
             {loading ? (
-              <Loading label="Calculating…" />
+              <Loading label={t("r.a.calculating")} />
             ) : categories.every((c) => c.sales === 0) ? (
               <EmptyState
                 icon={ChartNoAxesCombined}
-                title="No category data yet"
-                description="Sales are attributed to a category through the product they were billed under."
+                title={t("r.a.noCategory")}
+                description={t("r.a.noCategoryDesc")}
               />
             ) : (
               <ul className="space-y-3 p-4 sm:p-5">
@@ -190,7 +192,7 @@ export default function RetailerAnalytics() {
             )}
           </Panel>
 
-          <Panel title="Best-selling products" description="By revenue in this window">
+          <Panel title={t("r.a.bestSelling")} description={t("r.a.byRevenue")}>
             {loading ? (
               <Loading label="Ranking products…" />
             ) : best.length === 0 ? (

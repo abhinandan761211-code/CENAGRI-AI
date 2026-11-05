@@ -139,7 +139,7 @@ export default function WarehouseSettings() {
         </Panel>
 
         <aside className="space-y-4">
-          <Panel title="Account" description="Shared across every CenAGRI account">
+          <Panel title="Account" description="Shared across every Kalika account">
             <div className="space-y-2 p-4 text-[11.5px]">
               <div className="flex justify-between gap-2">
                 <span className="text-slate-500">Name</span>
@@ -160,7 +160,7 @@ export default function WarehouseSettings() {
                 <span className="truncate font-semibold text-forest">{profile?.role ?? "Warehouse"}</span>
               </div>
               <p className="pt-1 text-[10px] leading-relaxed text-slate-400">
-                These come from your CenAGRI profile — changing them here would create a second copy.
+                These come from your Kalika profile — changing them here would create a second copy.
               </p>
             </div>
           </Panel>

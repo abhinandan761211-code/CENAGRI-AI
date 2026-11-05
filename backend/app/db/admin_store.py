@@ -36,7 +36,17 @@ KYC_BUCKET = "kyc-documents"
 
 
 class AdminStoreError(RuntimeError):
-    """A PostgREST call failed. The message is safe to show to an admin."""
+    """A PostgREST call failed. The message is safe to show to an admin.
+
+    ``code`` carries the Postgres SQLSTATE when PostgREST reported one, so a
+    caller can tell a duplicate key (23505) from a genuine outage. It is
+    optional and defaults to ``None``, which keeps every existing caller and
+    test double working unchanged.
+    """
+
+    def __init__(self, message: str, code: str | None = None) -> None:
+        super().__init__(message)
+        self.code = code
 
 
 class AdminStore:
@@ -87,7 +97,7 @@ class AdminStore:
             raise AdminStoreError("The database service is unreachable.") from exc
 
         if res.status_code >= 400:
-            raise AdminStoreError(_postgrest_message(res))
+            raise AdminStoreError(_postgrest_message(res), _postgrest_code(res))
         return res
 
     async def select(
@@ -264,6 +274,16 @@ def _postgrest_message(res: httpx.Response) -> str:
     if code == "23514":
         return "The value broke a data rule (check constraint)."
     return message or f"Database request failed ({res.status_code})."
+
+
+def _postgrest_code(res: httpx.Response) -> str | None:
+    """The Postgres SQLSTATE behind a failed request, when there is one."""
+    try:
+        body = res.json()
+    except ValueError:
+        return None
+    code = body.get("code") if isinstance(body, dict) else None
+    return str(code) if code else None
 
 
 def _safe_json(value: Any) -> Any:

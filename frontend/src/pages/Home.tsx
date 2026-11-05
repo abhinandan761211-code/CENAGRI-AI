@@ -4,7 +4,6 @@ import TrustStrip from "@/components/TrustStrip";
 import PlatformStats from "@/components/PlatformStats";
 import ForWhom from "@/components/ForWhom";
 import WhyChoose from "@/components/WhyChoose";
-import AISection from "@/components/AISection";
 import HowItWorks from "@/components/HowItWorks";
 import VideoSection from "@/components/VideoSection";
 import Testimonials from "@/components/Testimonials";
@@ -34,7 +33,6 @@ export default function Home() {
         <PlatformStats />
         <ForWhom />
         <WhyChoose />
-        <AISection />
         <HowItWorks />
         <VideoSection />
         <Testimonials />

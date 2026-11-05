@@ -22,6 +22,7 @@ import {
   listEarnings,
 } from "@/lib/worker";
 import type { EarningStatus, WorkerEarning } from "@/lib/worker";
+import { useLang } from "@/i18n/LanguageContext";
 
 /**
  * Earnings & payments.
@@ -31,6 +32,7 @@ import type { EarningStatus, WorkerEarning } from "@/lib/worker";
  * the whole point of the earnings table being write-protected for workers.
  */
 export default function WorkerEarnings() {
+  const { t } = useLang();
   const earnings = useWorkerData<WorkerEarning[]>(() => listEarnings());
   const [status, setStatus] = useState<EarningStatus | "all">("all");
 
@@ -76,15 +78,15 @@ export default function WorkerEarnings() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `cenagri-earnings-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.download = `kalika-earnings-${new Date().toISOString().slice(0, 10)}.csv`;
     a.click();
     URL.revokeObjectURL(url);
   }
 
   return (
     <WorkerLayout
-      title="Earnings"
-      subtitle="Your payments, job by job"
+      title={t("wk.e.title")}
+      subtitle={t("wk.e.subtitle")}
       action={
         rows.length > 0 ? (
           <button
@@ -97,7 +99,7 @@ export default function WorkerEarnings() {
         ) : undefined
       }
     >
-      {earnings.state === "loading" && <Loading label="Loading earnings…" />}
+      {earnings.state === "loading" && <Loading label={t("wk.c.loadingEarnings")} />}
       {earnings.state === "error" && <ErrorNotice message={earnings.error} onRetry={earnings.reload} />}
 
       {earnings.state === "ready" && (
@@ -105,26 +107,26 @@ export default function WorkerEarnings() {
           <section className="grid grid-cols-2 gap-3 lg:grid-cols-4">
             <StatCard
               icon={IndianRupee}
-              label="Total earnings"
+              label={t("wk.e.total")}
               value={formatINR(totals.totalEarned)}
               hint="Confirmed payments only"
             />
             <StatCard
               icon={TrendingUp}
-              label="This month"
+              label={t("wk.e.thisMonth")}
               value={formatINR(totals.thisMonth)}
               hint="Paid this month"
             />
             <StatCard
               icon={Wallet}
-              label="Pending payments"
+              label={t("wk.e.pending")}
               value={formatINR(totals.pending)}
               hint="Not paid yet"
               tone="amber"
             />
             <StatCard
               icon={CheckCircle2}
-              label="Paid jobs"
+              label={t("wk.e.paidJobs")}
               value={String(totals.jobsCount)}
               hint={totals.avgPerJob ? `Avg ${formatINR(totals.avgPerJob)}/job` : "No payments yet"}
             />
@@ -142,7 +144,7 @@ export default function WorkerEarnings() {
 
           <div className="grid gap-4 lg:grid-cols-3">
             {/* ── Monthly chart ── */}
-            <Panel title="Last 6 months" description="Paid earnings per month" className="lg:col-span-1">
+            <Panel title={t("wk.e.last6")} description={t("wk.e.monthly")} className="lg:col-span-1">
               <div className="p-4">
                 <div className="flex h-32 items-end gap-2">
                   {monthly.map((m) => (
@@ -164,14 +166,14 @@ export default function WorkerEarnings() {
 
             {/* ── History ── */}
             <Panel
-              title="Payment history"
+              title={t("wk.e.history")}
               description={`${rows.length} record${rows.length === 1 ? "" : "s"}`}
               className="lg:col-span-2"
               action={
                 <select
                   value={status}
                   onChange={(e) => setStatus(e.target.value as EarningStatus | "all")}
-                  aria-label="Filter by status"
+                  aria-label={t("wk.e.filterStatus")}
                   className="h-8 rounded-lg border border-slate-300 bg-white px-2 text-[11px] font-semibold text-slate-700 outline-none focus:border-brand-500"
                 >
                   <option value="all">All statuses</option>
@@ -265,7 +267,7 @@ export default function WorkerEarnings() {
 
           {/* ── Job-wise breakdown ── */}
           {rows.length > 0 && (
-            <Panel title="Job-wise earnings" description="Every job and what it paid">
+            <Panel title={t("wk.e.jobWise")} description={t("wk.e.everyJob")}>
               <ul className="divide-y divide-slate-100">
                 {rows.slice(0, 10).map((row) => (
                   <li key={`breakdown-${row.id}`} className="flex items-center gap-3 px-4 py-2.5">

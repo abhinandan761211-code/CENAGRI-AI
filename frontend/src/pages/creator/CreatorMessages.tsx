@@ -5,7 +5,7 @@ import CreatorShell, { CREATOR_ROUTES, CreatorSection } from "@/components/creat
 /**
  * Messages — creator ↔ farmer / creator conversations.
  *
- * CenAGRI already has a working messaging surface for retailers
+ * Kalika already has a working messaging surface for retailers
  * (`retailer_messages` + `/retailer/messages`). Rather than build a second,
  * parallel inbox that would fragment conversations, this screen explains the
  * situation honestly and links to the existing one.
@@ -24,7 +24,7 @@ export default function CreatorMessages() {
           <div>
             <p className="creator-heading text-sm font-semibold">Creator messaging is not enabled yet</p>
             <p className="mx-auto mt-1 max-w-lg text-xs leading-relaxed text-slate-400">
-              CenAGRI already has a working message thread for shops and their customers. A
+              Kalika already has a working message thread for shops and their customers. A
               creator-specific inbox needs one shared conversation model so a farmer's message
               reaches you instead of bouncing between two separate systems — that is a schema
               change planned for the next phase.

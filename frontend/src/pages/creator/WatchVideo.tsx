@@ -296,7 +296,7 @@ export default function WatchVideo() {
               </button>
               <button
                 type="button"
-                onClick={() => window.alert("Report sent to the CenAGRI moderation team.")}
+                onClick={() => window.alert("Report sent to the Kalika moderation team.")}
                 className="creator-chip"
                 title="Report this video"
               >
@@ -325,7 +325,7 @@ export default function WatchVideo() {
                 {channel?.channel_name ?? "Creator"}
                 {channel?.is_verified && <BadgeCheck className="h-3.5 w-3.5 text-[#16C784]" />}
               </Link>
-              <p className="text-[11px] text-slate-400">Farming creator on CenAGRI</p>
+              <p className="text-[11px] text-slate-400">Farming creator on Kalika</p>
             </div>
             {user?.id !== video.owner_id && (
               <button

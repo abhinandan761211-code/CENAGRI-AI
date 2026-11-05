@@ -92,7 +92,7 @@ export default function EquipmentProfile() {
       {equipment.state === "error" && <ErrorNotice message={equipment.error} onRetry={equipment.reload} />}
 
       <div className="grid gap-4 lg:grid-cols-3">
-        <Panel title="Business" description="Account details from your CenAGRI profile">
+        <Panel title="Business" description="Account details from your Kalika profile">
           <div className="space-y-3 p-4 sm:p-5">
             <div className="flex items-center gap-3">
               <span className="grid h-14 w-14 shrink-0 place-items-center rounded-full bg-brand-100 text-[16px] font-extrabold text-brand-800">

@@ -448,7 +448,7 @@ export default function ExpensesPage() {
         <p className="text-[11px] leading-relaxed text-slate-500">
           <strong className="text-forest">How this is calculated.</strong> Income = the amount on orders marked
           <em> delivered</em> in this period. Costs = the expense rows you entered. Equipment hire, transport and
-          storage booked through CenAGRI are not added automatically — record them here if you paid. Revenue is
+          storage booked through Kalika are not added automatically — record them here if you paid. Revenue is
           never estimated.{" "}
           <Link to="/orders-sales" className="font-semibold text-brand-700 hover:underline">
             See orders

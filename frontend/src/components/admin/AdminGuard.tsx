@@ -82,7 +82,7 @@ function AdminShellGate({ children, onSignOut }: { children: ReactNode; onSignOu
               to="/"
               className="inline-flex h-9 items-center rounded-lg bg-emerald-600 px-3.5 text-xs font-semibold text-white hover:bg-emerald-700"
             >
-              Back to CenAGRI
+              Back to Kalika
             </Link>
             <button
               type="button"
@@ -109,7 +109,7 @@ function SignedOut() {
           Sign in to the admin panel
         </h1>
         <p className="mt-1 text-xs text-slate-500">
-          The admin panel uses your normal CenAGRI account. Sign in, then reopen this page.
+          The admin panel uses your normal Kalika account. Sign in, then reopen this page.
         </p>
         <Link
           to={`/login?redirect=${encodeURIComponent("/admin")}`}

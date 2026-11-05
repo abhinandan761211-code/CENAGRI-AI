@@ -32,6 +32,7 @@ import {
   submitForVerification,
 } from "@/lib/retailer";
 import type { RetailerShop, ShopInput } from "@/lib/retailer";
+import { useLang } from "@/i18n/LanguageContext";
 
 const WEEKDAYS = [
   "Sunday",
@@ -83,22 +84,23 @@ const PIN_RE = /^[1-9][0-9]{5}$/;
  * GST details, opening hours and verification status.
  *
  * Verification is never self-granted: submitting moves it to "Under review",
- * only CenAGRI staff can set it to Verified.
+ * only Kalika staff can set it to Verified.
  */
 export default function RetailerShopPage() {
   const { profile, refreshProfile } = useAuth();
+  const { t } = useLang();
   const { data, state, error, reload } = useRetailerData<RetailerShop | null>(() => getShop(), []);
 
   return (
-    <RetailerLayout title="My Shop" subtitle="Shop profile, GST details & verification">
-      {state === "loading" && <Loading label="Loading shop profile…" />}
+    <RetailerLayout title={t("r.s.title")} subtitle={t("r.s.subtitle")}>
+      {state === "loading" && <Loading label={t("r.c.loading")} />}
       {state === "error" && <ErrorNotice message={error} onRetry={() => void reload()} />}
       {state === "ready" && data === null && (
         <div className="card">
           <EmptyState
             icon={Store}
-            title="Your shop is not registered yet"
-            description="Add the shop name, address and GST details below. Verified shops appear to farmers browsing for a dealer nearby."
+            title={t("r.s.notRegistered")}
+            description={t("r.s.notRegisteredDesc")}
           />
         </div>
       )}
@@ -131,6 +133,7 @@ function ShopForm({
   onSaved: () => Promise<void>;
   fallbackName: string;
 }) {
+  const { t } = useLang();
   const [form, setForm] = useState<ShopFormState>(() =>
     shop
       ? {
@@ -239,9 +242,9 @@ function ShopForm({
   return (
     <div className="grid gap-4 lg:grid-cols-3">
       <form onSubmit={handleSave} className="space-y-4 lg:col-span-2">
-        <Panel title="Shop identity" description="What farmers see when they search for a dealer">
+        <Panel title={t("r.s.identity")} description={t("r.s.identityDesc")}>
           <div className="grid gap-3 p-4 sm:grid-cols-2 sm:p-5">
-            <Field label="Shop name" required error={errors.shop_name}>
+            <Field label={t("r.s.shopName")} required error={errors.shop_name}>
               <input
                 value={form.shop_name}
                 onChange={(e) => set("shop_name", e.target.value)}
@@ -249,7 +252,7 @@ function ShopForm({
                 className={inputClass}
               />
             </Field>
-            <Field label="Shop type">
+            <Field label={t("r.s.shopType")}>
               <select
                 value={form.shop_type ?? ""}
                 onChange={(e) => set("shop_type", e.target.value)}
@@ -264,7 +267,7 @@ function ShopForm({
                 <option>Other</option>
               </select>
             </Field>
-            <Field label="Phone" error={errors.phone}>
+            <Field label={t("r.s.phone")} error={errors.phone}>
               <input
                 value={form.phone ?? ""}
                 onChange={(e) => set("phone", e.target.value)}
@@ -272,7 +275,7 @@ function ShopForm({
                 className={inputClass}
               />
             </Field>
-            <Field label="Weekly off" hint="Leave blank if open all week.">
+            <Field label={t("r.s.weeklyOff")} hint={t("r.s.openAllWeek")}>
               <select
                 value={form.weekly_off ?? ""}
                 onChange={(e) => set("weekly_off", e.target.value)}
@@ -289,10 +292,10 @@ function ShopForm({
           </div>
         </Panel>
 
-        <Panel title="Address" description="Used for delivery and nearest-dealer search">
+        <Panel title={t("r.s.address")} description={t("r.s.locationHint")}>
           <div className="grid gap-3 p-4 sm:grid-cols-2 sm:p-5">
             <div className="sm:col-span-2">
-              <Field label="Address line">
+              <Field label={t("r.s.addressLine")}>
                 <input
                   value={form.address_line ?? ""}
                   onChange={(e) => set("address_line", e.target.value)}

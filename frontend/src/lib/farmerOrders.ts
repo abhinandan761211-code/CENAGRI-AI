@@ -66,7 +66,7 @@ async function namesFor(ids: string[]): Promise<Map<string, string>> {
     .in("id", unique);
   // A profile the seller cannot read is simply "unknown", never an error.
   if (error) return new Map();
-  return new Map((data ?? []).map((p) => [p.id as string, (p.full_name as string | null) ?? "CenAGRI user"]));
+  return new Map((data ?? []).map((p) => [p.id as string, (p.full_name as string | null) ?? "Kalika user"]));
 }
 
 /** Orders placed on the signed-in farmer's own listings. */

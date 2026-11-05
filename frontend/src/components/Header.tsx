@@ -11,7 +11,6 @@ import { homeForRole } from "@/lib/roleHome";
 const NAV = [
   { key: "nav.home", href: "#home" },
   { key: "nav.modules", href: "#solutions" },
-  { key: "nav.ai", href: "#ai" },
   { key: "nav.forWhom", href: "#for-whom" },
   { key: "nav.howItWorks", href: "#how-it-works" },
   { key: "nav.videos", href: "#resources" },

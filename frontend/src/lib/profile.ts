@@ -1,5 +1,6 @@
 import type { User } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
+import { creatorModeFromDetails } from "@/hooks/useCreatorMode";
 import type { Profile } from "@/types";
 
 /** Profile values captured from the signup form and stored in auth metadata. */
@@ -9,9 +10,21 @@ export type SignupMetadata = {
   role?: string;
 };
 
+/** True when `profiles.creator_mode` has not been created in this project yet. */
+function isMissingCreatorMode(error: { code?: string; message?: string } | null): boolean {
+  if (!error) return false;
+  return error.code === "42703" || /creator_mode/i.test(error.message ?? "");
+}
+
+/** True when `profiles.preferred_language` has not been created yet. */
+export function isMissingPreferredLanguage(error: { code?: string; message?: string } | null): boolean {
+  if (!error) return false;
+  return error.code === "42703" || /preferred_language/i.test(error.message ?? "");
+}
+
 export function metadataToProfile(
   user: User
-): Omit<Profile, "created_at" | "updated_at" | "details"> {
+): Omit<Profile, "created_at" | "updated_at" | "details" | "creator_mode"> {
   const meta = (user.user_metadata ?? {}) as Record<string, unknown>;
   const pick = (key: string) => {
     const value = meta[key];
@@ -60,6 +73,13 @@ export async function loadProfile(user: User): Promise<Profile | null> {
     if (!profile.phone && meta.phone) patch.phone = meta.phone;
 
     const existingDetails = profile.details ?? {};
+    // Older rows kept Creator Mode only inside `details`; adopt it once here so
+    // the column becomes the single place readers look.
+    if (profile.creator_mode === false && creatorModeFromDetails(existingDetails)) {
+      patch.creator_mode = true;
+    }
+    // Never let a repair write fail just because the column does not exist yet.
+    if (!("creator_mode" in (data as Record<string, unknown>))) delete patch.creator_mode;
     const missingDetails = Object.keys(existingDetails).length === 0;
     if (missingDetails) {
       const merged = { ...metaDetails, ...metaLocation };
@@ -75,17 +95,34 @@ export async function loadProfile(user: User): Promise<Profile | null> {
         .maybeSingle();
       if (repaired) return repaired as Profile;
     }
+    // `select("*")` normally returns every column; if this project has not run
+    // the `creator_mode` migration yet, derive it from `details` instead.
+    if (typeof profile.creator_mode !== "boolean") {
+      profile.creator_mode = creatorModeFromDetails(existingDetails);
+    }
     return profile;
   }
 
-  // Accounts created before the `details` column existed still load fine.
-  if (error?.code === "42703" || error?.message?.includes("details")) {
+  // Accounts created before the `details` / `creator_mode` columns existed
+  // still load fine.
+  if (
+    error?.code === "42703" ||
+    error?.message?.includes("details") ||
+    isMissingCreatorMode(error)
+  ) {
     const { data: legacy } = await supabase
       .from("profiles")
-      .select("id, full_name, email, phone, role, avatar_url, created_at, updated_at")
+      .select("id, full_name, email, phone, role, avatar_url, created_at, updated_at, details")
       .eq("id", user.id)
       .maybeSingle();
-    if (legacy) return { ...(legacy as Profile), details: null };
+    if (legacy) {
+      const row = legacy as Profile;
+      return {
+        ...row,
+        details: row.details ?? null,
+        creator_mode: creatorModeFromDetails(row.details as Record<string, unknown> | null),
+      };
+    }
   }
 
   const row = metadataToProfile(user);
@@ -97,7 +134,7 @@ export async function loadProfile(user: User): Promise<Profile | null> {
 
   if (insertError) {
     // Table may not exist yet — fall back to metadata so the UI still works.
-    return { ...row, details: null, created_at: "", updated_at: "" };
+    return { ...row, details: null, creator_mode: false, created_at: "", updated_at: "" };
   }
   return (created as Profile | null) ?? null;
 }

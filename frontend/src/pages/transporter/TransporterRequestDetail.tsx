@@ -323,7 +323,7 @@ export default function TransporterRequestDetail() {
                   <p className="truncate text-sm font-bold text-forest">
                     {row.requester_name ?? "Requester"}
                   </p>
-                  <p className="text-[11px] text-slate-500">{row.requester_role ?? "CenAGRI account"}</p>
+                  <p className="text-[11px] text-slate-500">{row.requester_role ?? "Kalika account"}</p>
                 </div>
               </div>
               <div className="mt-3">
@@ -537,7 +537,7 @@ export default function TransporterRequestDetail() {
           </Field>
           <p className="rounded-lg bg-slate-50 px-2.5 py-2 text-[10.5px] leading-relaxed text-slate-500">
             Your account is attached to the report. The requester is not told who reported them, and
-            reports are reviewed by the CenAGRI team.
+            reports are reviewed by the Kalika team.
           </p>
           {reportError && <p className="text-[11.5px] font-semibold text-rose-600">{reportError}</p>}
           <div className="flex justify-end gap-2 pt-1">

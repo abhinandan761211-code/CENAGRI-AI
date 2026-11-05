@@ -217,7 +217,7 @@ export default function WarehouseStaffPage() {
             <ShieldCheck className="mt-0.5 h-3 w-3 shrink-0 text-emerald-600" />
             <span>
               No staff role can change pricing, edit the warehouse or mark an invoice paid. Those stay
-              with the owner account and, for payment, with the CenAGRI backend.
+              with the owner account and, for payment, with the Kalika backend.
             </span>
           </div>
         </Panel>

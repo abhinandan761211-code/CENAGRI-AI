@@ -40,7 +40,7 @@ export default function InsurancePage() {
         <p className="flex items-start gap-2 text-[11px] leading-relaxed text-amber-900">
           <ShieldQuestion className="mt-0.5 h-4 w-4 shrink-0" />
           <span>
-            <strong>CenAGRI does not sell, approve or settle crop insurance.</strong> Premium rates, notified crops,
+            <strong>Kalika does not sell, approve or settle crop insurance.</strong> Premium rates, notified crops,
             coverage and claim decisions are set by the government scheme and the insurance company. This page
             links to those sources; it does not guarantee enrolment or a payout.
           </span>

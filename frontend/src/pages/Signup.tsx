@@ -29,7 +29,11 @@ export default function Signup() {
   const { t } = useLang();
   const navigate = useNavigate();
   const [params] = useSearchParams();
-  const next = params.get("redirect") || params.get("next") || "/dashboard";
+  // Same rule as Login: the default landing is the role-aware `/home`, not a
+  // hardcoded `/dashboard` (the dashboard then redirected again, so a new
+  // account could bounce between two screens before settling).
+  const asked = params.get("redirect") || params.get("next");
+  const next = asked && asked.startsWith("/") && !asked.startsWith("//") ? asked : "/home";
 
   useEffect(() => {
     if (user) navigate(next, { replace: true });

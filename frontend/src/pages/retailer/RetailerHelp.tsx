@@ -15,49 +15,50 @@ import {
 import { Link } from "react-router-dom";
 import RetailerLayout, { RETAILER_ROUTES } from "@/components/retailer/RetailerLayout";
 import { Panel } from "@/components/retailer/ui";
+import { useLang } from "@/i18n/LanguageContext";
 
 const GUIDES: { icon: LucideIcon; title: string; body: string; to: string; cta: string }[] = [
   {
     icon: Store,
-    title: "Get your shop verified",
-    body: "Add shop name, address, GSTIN and licence on My Shop, then submit for verification. Verified shops appear in farmer searches.",
+    title: "r.h.g1Title",
+    body: "r.h.g1Body",
     to: RETAILER_ROUTES.shop,
-    cta: "Open My Shop",
+    cta: "r.h.openShop",
   },
   {
     icon: Package,
-    title: "List your first product",
-    body: "Products need a category, unit, price, stock and low-stock level. Fertilizers and pesticides also need an expiry date.",
+    title: "r.h.g2Title",
+    body: "r.h.g2Body",
     to: RETAILER_ROUTES.products,
-    cta: "Add a product",
+    cta: "r.h.addProduct",
   },
   {
     icon: ShoppingCart,
-    title: "Process an order",
-    body: "Move an order from Processing to Shipped, then Delivered. Profit is booked when the order is created, so cost is tracked per line.",
+    title: "r.h.g3Title",
+    body: "r.h.g3Body",
     to: RETAILER_ROUTES.orders,
-    cta: "Open orders",
+    cta: "r.h.openOrders",
   },
   {
     icon: Warehouse,
-    title: "Track stock & expiry",
-    body: "Inventory shows anything at or below its alert level and every fertiliser or pesticide batch expiring within 90 days.",
+    title: "r.h.g4Title",
+    body: "r.h.g4Body",
     to: RETAILER_ROUTES.inventory,
-    cta: "Open inventory",
+    cta: "r.h.openInventory",
   },
   {
     icon: ChartNoAxesCombined,
-    title: "Read your sales report",
-    body: "Sales Analytics summarises the last 14 days, 8 weeks or 6 months, broken down by category and product.",
+    title: "r.h.g5Title",
+    body: "r.h.g5Body",
     to: RETAILER_ROUTES.analytics,
-    cta: "Open analytics",
+    cta: "r.h.openAnalytics",
   },
   {
     icon: Sprout,
-    title: "Buy straight from farmers",
-    body: "Browse farmer listings and send a procurement request with quantity and rate. The farmer confirms before pickup.",
+    title: "r.h.g6Title",
+    body: "r.h.g6Body",
     to: RETAILER_ROUTES.buy,
-    cta: "Buy from farmers",
+    cta: "r.h.buyFarmers",
   },
 ];
 
@@ -68,11 +69,12 @@ const GUIDES: { icon: LucideIcon; title: string; body: string; to: string; cta: 
  * not depend on Supabase being set up.
  */
 export default function RetailerHelp() {
+  const { t } = useLang();
   return (
-    <RetailerLayout title="Help & Support" subtitle="Guides for running your shop on CenAGRI">
+    <RetailerLayout title={t("r.h.title")} subtitle={t("r.h.subtitle")}>
       <div className="grid gap-4 lg:grid-cols-3">
         <div className="space-y-3 lg:col-span-2">
-          <Panel title="Quick guides" description="Everything the retailer dashboard can do">
+          <Panel title={t("r.h.quickGuides")} description={t("r.h.everything")}>
             <ul className="divide-y divide-slate-100">
               {GUIDES.map(({ icon: Icon, title, body, to, cta }) => (
                 <li key={title} className="flex items-start gap-3 px-4 py-3.5 sm:px-5">
@@ -80,21 +82,21 @@ export default function RetailerHelp() {
                     <Icon className="h-[18px] w-[18px]" />
                   </span>
                   <div className="min-w-0 flex-1">
-                    <p className="text-[13px] font-bold text-forest">{title}</p>
-                    <p className="mt-0.5 text-[11px] leading-relaxed text-slate-500">{body}</p>
+                    <p className="text-[13px] font-bold text-forest">{t(title as never)}</p>
+                    <p className="mt-0.5 text-[11px] leading-relaxed text-slate-500">{t(body as never)}</p>
                   </div>
                   <Link
                     to={to}
                     className="mt-0.5 shrink-0 rounded-lg border border-slate-200 px-2.5 py-1 text-[10px] font-bold text-slate-600 transition hover:bg-slate-50"
                   >
-                    {cta}
+                    {t(cta as never)}
                   </Link>
                 </li>
               ))}
             </ul>
           </Panel>
 
-          <Panel title="Why expiry matters" description="Fertiliser & pesticide compliance">
+          <Panel title={t("r.h.expiryWhy")} description={t("r.h.compliance")}>
             <div className="space-y-2 p-4 text-[11px] leading-relaxed text-slate-600 sm:p-5">
               <p className="flex items-start gap-2">
                 <CalendarClock className="mt-0.5 h-3.5 w-3.5 shrink-0 text-orange-600" />
@@ -115,14 +117,14 @@ export default function RetailerHelp() {
         </div>
 
         <div className="space-y-4">
-          <Panel title="Contact CenAGRI">
+          <Panel title={t("r.h.contactKalika")}>
             <div className="space-y-3 p-4 sm:p-5">
               <a
-                href="mailto:support@cenagri.example"
+                href="mailto:support@kalika.example"
                 className="flex items-center gap-2 rounded-lg border border-slate-200 px-3 py-2.5 text-[12px] font-semibold text-slate-700 transition hover:bg-slate-50"
               >
                 <Mail className="h-4 w-4 text-slate-400" />
-                support@cenagri.example
+                support@kalika.example
               </a>
               <a
                 href="tel:+919000000000"
@@ -138,7 +140,7 @@ export default function RetailerHelp() {
             </div>
           </Panel>
 
-          <Panel title="Account types">
+          <Panel title={t("r.h.accountTypes")}>
             <div className="space-y-2 p-4 text-[11px] leading-relaxed text-slate-600 sm:p-5">
               <p>
                 <strong className="text-forest">Retailer</strong> — sells agricultural inputs and

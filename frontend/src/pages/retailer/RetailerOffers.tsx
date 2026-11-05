@@ -14,6 +14,7 @@ import {
   toggleOffer,
 } from "@/lib/retailer";
 import type { OfferKind, RetailerOffer } from "@/lib/retailer";
+import { useLang } from "@/i18n/LanguageContext";
 
 const KIND_LABEL: Record<OfferKind, string> = {
   discount: "Discount",
@@ -53,6 +54,7 @@ const EMPTY = {
  * it from customers immediately without deleting the record.
  */
 export default function RetailerOffers() {
+  const { t, tf } = useLang();
   const { data, setData, state, error, reload } = useRetailerData<RetailerOffer[]>(
     () => listOffers(),
     []
@@ -79,7 +81,7 @@ export default function RetailerOffers() {
       const saved = await toggleOffer(offer.id, !offer.is_active);
       setData(offers.map((o) => (o.id === saved.id ? saved : o)));
     } catch (err) {
-      setActionError(err instanceof Error ? err.message : "Could not update the offer.");
+      setActionError(err instanceof Error ? err.message : t("r.c.offerFailed"));
     } finally {
       setBusyId(null);
     }
@@ -127,7 +129,7 @@ export default function RetailerOffers() {
                 ) : (
                   <ToggleLeft className="h-4 w-4 text-slate-400" />
                 )}
-                {offer.is_active ? "Active" : "Paused"}
+                {offer.is_active ? t("r.f.active") : t("r.f.paused")}
               </button>
             </li>
           ))}
@@ -138,8 +140,8 @@ export default function RetailerOffers() {
 
   return (
     <RetailerLayout
-      title="Offers & Discounts"
-      subtitle={`${live.length} live offer${live.length === 1 ? "" : "s"}`}
+      title={t("r.f.title")}
+      subtitle={tf("r.f.liveCount", { count: live.length })}
       action={
         <button
           type="button"
@@ -203,6 +205,7 @@ function OfferDialog({
   onClose: () => void;
   onCreated: (offer: RetailerOffer) => void;
 }) {
+  const { t } = useLang();
   const [form, setForm] = useState(EMPTY);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);

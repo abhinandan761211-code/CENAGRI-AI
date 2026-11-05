@@ -1,5 +1,6 @@
 import { useEffect, useId, useRef, useState } from "react";
 import type { ReactNode } from "react";
+import { Link } from "react-router-dom";
 import { ArrowRight, Search, X } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -87,7 +88,7 @@ export function SourceChip({ kind }: { kind: "live" | "manual" | "server" }) {
   const map = {
     live: { label: "Live data", tone: "green" as const },
     manual: { label: "You entered this", tone: "slate" as const },
-    server: { label: "Read from CenAGRI server", tone: "blue" as const },
+    server: { label: "Read from Kalika server", tone: "blue" as const },
   };
   return <Chip tone={map[kind].tone}>{map[kind].label}</Chip>;
 }
@@ -228,21 +229,46 @@ export function LoadingRows({ rows = 3, className = "" }: { rows?: number; class
   );
 }
 
-export function ErrorNote({ message, onRetry }: { message: string; onRetry?: () => void }) {
+/**
+ * Error banner.
+ *
+ * `signInTo` exists because a 401 is not a transient failure: retrying with the
+ * same token fails the same way forever. When the caller knows the failure is
+ * an expired session it passes a route, and the button becomes "Sign in again"
+ * instead of a "Try again" that can never succeed.
+ */
+export function ErrorNote({
+  message,
+  onRetry,
+  signInTo,
+}: {
+  message: string;
+  onRetry?: () => void;
+  signInTo?: string;
+}) {
   return (
     <div
       role="alert"
       className="flex flex-wrap items-start justify-between gap-3 rounded-lg border border-rose-200 bg-rose-50 px-4 py-3"
     >
       <p className="min-w-0 text-xs leading-relaxed text-rose-800">{message}</p>
-      {onRetry && (
-        <button
-          type="button"
-          onClick={onRetry}
-          className="shrink-0 rounded-md border border-rose-300 bg-white px-2.5 py-1 text-[11px] font-bold text-rose-700 hover:bg-rose-100"
+      {signInTo ? (
+        <Link
+          to={signInTo}
+          className="shrink-0 rounded-md bg-rose-600 px-2.5 py-1 text-[11px] font-bold text-white hover:bg-rose-700"
         >
-          Try again
-        </button>
+          Sign in again
+        </Link>
+      ) : (
+        onRetry && (
+          <button
+            type="button"
+            onClick={onRetry}
+            className="shrink-0 rounded-md border border-rose-300 bg-white px-2.5 py-1 text-[11px] font-bold text-rose-700 hover:bg-rose-100"
+          >
+            Try again
+          </button>
+        )
       )}
     </div>
   );
@@ -387,6 +413,7 @@ export function Modal({
   children,
   footer,
   wide,
+  autoFocusField = false,
 }: {
   title: string;
   description?: string;
@@ -394,6 +421,14 @@ export function Modal({
   children: ReactNode;
   footer?: ReactNode;
   wide?: boolean;
+  /**
+   * Put the caret in the first field when the dialog opens. Off by default:
+   * Chromium's datalist handling can pull focus back to a linked field
+   * (`input[list]`), so opening with a caret in a form that has one makes
+   * typing land in the wrong box. Forms that open with a date/number field
+   * must not take the caret either.
+   */
+  autoFocusField?: boolean;
 }) {
   const titleId = useId();
   const ref = useRef<HTMLDivElement>(null);
@@ -406,19 +441,29 @@ export function Modal({
     const previous = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     // Move focus into the dialog so keyboard and screen-reader users land here.
-    window.setTimeout(() => ref.current?.focus(), 0);
+    //
+    // Never focus the container itself: the dialog used to carry
+    // `tabIndex={-1}` and be focused here, and Chromium re-targets focus to a
+    // focused `tabindex="-1"` ancestor after the first keystroke — every field
+    // accepted exactly one character ("Add crop" typed "P" and stopped).
+    if (autoFocusField) {
+      const target =
+        ref.current?.querySelector<HTMLElement>(
+          'input:not([type="date"]):not([type="time"]):not([type="number"]), textarea, [contenteditable="true"]'
+        ) ?? null;
+      window.setTimeout(() => target?.focus(), 0);
+    }
     return () => {
       document.removeEventListener("keydown", onKey);
       document.body.style.overflow = previous;
     };
-  }, [onClose]);
+  }, [onClose, autoFocusField]);
 
   return (
     <div className="fixed inset-0 z-[60] flex items-end justify-center bg-black/50 p-0 sm:items-center sm:p-4">
       <button type="button" aria-label="Close dialog" className="absolute inset-0" onClick={onClose} />
       <div
         ref={ref}
-        tabIndex={-1}
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}

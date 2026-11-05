@@ -127,7 +127,7 @@ export default function EmployerNotifications() {
       {rows.length > 0 && (
         <p className="flex items-center gap-1.5 text-[11px] text-slate-500">
           <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
-          Notifications are created by CenAGRI when a worker applies or writes to you.
+          Notifications are created by Kalika when a worker applies or writes to you.
         </p>
       )}
     </EmployerLayout>

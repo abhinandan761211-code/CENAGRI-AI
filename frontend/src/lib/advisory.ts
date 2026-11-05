@@ -1,5 +1,5 @@
 /**
- * AI crop advisory — talks to the CenAGRI backend (`POST /advisory`).
+ * AI crop advisory — talks to the Kalika backend (`POST /advisory`).
  *
  * The model key lives on the server. `mode` tells the UI whether the answer
  * came from a model ("ai") or from the server's rule-based fallback ("demo").
@@ -57,7 +57,7 @@ export function advisoryErrorMessage(err: unknown): string {
     return err.message;
   }
   if (err instanceof TypeError) {
-    return "Could not reach the CenAGRI API. Is the backend running on :8000?";
+    return "Could not reach the Kalika API. Is the backend running on :8000?";
   }
   return err instanceof Error ? err.message : "Could not get an answer right now.";
 }

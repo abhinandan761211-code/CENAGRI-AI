@@ -114,7 +114,7 @@ export default function TransporterInvoices() {
     // A printable statement rather than a hidden PDF generator: honest about
     // what it is, and works without a backend round trip.
     const lines = [
-      "CenAGRI AI — Transporter invoice",
+      "Kalika — Transporter invoice",
       "",
       `Invoice: ${invoice.invoice_no}`,
       `Issued: ${formatDate(invoice.issued_on)}`,
@@ -123,7 +123,7 @@ export default function TransporterInvoices() {
       `Amount: ${formatINR(Number(invoice.amount_inr))}`,
       invoice.reference ? `Reference: ${invoice.reference}` : "",
       "",
-      "This statement is generated from your CenAGRI records.",
+      "This statement is generated from your Kalika records.",
     ].filter(Boolean);
     const blob = new Blob([lines.join("\n")], { type: "text/plain;charset=utf-8" });
     const url = URL.createObjectURL(blob);
@@ -268,7 +268,7 @@ export default function TransporterInvoices() {
             <div className="grid gap-4 lg:grid-cols-2">
               <Panel
                 title="Uploaded documents"
-                description="Reviewed by the CenAGRI team"
+                description="Reviewed by the Kalika team"
                 action={
                   <button
                     type="button"
@@ -340,7 +340,7 @@ export default function TransporterInvoices() {
                 )}
                 <div className="flex items-start gap-2 border-t border-slate-100 px-4 py-3 text-[10.5px] text-slate-500">
                   <Lock className="mt-0.5 h-3 w-3 shrink-0" />
-                  Files are stored privately. Only you and an authorised CenAGRI reviewer can open them.
+                  Files are stored privately. Only you and an authorised Kalika reviewer can open them.
                 </div>
               </Panel>
 
@@ -456,7 +456,7 @@ export default function TransporterInvoices() {
 
           <p className="flex items-start gap-1.5 rounded-lg bg-amber-50 px-2.5 py-2 text-[10.5px] leading-relaxed text-amber-900">
             <Lock className="mt-0.5 h-3 w-3 shrink-0" />
-            Uploading a document does not verify you by itself. A CenAGRI reviewer checks it, and only
+            Uploading a document does not verify you by itself. A Kalika reviewer checks it, and only
             then does your verification status change.
           </p>
 

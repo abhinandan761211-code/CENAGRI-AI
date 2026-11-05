@@ -21,6 +21,7 @@ import {
   todayISO,
 } from "@/lib/worker";
 import type { WorkAssignment, WorkerAvailability } from "@/lib/worker";
+import { useLang } from "@/i18n/LanguageContext";
 
 type View = "month" | "week" | "day";
 
@@ -34,6 +35,7 @@ const WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
  * asks for confirmation instead of silently blocking.
  */
 export default function WorkerCalendar() {
+  const { t } = useLang();
   const assignments = useWorkerData<WorkAssignment[]>(() => listAssignments());
   const availability = useWorkerData<WorkerAvailability[]>(() => listAvailability());
 
@@ -123,8 +125,8 @@ export default function WorkerCalendar() {
 
   return (
     <WorkerLayout
-      title="Work Calendar"
-      subtitle="Your schedule, availability and reminders"
+      title={t("wk.cal.title")}
+      subtitle={t("wk.cal.subtitle")}
       action={
         <div className="flex items-center gap-1 rounded-lg border border-slate-300 bg-white p-0.5">
           {(["day", "week", "month"] as View[]).map((v) => (
@@ -142,7 +144,7 @@ export default function WorkerCalendar() {
         </div>
       }
     >
-      {loading && <Loading label="Loading calendar…" />}
+      {loading && <Loading label={t("wk.c.loadingCalendar")} />}
       {failed && <ErrorNotice message={failed.error} onRetry={failed.reload} />}
       {error && <p className="text-[11.5px] font-semibold text-rose-600">{error}</p>}
 
@@ -155,7 +157,7 @@ export default function WorkerCalendar() {
                 <button
                   type="button"
                   onClick={() => shift(-1)}
-                  aria-label="Previous"
+                  aria-label={t("wk.cal.previous")}
                   className="grid h-7 w-7 place-items-center rounded-md border border-slate-200 text-slate-600 hover:bg-slate-50"
                 >
                   <ChevronLeft className="h-3.5 w-3.5" />
@@ -173,7 +175,7 @@ export default function WorkerCalendar() {
                 <button
                   type="button"
                   onClick={() => shift(1)}
-                  aria-label="Next"
+                  aria-label={t("wk.cal.next")}
                   className="grid h-7 w-7 place-items-center rounded-md border border-slate-200 text-slate-600 hover:bg-slate-50"
                 >
                   <ChevronRight className="h-3.5 w-3.5" />
@@ -302,7 +304,7 @@ export default function WorkerCalendar() {
 
           {/* ── Selected day ── */}
           <aside className="space-y-4">
-            <Panel title="Selected day" description={selected ? formatDate(selected) : "Pick a date"}>
+            <Panel title={t("wk.cal.selectedDay")} description={selected ? formatDate(selected) : t("wk.cal.pickDate")}>
               <div className="space-y-3 p-4">
                 {selected && (
                   <>
@@ -339,7 +341,7 @@ export default function WorkerCalendar() {
               </div>
             </Panel>
 
-            <Panel title="Reminders" description="Upcoming scheduled work">
+            <Panel title={t("wk.cal.reminders")} description={t("wk.cal.upcoming")}>
               <div className="divide-y divide-slate-100">
                 {rows
                   .filter((a) => a.status === "scheduled" || a.status === "in_progress")
@@ -369,8 +371,8 @@ export default function WorkerCalendar() {
         <div className="card">
           <EmptyState
             icon={CalendarDays}
-            title="Your calendar is empty"
-            description="Scheduled jobs and the days you mark unavailable will show up on this calendar."
+            title={t("wk.cal.empty")}
+            description={t("wk.cal.emptyDesc")}
           />
         </div>
       )}
@@ -379,7 +381,7 @@ export default function WorkerCalendar() {
       <Modal
         open={Boolean(pendingDay)}
         onClose={() => setPendingDay(null)}
-        title="You already have work this day"
+        title={t("wk.cal.alreadyWork")}
         subtitle={pendingDay ? formatDate(pendingDay) : undefined}
       >
         <div className="space-y-3">

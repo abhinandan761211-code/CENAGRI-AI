@@ -23,6 +23,7 @@ import {
   listProcurement,
 } from "@/lib/retailer";
 import type { FarmerListing, ProcurementRequest } from "@/lib/retailer";
+import { useLang } from "@/i18n/LanguageContext";
 
 /**
  * Buy from Farmers — direct procurement.
@@ -33,6 +34,7 @@ import type { FarmerListing, ProcurementRequest } from "@/lib/retailer";
  * are retailer-specific so the two account types stay distinct.
  */
 export default function RetailerProcurement() {
+  const { t } = useLang();
   const { profile } = useAuth();
   const district = profile?.details?.district ?? null;
 
@@ -59,7 +61,7 @@ export default function RetailerProcurement() {
 
   return (
     <RetailerLayout
-      title="Buy from Farmers"
+      title={t("r.b.title")}
       subtitle={`${visibleListings.length} listings · ${openRequests.length} open requests`}
     >
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -105,7 +107,7 @@ export default function RetailerProcurement() {
         </div>
       )}
 
-      {loading && <Loading label="Loading procurement data…" />}
+      {loading && <Loading label={t("r.c.loadingProcurement")} />}
 
       {!loading && tab === "market" && (
         <>
@@ -113,8 +115,8 @@ export default function RetailerProcurement() {
             <div className="card mt-4">
               <EmptyState
                 icon={Sprout}
-                title="No farmer listings available"
-                description="Listings posted on the marketplace appear here for direct procurement. Try turning off the local-district filter."
+                title={t("r.b.noListings")}
+                description={t("r.b.noListingsDesc")}
               />
             </div>
           ) : (
@@ -169,8 +171,8 @@ export default function RetailerProcurement() {
             <div className="card">
               <EmptyState
                 icon={TruckIcon}
-                title="No procurement requests yet"
-                description="Request produce directly from a farmer listing and it will be tracked here until it is received."
+                title={t("r.b.noRequests")}
+                description={t("r.b.noRequestsDesc")}
                 action={
                   <button type="button" onClick={() => setTab("market")} className="btn-primary h-9 px-4 text-xs">
                     Browse farmer listings
@@ -179,7 +181,7 @@ export default function RetailerProcurement() {
               />
             </div>
           ) : (
-            <Panel title="Procurement requests" description="Offers you have sent to farmers">
+            <Panel title={t("r.b.requestsPanel")} description={t("r.b.sentToFarmers")}>
               <ul className="divide-y divide-slate-100">
                 {requestRows.map((request) => (
                   <li key={request.id} className="flex flex-wrap items-center gap-3 px-4 py-3 sm:px-5">
@@ -228,6 +230,7 @@ function ProcurementDialog({
   onClose: () => void;
   onCreated: (request: ProcurementRequest) => void;
 }) {
+  const { t } = useLang();
   const [qty, setQty] = useState("");
   const [rate, setRate] = useState("");
   const [notes, setNotes] = useState("");
@@ -280,12 +283,12 @@ function ProcurementDialog({
   return (
     <Modal
       open={Boolean(listing)}
-      title="Request to buy"
+      title={t("r.b.requestBuy")}
       subtitle={listing ? `From a farmer listing · ${listing.title}` : undefined}
       onClose={onClose}
     >
       <form onSubmit={handleSubmit} className="space-y-3">
-        <Field label="Quantity (kg)" required>
+        <Field label={t("r.b.quantityKg")} required>
           <input
             type="number"
             min={1}
@@ -295,7 +298,7 @@ function ProcurementDialog({
             className={inputClass}
           />
         </Field>
-        <Field label="Your rate (₹ per kg)" required hint="The farmer can accept or counter this.">
+        <Field label={t("r.b.yourRate")} required hint={t("r.b.yourRateHint")}>
           <input
             type="number"
             min={0}
@@ -305,7 +308,7 @@ function ProcurementDialog({
             className={inputClass}
           />
         </Field>
-        <Field label="Notes">
+        <Field label={t("r.bnotes")}>
           <textarea
             rows={3}
             value={notes}

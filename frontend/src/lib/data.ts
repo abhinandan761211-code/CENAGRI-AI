@@ -4,7 +4,6 @@ import type { Feature, NavItem, Role, VideoCard } from "@/types";
 export const NAV_ITEMS: NavItem[] = [
   { label: "Home", href: "#home", active: true },
   { label: "Modules", href: "#solutions" },
-  { label: "AI", href: "#ai" },
   { label: "For Whom", href: "#for-whom" },
   { label: "How It Works", href: "#how-it-works" },
   { label: "Videos", href: "#resources" },
@@ -31,21 +30,21 @@ export const ROLES: Role[] = [
     signupRole: "Buyer",
   },
   {
-    title: "Shop / Retailer",
+    title: "Retailer",
     description: "Keep shelves stocked with in-season produce and track your margins.",
     image: "/images/role-shop.jpg",
     href: "/signup?role=Retailer",
     signupRole: "Retailer",
   },
   {
-    title: "Worker / Labour",
+    title: "Worker",
     description: "Find farm work nearby, agree a fair wage and build a verified work record.",
     image: "/images/role-worker.jpg",
     href: "/signup?role=Worker",
     signupRole: "Worker",
   },
   {
-    title: "Equipment Owner",
+    title: "Equipment",
     description: "Rent out tractors, pumps and harvesters to farmers who need them today.",
     image: "/images/role-equipment.jpg",
     href: "/signup?role=Equipment",
@@ -102,7 +101,7 @@ export const WHY_CHOOSE: Feature[] = [
 ];
 
 export const VIDEOS: VideoCard[] = [
-  { title: "AI advisory walkthrough", duration: "02:14", image: "/images/video-1.jpg" },
+  { title: "Crop advisory walkthrough", duration: "02:14", image: "/images/video-1.jpg" },
   { title: "Find a buyer in 3 taps", duration: "01:38", image: "/images/video-2.jpg" },
   { title: "Rent equipment safely", duration: "03:05", image: "/images/video-3.jpg" },
   { title: "Weather alerts explained", duration: "02:47", image: "/images/video-4.jpg" },

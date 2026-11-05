@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
+import { useLang } from "@/i18n/LanguageContext";
 import { USER_ROLES } from "@/types";
 
 /**
@@ -19,6 +20,7 @@ function destination(session: { user: { user_metadata?: Record<string, unknown> 
 export default function AuthCallback() {
   const [params] = useSearchParams();
   const navigate = useNavigate();
+  const { t } = useLang();
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -39,21 +41,27 @@ export default function AuthCallback() {
     }
 
     let done = false;
+    // Never leave sooner than this: a fast redirect would otherwise flash the
+    // screen for a few milliseconds and look like a glitch.
+    const MIN_VISIBLE_MS = 700;
+    const openedAt = Date.now();
+
+    /** Hold this screen until the account is really connected, then leave. */
+    function leave(session: { user: { user_metadata?: Record<string, unknown> } }) {
+      if (done) return;
+      done = true;
+      const wait = Math.max(0, MIN_VISIBLE_MS - (Date.now() - openedAt));
+      window.setTimeout(() => navigate(destination(session, next), { replace: true }), wait);
+    }
 
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session && !done) {
-        done = true;
-        navigate(destination(session, next), { replace: true });
-      }
+      if (session) leave(session);
     });
 
     supabase.auth.getSession().then(({ data }) => {
-      if (data.session && !done) {
-        done = true;
-        navigate(destination(data.session, next), { replace: true });
-      }
+      if (data.session) leave(data.session);
     });
 
     const timeout = window.setTimeout(() => {
@@ -79,11 +87,15 @@ export default function AuthCallback() {
           </>
         ) : (
           <>
-            <Loader2 className="mx-auto h-7 w-7 animate-spin text-brand-700" />
+            <Loader2 className="mx-auto h-8 w-8 animate-spin text-brand-700" aria-hidden="true" />
             <h1 className="mt-4 font-display text-lg font-bold text-forest">
-              Finishing sign-in…
+              {t("auth.connecting")}
             </h1>
-            <p className="mt-2 text-sm text-slate-500">This will only take a moment.</p>
+            <p className="mt-2 text-sm text-slate-500">{t("auth.connectingBody")}</p>
+            <div className="mt-5 h-1 w-full overflow-hidden rounded-full bg-slate-100" aria-hidden="true">
+              <div className="h-full w-1/3 animate-pulse rounded-full bg-brand-600" />
+            </div>
+            <p className="mt-4 text-[11px] leading-relaxed text-slate-400">{t("auth.connectingHint")}</p>
           </>
         )}
       </div>

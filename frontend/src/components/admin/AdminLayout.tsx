@@ -36,6 +36,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAdmin } from "@/components/admin/AdminProvider";
 import { useAuth } from "@/hooks/useAuth";
 import { Badge, FOREST, PRIMARY } from "@/components/admin/ui";
+import { KalikaMark } from "@/components/Logo";
 
 /**
  * Chrome for every `/admin` screen: collapsible rail, sticky top bar with
@@ -142,7 +143,18 @@ export default function AdminLayout({
    * a manual override for keyboard and touch users.
    */
   const [collapsed, setCollapsed] = useState(false);
+  /** The cursor is on the rail or inside the sidebar — opens it temporarily. */
   const [railHovered, setRailHovered] = useState(false);
+  /**
+   * Pinned open by the "Collapse" button, and the cursor has since left.
+   *
+   * Without this latch the rail springs straight back open after a manual
+   * collapse: clicking the button leaves the cursor ON the sidebar, so the
+   * delayed `setRailHovered(false)` is immediately followed by another
+   * `mouseenter`. `collapsed` was true, `railHovered` became true again, and
+   * `expanded` (below) came out true — the click looked like it did nothing.
+   */
+  const [manuallyCollapsed, setManuallyCollapsed] = useState(false);
   const hoverTimer = useRef<number | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
@@ -173,7 +185,35 @@ export default function AdminLayout({
 
   function handleRailLeave() {
     // Short delay so a jittery cursor does not slam the rail shut.
-    hoverTimer.current = window.setTimeout(() => setRailHovered(false), 220);
+    hoverTimer.current = window.setTimeout(() => {
+      setRailHovered(false);
+      // The cursor has genuinely left, so a manual collapse may take effect
+      // again on the next hover.
+      setManuallyCollapsed(false);
+    }, 220);
+  }
+
+  /**
+   * Narrow the rail.
+   *
+   * `collapsed` is set (what the button's aria-pressed reports) and the expand
+   * is blocked until the pointer leaves or the button is pressed again —
+   * pressing it while the cursor still rests on the sidebar is the only way to
+   * re-open without moving away.
+   */
+  function collapseRail() {
+    setCollapsed(true);
+    setManuallyCollapsed(true);
+    setRailHovered(false);
+    if (hoverTimer.current) {
+      window.clearTimeout(hoverTimer.current);
+      hoverTimer.current = null;
+    }
+  }
+
+  function expandRailNow() {
+    setCollapsed(false);
+    setManuallyCollapsed(false);
   }
 
   useEffect(() => {
@@ -222,9 +262,10 @@ export default function AdminLayout({
     ),
   })).filter((group) => group.items.length > 0);
 
-  // Expanded = manually opened OR hovered. `railHidden` hides labels whenever
-  // the rail is narrow, so a hover always brings them back without a click.
-  const expanded = !collapsed || railHovered;
+  // Expanded = manually opened, OR hovered — unless the user just collapsed it
+  // and has not moved the cursor away yet. `railHidden` hides labels whenever the
+  // rail is narrow, so a hover always brings them back without a click.
+  const expanded = !collapsed || (railHovered && !manuallyCollapsed);
   const railHidden = expanded ? "" : "lg:hidden";
 
   return (
@@ -249,18 +290,12 @@ export default function AdminLayout({
           } ${expanded ? "lg:w-64" : "lg:w-16"}`}
       >
         <div className={`flex h-16 shrink-0 items-center border-b border-slate-100 ${expanded ? "justify-between px-4" : "lg:justify-center lg:px-0"}`}>
-          <Link to="/admin" className="flex min-w-0 items-center gap-2" aria-label="CenAGRI admin home" title="CenAGRI admin">
+          <Link to="/admin" className="flex min-w-0 items-center gap-2" aria-label="Kalika admin home" title="Kalika admin">
             {/* The mark always renders. The wordmark is hidden in rail mode so it
                 cannot clip inside the 64px rail. */}
-            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-forest">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path d="M12 21v-8" stroke="#86efac" strokeWidth="1.8" strokeLinecap="round" />
-                <path d="M12 13c0-4 2.6-7 8-7 0 5.2-3.2 7.6-8 7.6Z" fill="#86efac" fillOpacity="0.9" />
-                <path d="M12 15.5C7.9 15.5 4 13 4 6.5c6.2 0 8 3.6 8 9Z" fill="#86efac" fillOpacity="0.5" />
-              </svg>
-            </span>
+            <KalikaMark size={36} />
             <span className={`font-display text-[15px] font-extrabold tracking-tight ${railHidden}`} style={{ color: FOREST }}>
-              CenAGRI
+              Kalika
             </span>
             <span className={`truncate rounded bg-emerald-50 px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider text-emerald-700 ${railHidden}`}>
               Admin
@@ -320,7 +355,7 @@ export default function AdminLayout({
         <div className="shrink-0 border-t border-slate-100 p-2">
           <button
             type="button"
-            onClick={() => setCollapsed((v) => !v)}
+            onClick={() => (collapsed ? expandRailNow() : collapseRail())}
             className="hidden w-full items-center justify-center gap-2 rounded-lg px-2 py-2 text-[11px] font-semibold text-slate-500 hover:bg-slate-50 lg:flex"
             aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
             aria-pressed={collapsed}
@@ -330,11 +365,11 @@ export default function AdminLayout({
           </button>
           <Link
             to="/"
-            title="Back to CenAGRI"
+            title="Back to Kalika"
             className={`mt-1 flex items-center gap-2 rounded-lg px-2.5 py-2 text-[11px] font-semibold text-slate-500 hover:bg-slate-50 ${expanded ? "" : "lg:justify-center lg:px-2"}`}
           >
             <ExternalLink className="h-3.5 w-3.5 shrink-0" />
-            <span className={railHidden}>Back to CenAGRI</span>
+            <span className={railHidden}>Back to Kalika</span>
           </Link>
         </div>
       </aside>

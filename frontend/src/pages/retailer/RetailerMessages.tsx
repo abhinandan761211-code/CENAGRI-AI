@@ -5,6 +5,7 @@ import { EmptyState, ErrorNotice, Loading } from "@/components/retailer/ui";
 import { useRetailerData } from "@/hooks/useRetailerData";
 import { formatDateTime, listMessages, sendMessage } from "@/lib/retailer";
 import type { RetailerMessage } from "@/lib/retailer";
+import { useLang } from "@/i18n/LanguageContext";
 
 type Thread = {
   key: string;
@@ -24,6 +25,7 @@ type Thread = {
  * messages from people who are not signed-in accounts.
  */
 export default function RetailerMessages() {
+  const { t } = useLang();
   const { data, setData, state, error, reload } = useRetailerData<RetailerMessage[]>(
     () => listMessages(),
     []
@@ -91,18 +93,18 @@ export default function RetailerMessages() {
 
   return (
     <RetailerLayout
-      title="Messages"
+      title={t("r.m.title")}
       subtitle={`${threads.length} conversation${threads.length === 1 ? "" : "s"}`}
     >
-      {state === "loading" && <Loading label="Loading conversations…" />}
+      {state === "loading" && <Loading label={t("r.c.loadingConversations")} />}
       {state === "error" && <ErrorNotice message={error} onRetry={() => void reload()} />}
 
       {state === "ready" && threads.length === 0 && (
         <div className="card">
           <EmptyState
             icon={MessageSquare}
-            title="No conversations yet"
-            description="Messages from farmers and customers appear here. You can also start one from an order or a procurement request."
+            title={t("r.m.noConversations")}
+            description={t("r.m.noConversationsDesc")}
           />
         </div>
       )}
@@ -189,7 +191,7 @@ export default function RetailerMessages() {
                       void handleSend(e);
                     }
                   }}
-                  placeholder="Write a reply… (Enter to send, Shift+Enter for a new line)"
+                  placeholder={t("r.m.replyPlaceholder")}
                   className="flex-1 resize-none rounded-lg border border-slate-300 px-3 py-2 text-xs outline-none focus:border-brand-500"
                 />
                 <button

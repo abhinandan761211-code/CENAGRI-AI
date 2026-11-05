@@ -24,6 +24,7 @@ import {
   updateAssignmentProgress,
 } from "@/lib/worker";
 import type { AttendanceRow, WorkAssignment } from "@/lib/worker";
+import { useLang } from "@/i18n/LanguageContext";
 
 /**
  * Active Work.
@@ -37,6 +38,7 @@ import type { AttendanceRow, WorkAssignment } from "@/lib/worker";
  * far the task has got.
  */
 export default function WorkerActiveWork() {
+  const { t } = useLang();
   const assignments = useWorkerData<WorkAssignment[]>(() => listAssignments());
   const attendance = useWorkerData<AttendanceRow[]>(() => listAttendance());
 
@@ -75,7 +77,7 @@ export default function WorkerActiveWork() {
 
   return (
     <WorkerLayout
-      title="Active Work"
+      title={t("wk.w.title")}
       subtitle={`${active.length} ongoing · ${done.length} completed`}
     >
       <div className="flex items-start gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-[11.5px] text-slate-600">
@@ -87,7 +89,7 @@ export default function WorkerActiveWork() {
       </div>
 
       {(assignments.state === "loading" || attendance.state === "loading") && (
-        <Loading label="Loading your work…" />
+        <Loading label={t("wk.c.loadingWork")} />
       )}
       {assignments.state === "error" && (
         <ErrorNotice message={assignments.error} onRetry={assignments.reload} />
@@ -97,8 +99,8 @@ export default function WorkerActiveWork() {
         <div className="card">
           <EmptyState
             icon={ClipboardList}
-            title="No active work yet"
-            description="Once an employer accepts your application, the job appears here with dates, instructions and attendance."
+            title={t("wk.w.none")}
+            description={t("wk.w.noneDesc")}
             action={
               <Link
                 to={WORKER_ROUTES.jobs}
@@ -129,7 +131,7 @@ export default function WorkerActiveWork() {
               >
                 <div className="space-y-4 p-4 sm:p-5">
                   <dl className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                    <Cell label="Start" value={formatDate(assignment.start_date)} />
+                    <Cell label={t("wk.w.start")} value={formatDate(assignment.start_date)} />
                     <Cell
                       label="End"
                       value={assignment.end_date ? formatDate(assignment.end_date) : "Open-ended"}
@@ -142,7 +144,7 @@ export default function WorkerActiveWork() {
                           : formatINR(Number(assignment.total_pay ?? 0))
                       }
                     />
-                    <Cell label="Days present" value={`${present} of ${records.length}`} />
+                    <Cell label={t("wk.w.daysPresent")} value={`${present} of ${records.length}`} />
                   </dl>
 
                   <div>
@@ -304,6 +306,7 @@ export default function WorkerActiveWork() {
 }
 
 function Cell({ label, value }: { label: string; value: string }) {
+  const { t } = useLang();
   return (
     <div className="min-w-0 rounded-lg border border-slate-200 p-2.5">
       <dt className="text-[10px] font-bold uppercase tracking-wider text-slate-500">{label}</dt>

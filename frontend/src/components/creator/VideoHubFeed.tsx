@@ -70,10 +70,7 @@ const PAGE_SIZE = 24;
 const SHORTS_LIMIT = 10;
 
 const TAB_TITLES: Record<WatchTab, { title: string; subtitle: string }> = {
-  home: {
-    title: "Kisan Video Hub",
-    subtitle: "Farming videos, Shorts and live sessions from creators across India",
-  },
+  home: { title: "Kisan Video Hub", subtitle: "" },
   trending: { title: "Trending videos", subtitle: "What farmers are watching most this week" },
   following: { title: "Following", subtitle: "New uploads from the creators you follow" },
   saved: { title: "Saved videos", subtitle: "Everything you kept for later" },
@@ -365,7 +362,7 @@ export default function VideoHubFeed() {
         icon: History,
         title: "Watch history is not available yet",
         description:
-          "CenAGRI does not store your viewing history on the server. Individual views are counted, but not attributed to your account.",
+          "Kalika does not store your viewing history on the server. Individual views are counted, but not attributed to your account.",
       };
     }
     if (tab === "playlists") {

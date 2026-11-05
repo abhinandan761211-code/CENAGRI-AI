@@ -31,6 +31,7 @@ import {
   updateProduct,
 } from "@/lib/retailer";
 import type { ProductCategory, ProductInput, ProductUnit, RetailerProduct } from "@/lib/retailer";
+import { useLang } from "@/i18n/LanguageContext";
 
 const EMPTY_FORM = {
   name: "",
@@ -76,6 +77,7 @@ function toInput(form: FormState): ProductInput {
  * reach a farmer's field.
  */
 export default function RetailerProducts() {
+  const { t } = useLang();
   const { data, setData, state, error, reload } = useRetailerData<RetailerProduct[]>(
     () => listProducts(),
     []
@@ -127,8 +129,8 @@ export default function RetailerProducts() {
 
   return (
     <RetailerLayout
-      title="Products"
-      subtitle="Seeds, fertilizers, pesticides, tools & irrigation"
+      title={t("r.p.title")}
+      subtitle={t("r.p.subtitle")}
       action={
         <button
           type="button"
@@ -168,8 +170,8 @@ export default function RetailerProducts() {
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search name, brand or batch"
-            aria-label="Search products"
+            placeholder={t("r.p.searchName")}
+            aria-label={t("r.p.searchProducts")}
             className="h-9 w-full rounded-lg border border-slate-200 bg-white pl-9 pr-3 text-xs text-slate-700 outline-none focus:border-brand-500"
           />
         </label>
@@ -177,7 +179,7 @@ export default function RetailerProducts() {
 
       <div className="mt-4">
         {state === "error" && <ErrorNotice message={error} onRetry={() => void reload()} />}
-        {state === "loading" && <Loading label="Loading your catalogue…" />}
+        {state === "loading" && <Loading label={t("r.c.loadingCatalogue")} />}
 
         {state === "ready" && visible.length === 0 && (
           <div className="card">
@@ -311,6 +313,7 @@ function ProductDialog({
   onClose: () => void;
   onSaved: (product: RetailerProduct, isNew: boolean) => void;
 }) {
+  const { t } = useLang();
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
@@ -422,12 +425,12 @@ function ProductDialog({
       open={open}
       wide
       title={editing ? "Edit product" : "Add product"}
-      subtitle="Fertilisers and pesticides require an expiry date."
+      subtitle={t("r.p.expiryRequired")}
       onClose={cleanupAndClose}
     >
       <form onSubmit={handleSubmit} className="space-y-3">
         <div className="grid gap-3 sm:grid-cols-2">
-          <Field label="Product name" required error={errors.name}>
+          <Field label={t("r.p.name")} required error={errors.name}>
             <input
               value={form.name}
               onChange={(e) => set("name", e.target.value)}
@@ -435,7 +438,7 @@ function ProductDialog({
               className={inputClass}
             />
           </Field>
-          <Field label="Brand">
+          <Field label={t("r.k.brand")}>
             <input
               value={form.brand}
               onChange={(e) => set("brand", e.target.value)}
@@ -443,7 +446,7 @@ function ProductDialog({
               className={inputClass}
             />
           </Field>
-          <Field label="Category" required>
+          <Field label={t("r.k.category")} required>
             <select
               value={form.category}
               onChange={(e) => set("category", e.target.value as ProductCategory)}
@@ -469,7 +472,7 @@ function ProductDialog({
               ))}
             </select>
           </Field>
-          <Field label="Selling price (₹)" required error={errors.price_inr}>
+          <Field label={t("r.p.sellingPrice")} required error={errors.price_inr}>
             <input
               type="number"
               min={0}

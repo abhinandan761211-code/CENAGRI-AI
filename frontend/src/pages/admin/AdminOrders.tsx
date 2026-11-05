@@ -5,16 +5,23 @@ import { Badge, Button, Dialog, ErrorNotice, Field, inputClass, toneFor } from "
 import type { Column } from "@/components/admin/ui";
 import { adminFetch } from "@/lib/admin/api";
 
+/**
+ * One order, from either order table. The shop table (`retailer_orders`) keys
+ * the shop as `retailer_id` and dates the row `placed_at`; the marketplace
+ * table uses `buyer_id` / `seller_id` and `created_at`. Both are optional here
+ * so one row type covers the two sources.
+ */
 type OrderRow = {
   id: string;
-  owner_id?: string;
+  retailer_id?: string;
   customer_id?: string;
   customer_name?: string | null;
   buyer_id?: string;
   seller_id?: string;
   amount_inr: number | null;
   status: string;
-  created_at: string;
+  placed_at?: string;
+  created_at?: string;
 };
 
 /** Orders & transactions. Refunds are recorded decisions, never a card action. */
@@ -35,7 +42,14 @@ export default function AdminOrders() {
       render: (row) => <span className="font-semibold">{row.amount_inr ? `₹${row.amount_inr.toLocaleString("en-IN")}` : "—"}</span>,
     },
     { key: "status", header: "Status", render: (row) => <Badge tone={toneFor(row.status)}>{row.status}</Badge> },
-    { key: "date", header: "Placed", render: (row) => <span className="text-[11.5px]">{new Date(row.created_at).toLocaleDateString("en-IN")}</span> },
+    {
+      key: "date",
+      header: "Placed",
+      render: (row) => {
+        const at = row.placed_at ?? row.created_at;
+        return <span className="text-[11.5px]">{at ? new Date(at).toLocaleDateString("en-IN") : "—"}</span>;
+      },
+    },
   ];
 
   return (

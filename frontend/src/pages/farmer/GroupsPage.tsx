@@ -174,7 +174,7 @@ export default function GroupsPage() {
       />
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <Stat label="Groups" value={groups.length} icon={Users} hint="On CenAGRI" />
+        <Stat label="Groups" value={groups.length} icon={Users} hint="On Kalika" />
         <Stat label="You are in" value={groups.filter((g) => g.is_member).length} icon={Users} tone="green" hint="Your groups" />
         <Stat
           label="In your district"

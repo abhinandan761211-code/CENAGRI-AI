@@ -93,7 +93,7 @@ export default function WarehouseProfile() {
       {warehouses.state === "error" && <ErrorNotice message={warehouses.error} onRetry={warehouses.reload} />}
 
       <div className="grid gap-4 lg:grid-cols-3">
-        <Panel title="Business" description="Account details from your CenAGRI profile">
+        <Panel title="Business" description="Account details from your Kalika profile">
           <div className="space-y-3 p-4 sm:p-5">
             <div className="flex items-center gap-3">
               <span className="grid h-14 w-14 shrink-0 place-items-center rounded-full bg-brand-100 text-[16px] font-extrabold text-brand-800">
@@ -178,7 +178,7 @@ export default function WarehouseProfile() {
         <ul className="space-y-1.5 p-4 text-[11px] leading-relaxed text-slate-600 sm:p-5">
           <li>
             • <strong>Name, email, phone, avatar</strong> — shared account profile, used by every
-            CenAGRI account type.
+            Kalika account type.
           </li>
           <li>
             • <strong>Warehouse name, address, capacity, facilities</strong> — My Warehouses → Edit.

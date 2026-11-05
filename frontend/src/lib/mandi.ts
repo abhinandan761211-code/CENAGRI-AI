@@ -1,7 +1,7 @@
 /**
  * Live mandi prices for the farmer dashboard.
  *
- * Data comes from the CenAGRI backend (`GET /mandi`), which proxies the
+ * Data comes from the Kalika backend (`GET /mandi`), which proxies the
  * data.gov.in "Current Daily Price of Various Commodities from Various Markets
  * (Mandi)" dataset and caches it for 15 minutes. The data.gov.in API key lives
  * on the server — nothing here needs a browser-side key.
@@ -134,7 +134,7 @@ export function mandiErrorMessage(err: unknown): string {
     }
   }
   if (err instanceof TypeError) {
-    return "Could not reach the CenAGRI API. Is the backend running on :8000?";
+    return "Could not reach the Kalika API. Is the backend running on :8000?";
   }
   return err instanceof Error ? err.message : "Could not load mandi prices.";
 }

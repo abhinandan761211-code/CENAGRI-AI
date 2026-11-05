@@ -16,7 +16,7 @@ import type { StorageBooking, StorageInvoice } from "@/lib/warehouse";
 /**
  * Earnings & Payments.
  *
- * Only a `paid` invoice times as revenue. An invoice is written by the CenAGRI
+ * Only a `paid` invoice times as revenue. An invoice is written by the Kalika
  * backend and marked paid there too — this page reads it and nothing more, so a
  * warehouse owner can never declare itself paid.
  *
@@ -131,7 +131,7 @@ export default function WarehouseEarnings() {
       <div className="flex items-start gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-[11px] leading-relaxed text-slate-600">
         <Receipt className="mt-0.5 h-3.5 w-3.5 shrink-0 text-slate-400" />
         <span>
-          An invoice is issued and marked paid by CenAGRI after a release is confirmed. You can read and
+          An invoice is issued and marked paid by Kalika after a release is confirmed. You can read and
           download it, but you cannot mark it paid yourself — and no card details are ever stored in this
           app.
         </span>
@@ -166,7 +166,7 @@ export default function WarehouseEarnings() {
       </Panel>
 
       <section>
-        <SectionHeading title="Invoices" hint="Read-only — issued by CenAGRI" />
+        <SectionHeading title="Invoices" hint="Read-only — issued by Kalika" />
         <Panel title="All invoices" description={`${invoiceList.length} record(s)`}>
           {invoiceList.length === 0 ? (
             <div className="px-4 py-8 text-center text-[11.5px] text-slate-500">
@@ -246,7 +246,7 @@ export default function WarehouseEarnings() {
         <Panel title="Refunds" description="Recorded against your account">
           <p className="px-4 py-3 text-[11.5px] text-slate-600">
             {formatINR(totals.refunded)} has been refunded across {invoiceList.filter((i) => i.status === "refunded").length}{" "}
-            invoice(s). Refunds are processed by CenAGRI support, never from this screen.
+            invoice(s). Refunds are processed by Kalika support, never from this screen.
           </p>
         </Panel>
       )}

@@ -181,7 +181,7 @@ export default function TransporterEarnings() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `cenagri-transporter-earnings-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.download = `kalika-transporter-earnings-${new Date().toISOString().slice(0, 10)}.csv`;
     a.click();
     URL.revokeObjectURL(url);
   }
@@ -243,7 +243,7 @@ export default function TransporterEarnings() {
           <div className="flex items-start gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-[11.5px] text-slate-600">
             <Receipt className="mt-0.5 h-3.5 w-3.5 shrink-0 text-slate-400" />
             <span>
-              An invoice is created and marked paid by CenAGRI after the requester confirms delivery.
+              An invoice is created and marked paid by Kalika after the requester confirms delivery.
               You can read it here but cannot mark it paid yourself.
               {awaiting.count > 0 && (
                 <>

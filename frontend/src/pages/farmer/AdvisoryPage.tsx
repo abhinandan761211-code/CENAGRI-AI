@@ -46,7 +46,7 @@ import type { WeatherNow } from "@/lib/weather";
 /**
  * AI Crop Advisory — the farmer's conversation with the multi-model assistant.
  *
- * The call always goes through the CenAGRI backend, never straight to the AI
+ * The call always goes through the Kalika backend, never straight to the AI
  * provider. Context sent is limited to what the farmer authorised on this
  * screen: the crop, its stage, the farm (soil/irrigation), the district, the
  * language, and the current weather. The backend re-checks that the farm
@@ -224,7 +224,7 @@ export default function AdvisoryPage() {
               {status?.configured ? `AI model: ${status.model ?? "configured"}` : "Rule-based answers"}
             </Chip>
             {details.district && <Chip tone="slate">{details.district}</Chip>}
-            {isFarmerApiConfigured && <Chip tone="blue">Verified by CenAGRI server</Chip>}
+            {isFarmerApiConfigured && <Chip tone="blue">Verified by Kalika server</Chip>}
           </>
         }
       />

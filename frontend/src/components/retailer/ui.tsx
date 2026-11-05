@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import type { LucideIcon } from "lucide-react";
+import { useLang } from "@/i18n/LanguageContext";
 
 /**
  * Small presentational primitives for the retailer screens. They exist so the
@@ -23,6 +24,7 @@ export function StatCard({
   trend?: { value: number | null; period: string };
   tone?: "brand" | "amber" | "rose" | "violet";
 }) {
+  const { t } = useLang();
   const tones = {
     brand: "bg-brand-50 text-brand-700",
     amber: "bg-amber-50 text-amber-700",
@@ -52,7 +54,7 @@ export function StatCard({
               }`}
           >
             {trend.value == null
-              ? "No prior data"
+              ? t("r.c.noPriorData")
               : `${up ? "▲" : "▼"} ${Math.abs(trend.value).toFixed(1)}%`}
           </span>
         )}

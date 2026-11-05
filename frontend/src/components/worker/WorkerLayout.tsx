@@ -5,6 +5,7 @@ import {
   Briefcase,
   CalendarDays,
   CheckCircle2,
+  Clapperboard,
   FileText,
   IndianRupee,
   LayoutDashboard,
@@ -15,6 +16,7 @@ import {
   Video,
 } from "lucide-react";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
+import { homeForRole } from "@/lib/roleHome";
 import AccountShell from "@/components/account/AccountShell";
 import type { SearchEntry, ShellNavItem, ShellNotification } from "@/components/account/AccountShell";
 import { useAuth } from "@/hooks/useAuth";
@@ -36,9 +38,10 @@ export type WorkerNavKey =
   | "messages"
   | "notifications"
   | "hire"
+  | "hub"
   | "creator";
 
-export const WORKER_ROUTES: Record<Exclude<WorkerNavKey, "creator" | "hire">, string> = {
+export const WORKER_ROUTES: Record<Exclude<WorkerNavKey, "creator" | "hub" | "hire">, string> = {
   home: WORKER_BASE,
   jobs: `${WORKER_BASE}/jobs`,
   applications: `${WORKER_BASE}/applications`,
@@ -51,24 +54,27 @@ export const WORKER_ROUTES: Record<Exclude<WorkerNavKey, "creator" | "hire">, st
   notifications: `${WORKER_BASE}/notifications`,
 };
 
-const NAV: { key: WorkerNavKey; label: string; icon: ShellNavItem["icon"] }[] = [
-  { key: "home", label: "Dashboard", icon: LayoutDashboard },
-  { key: "jobs", label: "Find Jobs", icon: Briefcase },
-  { key: "applications", label: "My Applications", icon: FileText },
-  { key: "active", label: "Active Work", icon: CheckCircle2 },
-  { key: "calendar", label: "Work Calendar", icon: CalendarDays },
-  { key: "earnings", label: "Earnings", icon: IndianRupee },
-  { key: "profile", label: "My Profile", icon: UserRound },
-  { key: "reviews", label: "Reviews", icon: Star },
-  { key: "messages", label: "Messages", icon: MessageSquare },
-  { key: "notifications", label: "Notifications", icon: Bell },
-  { key: "hire", label: "Hire Workers", icon: Users },
-  { key: "creator", label: "Creator Studio", icon: Video },
+const NAV: { key: WorkerNavKey; label: string; tkey: string; icon: ShellNavItem["icon"] }[] = [
+  { key: "home", label: "Dashboard", tkey: "s.dashboard", icon: LayoutDashboard },
+  { key: "jobs", label: "Find Jobs", tkey: "s.jobs", icon: Briefcase },
+  { key: "applications", label: "My Applications", tkey: "s.applications", icon: FileText },
+  { key: "active", label: "Active Work", tkey: "s.activeWork", icon: CheckCircle2 },
+  { key: "calendar", label: "Work Calendar", tkey: "s.calendar", icon: CalendarDays },
+  { key: "earnings", label: "Earnings", tkey: "s.earnings", icon: IndianRupee },
+  { key: "profile", label: "My Profile", tkey: "s.profile", icon: UserRound },
+  { key: "reviews", label: "Reviews", tkey: "s.reviews", icon: Star },
+  { key: "messages", label: "Messages", tkey: "s.messages", icon: MessageSquare },
+  { key: "notifications", label: "Notifications", tkey: "s.notifications", icon: Bell },
+  { key: "hire", label: "Hire Workers", tkey: "s.hireWorkers", icon: Users },
+  /* Watching the hub needs no Creator Mode — learning is open to every account. */
+  { key: "hub", label: "Kisan Video Hub", tkey: "s.videoHub", icon: Video },
+  { key: "creator", label: "Creator Studio", tkey: "s.creatorStudio", icon: Clapperboard },
 ];
 
-/** "creator" and "hire" live outside /worker, so they are resolved separately. */
+/** "hub", "creator" and "hire" live outside /worker, so they are resolved separately. */
 const NAV_HREF: Partial<Record<WorkerNavKey, string>> = {
-  creator: "/creator/settings",
+  hub: "/video-hub",
+  creator: "/creator-mode",
   hire: "/employer",
 };
 
@@ -86,9 +92,9 @@ const WORKER_SEARCH: SearchEntry[] = [
   { label: "My applications", keywords: "applied pending accepted rejected withdraw", section: "Jobs", to: "/worker/applications" },
   { label: "Active work", keywords: "current job ongoing attendance progress", section: "Work", to: "/worker/active-work" },
   { label: "Calendar & availability", keywords: "schedule dates unavailable leave calendar", section: "Work", to: "/worker/calendar" },
-  { label: "Earnings", keywords: "payment money wage paid pending transaction", section: "Money", to: "/worker/earnings" },
-  { label: "Skills", keywords: "skills harvesting sowing spraying experience", section: "Profile", to: "/worker/profile" },
-  { label: "Reviews", keywords: "rating feedback stars review employer", section: "Profile", to: "/worker/reviews" },
+  { label: "Earnings", tkey: "s.earnings", keywords: "payment money wage paid pending transaction", section: "Money", to: "/worker/earnings" },
+  { label: "Skills", tkey: "s.skills", keywords: "skills harvesting sowing spraying experience", section: "Profile", to: "/worker/profile" },
+  { label: "Reviews", tkey: "s.reviews", keywords: "rating feedback stars review employer", section: "Profile", to: "/worker/reviews" },
 ];
 
 /**
@@ -149,11 +155,12 @@ export default function WorkerLayout({
     return <Navigate to="/complete-profile?next=/worker" replace />;
   }
 
-  // Workers stay on /worker. Everyone else goes back to their own dashboard
-  // rather than being allowed to browse another account type's shell.
+  // Workers stay on /worker. Everyone else goes to their own account rather
+  // than being allowed to browse another account type's shell. Sending them to
+  // the bare `/dashboard` made them bounce: the dashboard sent them back here.
   const role = profile?.role;
   if (role && role !== "Worker") {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to={homeForRole(role)} replace />;
   }
 
   const name =
@@ -174,12 +181,13 @@ export default function WorkerLayout({
       | WorkerNavKey
       | undefined) ?? "home";
 
-  const nav: ShellNavItem[] = NAV.map(({ key, label, icon }) => ({
+  const nav: ShellNavItem[] = NAV.map(({ key, label, tkey, icon }) => ({
     label,
+    tkey,
     icon,
     badge: key === "notifications" ? unreadCount : undefined,
     active: key === activeKey,
-    to: NAV_HREF[key] ?? WORKER_ROUTES[key as Exclude<WorkerNavKey, "creator" | "hire">],
+    to: NAV_HREF[key] ?? WORKER_ROUTES[key as Exclude<WorkerNavKey, "creator" | "hub" | "hire">],
   }));
 
   async function handleSignOut() {

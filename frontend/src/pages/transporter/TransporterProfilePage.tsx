@@ -37,7 +37,7 @@ import { Link } from "react-router-dom";
  * Transporter profile.
  *
  * The business identity requesters judge you by. Verification is read-only: it
- * is decided by the CenAGRI review workflow, not by the transporter, and the
+ * is decided by the Kalika review workflow, not by the transporter, and the
  * documents that back it stay private.
  */
 export default function TransporterProfilePage() {
@@ -348,7 +348,7 @@ export default function TransporterProfilePage() {
             </label>
           </Panel>
 
-          <Panel title="Verification" description="Decided by the CenAGRI team">
+          <Panel title="Verification" description="Decided by the Kalika team">
             <div className="space-y-2.5 p-4 text-[11.5px]">
               <Row icon={Phone} label="Phone" value={me.contact_phone ? "On file" : "Not added"} ok={Boolean(me.contact_phone)} />
               <Row

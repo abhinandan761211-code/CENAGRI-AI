@@ -1,4 +1,4 @@
-import { CalendarCheck, MessageSquareText, UserRoundPlus } from "lucide-react";
+import { CalendarCheck, ShoppingBasket, UserRoundPlus } from "lucide-react";
 import { useLang } from "@/i18n/LanguageContext";
 
 const STEPS = [
@@ -20,7 +20,7 @@ const STEPS = [
     step: "03",
     title: "how.step3Title",
     body: "how.step3Body",
-    icon: MessageSquareText,
+    icon: ShoppingBasket,
     detail: "how.step3Detail",
   },
 ] as const;

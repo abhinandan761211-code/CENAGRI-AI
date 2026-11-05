@@ -17,6 +17,7 @@ import { ShellHero, ShellQuickActions } from "@/components/account/AccountShell"
 import RetailerLayout, { RETAILER_ROUTES } from "@/components/retailer/RetailerLayout";
 import { Badge, EmptyState, ErrorNotice, Loading, Panel, StatCard } from "@/components/retailer/ui";
 import { useAuth } from "@/hooks/useAuth";
+import { useLang } from "@/i18n/LanguageContext";
 import { useRetailerData } from "@/hooks/useRetailerData";
 import {
   EXPIRY_LABEL,
@@ -61,10 +62,11 @@ export default function RetailerHome() {
     .sort((a, b) => (a.expiry_date ?? "").localeCompare(b.expiry_date ?? ""));
   const openOrders = orderList.filter((o) => o.status === "processing" || o.status === "shipped");
 
+  const { t, tf } = useLang();
   const shopName = profile?.details?.shop_name;
   const locationLine =
     [profile?.details?.district, profile?.details?.state].filter(Boolean).join(", ") ||
-    "Location not set";
+    t("r.home.locationNotSet");
 
   const greeting = (() => {
     const h = new Date().getHours();
@@ -74,21 +76,21 @@ export default function RetailerHome() {
   })();
 
   return (
-    <RetailerLayout title="Home" subtitle="Business overview">
+    <RetailerLayout title={t("r.home.title")} subtitle={t("r.home.subtitle")}>
       <ShellHero
         locationLine={locationLine}
         greeting={`${greeting}${shopName ? `, ${shopName}` : ""}! 🌾`}
-        subtitle="Aaj ki dukaan ka poora hisaab — sales, stock aur orders ek jagah."
+        subtitle={t("r.home.heroSub")}
         aside={
           <div className="rounded-xl bg-white/10 p-3.5">
             <p className="text-[11px] font-semibold uppercase tracking-wide text-white/70">
-              Today
+              {t("r.home.today")}
             </p>
             <p className="mt-1.5 font-display text-2xl font-extrabold">
               {loading ? "—" : formatINR(totals.monthlyProfit)}
             </p>
             <p className="mt-1 text-[11px] text-white/70">
-              Profit this month · {totals.ordersThisMonth} orders
+              {tf("r.home.profitMonth", { count: totals.ordersThisMonth })}
             </p>
           </div>
         }
@@ -97,27 +99,27 @@ export default function RetailerHome() {
       <ShellQuickActions
         actions={[
           {
-            label: "Add Product",
+            label: t("r.home.addProduct"),
             icon: PackagePlus,
             onClick: () => navigate(RETAILER_ROUTES.products),
           },
           {
-            label: "Orders",
+            label: t("r.home.orders"),
             icon: ShoppingCart,
             onClick: () => navigate(RETAILER_ROUTES.orders),
           },
           {
-            label: "Stock",
+            label: t("r.home.stock"),
             icon: Warehouse,
             onClick: () => navigate(RETAILER_ROUTES.inventory),
           },
           {
-            label: "Offers",
+            label: t("r.home.offers"),
             icon: Megaphone,
             onClick: () => navigate(RETAILER_ROUTES.offers),
           },
           {
-            label: "Buy Produce",
+            label: t("r.home.buyProduce"),
             icon: Sprout,
             onClick: () => navigate(RETAILER_ROUTES.buy),
           },
@@ -131,33 +133,33 @@ export default function RetailerHome() {
       {/* KPI cards */}
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard
-          label="Total Orders"
+          label={t("r.home.totalOrders")}
           value={loading ? "—" : totals.totalOrders.toLocaleString("en-IN")}
           icon={ShoppingCart}
-          hint={`${openOrders.length} waiting to be shipped`}
+          hint={tf("r.home.waitingShip", { count: openOrders.length })}
         />
         <StatCard
-          label="Total Sales"
+          label={t("r.home.totalSales")}
           value={loading ? "—" : formatINR(totals.totalSales)}
           icon={IndianRupee}
-          trend={{ value: totals.salesChangePct, period: "vs last month" }}
+          trend={{ value: totals.salesChangePct, period: t("r.home.vsLastMonth") }}
         />
         <StatCard
-          label="Products Listed"
+          label={t("r.home.productsListed")}
           value={loading ? "—" : totals.productsListed.toLocaleString("en-IN")}
           icon={Package}
           tone="violet"
-          hint={`${productList.length} products in catalogue`}
+          hint={tf("r.home.inCatalogue", { count: productList.length })}
         />
         <StatCard
-          label="Monthly Profit"
+          label={t("r.home.monthlyProfit")}
           value={loading ? "—" : formatINR(totals.monthlyProfit)}
           icon={TrendingUp}
           tone="amber"
           hint={
             totals.ordersThisMonth > 0
-              ? `From ${totals.ordersThisMonth} orders this month`
-              : "No orders this month yet"
+              ? tf("r.home.fromOrders", { count: totals.ordersThisMonth })
+              : t("r.home.noOrdersMonth")
           }
         />
       </div>
@@ -165,21 +167,21 @@ export default function RetailerHome() {
       {/* Alerts */}
       <div className="mt-4 grid gap-3 lg:grid-cols-3">
         <Panel
-          title="Low stock"
-          description="Re-order before the shelf runs out"
+          title={t("r.home.lowStock")}
+          description={t("r.home.lowStockDesc")}
           action={
             <Link to={RETAILER_ROUTES.inventory} className="text-[11px] font-bold text-brand-700 hover:underline">
-              Manage
+              {t("r.home.manage")}
             </Link>
           }
         >
           {loading ? (
-            <Loading label="Checking stock…" />
+            <Loading label={t("r.home.checkingStock")} />
           ) : lowStock.length === 0 ? (
             <EmptyState
               icon={Boxes}
-              title="Stock levels are healthy"
-              description="Products drop below their threshold will appear here automatically."
+              title={t("r.home.stockHealthy")}
+              description={t("r.home.stockHealthyDesc")}
             />
           ) : (
             <ul className="divide-y divide-slate-100">
@@ -188,12 +190,14 @@ export default function RetailerHome() {
                   <div className="min-w-0">
                     <p className="truncate text-[13px] font-semibold text-forest">{product.name}</p>
                     <p className="text-[11px] text-slate-500">
-                      {formatQty(product.stock_qty, product.unit)} left · alert at{" "}
-                      {formatQty(product.low_stock_at, product.unit)}
+                      {tf("r.home.leftAlertAt", {
+                        left: formatQty(product.stock_qty, product.unit),
+                        at: formatQty(product.low_stock_at, product.unit),
+                      })}
                     </p>
                   </div>
                   <Badge className={STOCK_STYLE[stockLevel(product)]}>
-                    {stockLevel(product) === "out" ? "Out" : "Low"}
+                    {stockLevel(product) === "out" ? t("r.home.out") : t("r.home.low")}
                   </Badge>
                 </li>
               ))}
@@ -202,21 +206,21 @@ export default function RetailerHome() {
         </Panel>
 
         <Panel
-          title="Expiry tracking"
-          description="Fertilisers & pesticides expiring"
+          title={t("r.home.expiryTracking")}
+          description={t("r.home.expiryDesc")}
           action={
             <Link to={RETAILER_ROUTES.inventory} className="text-[11px] font-bold text-brand-700 hover:underline">
-              Review
+              {t("r.home.review")}
             </Link>
           }
         >
           {loading ? (
-            <Loading label="Checking batches…" />
+            <Loading label={t("r.home.checkingBatches")} />
           ) : expiring.length === 0 ? (
             <EmptyState
               icon={CalendarClock}
-              title="No batches expiring soon"
-              description="Fertiliser and pesticide batches with a date within 90 days are listed here."
+              title={t("r.home.noExpiry")}
+              description={t("r.home.noExpiryDesc")}
             />
           ) : (
             <ul className="divide-y divide-slate-100">
@@ -225,7 +229,10 @@ export default function RetailerHome() {
                   <div className="min-w-0">
                     <p className="truncate text-[13px] font-semibold text-forest">{product.name}</p>
                     <p className="text-[11px] text-slate-500">
-                      Batch {product.batch_no ?? "—"} · {formatDate(product.expiry_date)}
+                      {tf("r.home.batch", {
+                        batch: product.batch_no ?? "—",
+                        date: formatDate(product.expiry_date),
+                      })}
                     </p>
                   </div>
                   <Badge className={EXPIRY_STYLE[expiryState(product)]}>
@@ -238,21 +245,21 @@ export default function RetailerHome() {
         </Panel>
 
         <Panel
-          title="Orders to fulfil"
-          description="Processing and shipped"
+          title={t("r.home.ordersToFulfil")}
+          description={t("r.home.processingShipped")}
           action={
             <Link to={RETAILER_ROUTES.orders} className="text-[11px] font-bold text-brand-700 hover:underline">
-              All orders
+              {t("r.home.allOrders")}
             </Link>
           }
         >
           {loading ? (
-            <Loading label="Loading orders…" />
+            <Loading label={t("r.home.loadingOrders")} />
           ) : openOrders.length === 0 ? (
             <EmptyState
               icon={ShoppingCart}
-              title="Nothing pending"
-              description="New customer orders appear here with the product and amount."
+              title={t("r.home.nothingPending")}
+              description={t("r.home.nothingPendingDesc")}
             />
           ) : (
             <ul className="divide-y divide-slate-100">
@@ -285,26 +292,26 @@ export default function RetailerHome() {
           {
             to: RETAILER_ROUTES.products,
             icon: Package,
-            title: "Catalogue",
-            body: "Seed, fertiliser, pesticide, tool & irrigation.",
+            title: t("r.home.catalogue"),
+            body: t("r.home.catalogueBody"),
           },
           {
             to: RETAILER_ROUTES.buy,
             icon: Sprout,
-            title: "Buy from farmers",
-            body: "Procure produce and eligible inputs directly.",
+            title: t("r.home.buyFromFarmers"),
+            body: t("r.home.buyFarmersBody"),
           },
           {
             to: RETAILER_ROUTES.offers,
             icon: Megaphone,
-            title: "Offers",
-            body: "Festival and seasonal coupons for customers.",
+            title: t("r.home.offers"),
+            body: t("r.home.offersBody"),
           },
           {
             to: RETAILER_ROUTES.analytics,
             icon: TrendingUp,
-            title: "Sales analytics",
-            body: "Daily, weekly and monthly sales and profit.",
+            title: t("r.home.analytics"),
+            body: t("r.home.analyticsBody"),
           },
         ].map(({ to, icon: Icon, title, body }) => (
           <Link key={to} to={to} className="card flex items-start gap-3 p-4 transition hover:border-brand-300 hover:shadow-card-hover">
@@ -321,17 +328,17 @@ export default function RetailerHome() {
 
       {/* Recent activity */}
       <div>
-        <Panel title="Recent sales" description="Latest customer orders with profit per line">
+        <Panel title={t("r.home.recentSales")} description={t("r.home.recentSalesDesc")}>
           {loading ? (
-            <Loading label="Loading sales…" />
+            <Loading label={t("r.home.loadingSales")} />
           ) : orderList.length === 0 ? (
             <EmptyState
               icon={IndianRupee}
-              title="No sales recorded yet"
-              description="Once a customer order is logged against your shop it appears here."
+              title={t("r.home.noSales")}
+              description={t("r.home.noSalesDesc")}
               action={
                 <Link to={RETAILER_ROUTES.orders} className="btn-primary h-9 px-4 text-xs">
-                  Go to orders
+                  {t("r.home.goOrders")}
                 </Link>
               }
             />
@@ -340,12 +347,12 @@ export default function RetailerHome() {
               <table className="w-full min-w-[560px] text-left text-xs">
                 <thead className="bg-slate-50 text-[10px] uppercase tracking-wide text-slate-500">
                   <tr>
-                    <th className="px-4 py-2 font-semibold">Product</th>
-                    <th className="px-4 py-2 font-semibold">Customer</th>
-                    <th className="px-4 py-2 font-semibold">Qty</th>
-                    <th className="px-4 py-2 text-right font-semibold">Amount</th>
-                    <th className="px-4 py-2 text-right font-semibold">Profit</th>
-                    <th className="px-4 py-2 font-semibold">Date</th>
+                    <th className="px-4 py-2 font-semibold">{t("r.home.colProduct")}</th>
+                    <th className="px-4 py-2 font-semibold">{t("r.home.colCustomer")}</th>
+                    <th className="px-4 py-2 font-semibold">{t("r.home.colQty")}</th>
+                    <th className="px-4 py-2 text-right font-semibold">{t("r.home.colAmount")}</th>
+                    <th className="px-4 py-2 text-right font-semibold">{t("r.home.colProfit")}</th>
+                    <th className="px-4 py-2 font-semibold">{t("r.home.colDate")}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">

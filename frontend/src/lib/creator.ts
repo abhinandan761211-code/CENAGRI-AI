@@ -705,7 +705,7 @@ export async function listComments(videoId: string): Promise<VideoComment[]> {
 
   const withAuthor = rows.map((r) => ({
     ...r,
-    author_name: authors.get(r.author_id)?.full_name ?? "CenAGRI user",
+    author_name: authors.get(r.author_id)?.full_name ?? "Kalika user",
     author_avatar: authors.get(r.author_id)?.avatar_url ?? null,
   }));
 
@@ -782,7 +782,7 @@ export async function listCommentsForCreator(): Promise<
   return (data ?? []).map((r: VideoComment) => ({
     ...r,
     video_title: titleOf.get(r.video_id) ?? "Video",
-    author_name: names.get(r.author_id) ?? "CenAGRI user",
+    author_name: names.get(r.author_id) ?? "Kalika user",
   }));
 }
 
@@ -971,7 +971,7 @@ export async function getTopVideos(creatorId: string, limit = 5): Promise<Video[
 /**
  * A live broadcast as the hub renders it.
  *
- * This is DEMO DATA, not a live API. CenAGRI has no ingest server (RTMP/SRT),
+ * This is DEMO DATA, not a live API. Kalika has no ingest server (RTMP/SRT),
  * transcoder or HLS player yet — see CreatorLive. Every consumer must show the
  * `isDemo` notice so nobody mistakes a sample card for a real stream. When the
  * ingest pipeline exists, replace `listLiveStreams` with a real query against a

@@ -27,8 +27,10 @@ import {
   X,
 } from "lucide-react";
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import { KalikaMark } from "@/components/Logo";
 import type { LucideIcon } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { useCreatorMode } from "@/hooks/useCreatorMode";
 import { homeForRole } from "@/lib/roleHome";
 import {
   compactCount,
@@ -89,6 +91,15 @@ export const HUB_ROUTE = "/video-hub";
 export const STUDIO_ROUTE = `${HUB_ROUTE}?mode=create`;
 export const WATCH_ROUTE = "/watch";
 
+/**
+ * The Creator Mode switch. Deliberately NOT under `/creator/*`: every studio
+ * route is wrapped in <CreatorModeRoute>, which sends an account with the mode
+ * off straight back to the watch feed — including the settings page that holds
+ * the switch. This URL is reachable either way, so "Turn on Creator Mode"
+ * actually lands somewhere.
+ */
+export const CREATOR_MODES_ROUTE = "/creator-mode";
+
 
 const NOTIF_ICON: Record<CreatorNotification["kind"], LucideIcon> = {
   subscriber: Users,
@@ -117,6 +128,11 @@ export type VideoNavItem = {
   icon: LucideIcon;
   to: string;
   studioOnly?: boolean;
+  /**
+   * Publishing tool: hidden while Creator Mode is off, replaced by the single
+   * "Turn on Creator Mode" entry so the link is never a dead end.
+   */
+  requiresCreatorMode?: boolean;
 };
 
 export const VIDEO_NAV: { group: string; items: VideoNavItem[] }[] = [
@@ -137,13 +153,15 @@ export const VIDEO_NAV: { group: string; items: VideoNavItem[] }[] = [
   {
     group: "Create",
     items: [
-      /* The studio is the Create mode of the same hub page, not a second app. */
-      { key: "studio", label: "Creator Studio", icon: LayoutDashboard, to: STUDIO_ROUTE },
-      { key: "upload", label: "Create content", icon: Upload, to: CREATOR_ROUTES.upload },
-      { key: "channel", label: "My Videos", icon: User, to: CREATOR_ROUTES.channel },
-      { key: "analytics", label: "Analytics", icon: BarChart3, to: CREATOR_ROUTES.analytics, studioOnly: true },
-      { key: "comments", label: "Comments", icon: MessageSquare, to: CREATOR_ROUTES.comments, studioOnly: true },
-      { key: "monetization", label: "Monetization", icon: Coins, to: CREATOR_ROUTES.monetization, studioOnly: true },
+      /* The studio is the Create mode of the same hub page, not a second app.
+         "Create content" and "My Videos" used to sit here too. Both are
+         destinations INSIDE Creator Studio, so listing them alongside it made
+         the sidebar three doors to one room. Studio stays as the single entry
+         and links on to uploading and the channel. */
+      { key: "studio", label: "Creator Studio", icon: LayoutDashboard, to: STUDIO_ROUTE, requiresCreatorMode: true },
+      { key: "analytics", label: "Analytics", icon: BarChart3, to: CREATOR_ROUTES.analytics, studioOnly: true, requiresCreatorMode: true },
+      { key: "comments", label: "Comments", icon: MessageSquare, to: CREATOR_ROUTES.comments, studioOnly: true, requiresCreatorMode: true },
+      { key: "monetization", label: "Monetization", icon: Coins, to: CREATOR_ROUTES.monetization, studioOnly: true, requiresCreatorMode: true },
     ],
   },
 ];
@@ -158,7 +176,7 @@ export default function CreatorShell({
   onSearch,
   searchEntries,
   searchPlaceholder = "Search your videos…",
-  hub = false,
+  hub,
   suggestions,
   light = true,
   children,
@@ -180,6 +198,10 @@ export default function CreatorShell({
    * both modes — Watch + Create groups — the flag only decides which entries
    * light up, whether studio-only rows such as Analytics are shown, and
    * whether the mobile bottom bar replaces the drawer.
+   *
+   * Left undefined it is derived: browsing mode when the account has Creator
+   * Mode off (so the hub link "Turn on Creator Mode" finally lands on the
+   * studio instead of bouncing straight back out through <CreatorModeRoute>).
    */
   hub?: boolean;
   /** Suggestion rows shown under the hub search box. */
@@ -215,6 +237,10 @@ export default function CreatorShell({
   const profileRef = useRef<HTMLDivElement | null>(null);
 
   const { channel, state: channelState, canCreate } = useCreatorChannel();
+  const { enabled: creatorMode } = useCreatorMode();
+
+  /** Browsing rail unless explicitly asked for, or while Creator Mode is off. */
+  const browsing = hub ?? !creatorMode;
 
   /** The hub page's Create tab — same URL, `?mode=create`. */
   const studioMode = pathname === HUB_ROUTE && searchParams.get("mode") === "create";
@@ -230,6 +256,8 @@ export default function CreatorShell({
    * broken table does not silently present an empty studio.
    */
   const isCreator = channelState === "ready";
+  /** Publishing entries (upload, my videos, analytics …) only with Creator Mode. */
+  const publishing = creatorMode && isCreator;
 
   useEffect(() => {
     if (!user || !isCreator) return;
@@ -327,14 +355,12 @@ export default function CreatorShell({
             <Link
               to={HUB_ROUTE}
               className="flex min-w-0 items-center gap-2"
-              title="Kisan Video Hub"
+              title="Kalika"
               onClick={() => setSidebarOpen(false)}
             >
-              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-[#16C784] text-sm font-black text-[#0B1020]">
-                CA
-              </span>
-              <span className={`truncate text-sm font-bold text-white ${railLabel}`}>
-                Kisan Video
+              <KalikaMark size={36} />
+              <span className={`truncate font-display text-sm font-extrabold tracking-tight text-white ${railLabel}`}>
+                Kalika
               </span>
             </Link>
             <button
@@ -349,20 +375,28 @@ export default function CreatorShell({
 
           <nav className="space-y-1 p-2" aria-label="Kisan Video Hub">
             {VIDEO_NAV.map(({ group, items }) => {
-              const shown = items.filter((item) => !item.studioOnly || !hub);
+              /**
+               * Watch entries are always shown. The Create group is a list of
+               * publishing tools, so with Creator Mode off it collapses to the
+               * one link that switches the mode on — otherwise every studio
+               * link bounces off <CreatorModeRoute> back to the watch feed and
+               * the button looks dead.
+               */
+              const shown = !creatorMode
+                ? items.filter((item) => !item.requiresCreatorMode)
+                : items.filter((item) => !item.studioOnly || !browsing);
               if (shown.length === 0) return null;
               return (
                 <div key={group} className="pb-1">
                   {/* Group headings only make sense on the expanded rail. */}
                   <p
-                    className={`px-3 pb-1 pt-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 ${
-                      hovered ? "" : "lg:hidden"
-                    }`}
+                    className={`px-3 pb-1 pt-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 ${hovered ? "" : "lg:hidden"
+                      }`}
                   >
                     {group}
                   </p>
                   {shown.map(({ key, label, icon: Icon, to }) => {
-                    const active = hub
+                    const active = browsing
                       ? key === "home" && !studioMode
                       : Object.entries(CREATOR_ROUTES).find(([, path]) => path === pathname)?.[0] === key;
                     return (
@@ -387,6 +421,20 @@ export default function CreatorShell({
 
             <div className="my-2 border-t border-white/10" />
 
+            {/* The one entry that is reachable with Creator Mode off — it is the
+                switch itself, not a publishing screen. */}
+            {!creatorMode && (
+              <Link
+                to={CREATOR_ROUTES.settings}
+                title="Turn on Creator Mode"
+                onClick={() => setSidebarOpen(false)}
+                className={`creator-nav-item ${hovered ? "" : "lg:justify-center"}`}
+              >
+                <Clapperboard className="h-[18px] w-[18px] shrink-0" />
+                <span className={`flex-1 truncate ${railLabel}`}>Turn on Creator Mode</span>
+              </Link>
+            )}
+
             <Link
               to={CREATOR_ROUTES.settings}
               title="Settings"
@@ -407,7 +455,7 @@ export default function CreatorShell({
               <span className={`flex-1 truncate ${railLabel}`}>Help &amp; Support</span>
             </Link>
 
-            {!hub && (
+            {!browsing && (
               <>
                 <div className="my-2 border-t border-white/10" />
                 <Link
@@ -474,7 +522,7 @@ export default function CreatorShell({
               </button>
 
               {(onSearch || (searchEntries && searchEntries.length > 0)) && (
-                <div ref={searchRef} className={`relative min-w-0 flex-1 ${hub ? "" : "hidden sm:block"}`}>
+                <div ref={searchRef} className={`relative min-w-0 flex-1 ${browsing ? "" : "hidden sm:block"}`}>
                   <div className="creator-search">
                     <Search className="h-4 w-4 shrink-0 text-slate-400" />
                     <input
@@ -752,7 +800,7 @@ export default function CreatorShell({
             </div>
           </header>
 
-          <main className={`space-y-5 p-4 sm:p-6 ${hub ? "pb-24 lg:pb-6" : ""}`}>
+          <main className={`space-y-5 p-4 sm:p-6 ${browsing ? "pb-24 lg:pb-6" : ""}`}>
             {(title || subtitle || action) && (
               <div className="flex flex-wrap items-end justify-between gap-3">
                 <div className="min-w-0">
@@ -775,7 +823,7 @@ export default function CreatorShell({
 
       {/* Mobile bottom bar: the four destinations a phone user reaches for
           most. Everything else stays in the drawer behind the menu button. */}
-      {hub && (
+      {browsing && (
         <nav
           aria-label="Kisan Video Hub"
           className="creator-mobile-bar fixed inset-x-0 bottom-0 z-30 flex items-stretch border-t lg:hidden"

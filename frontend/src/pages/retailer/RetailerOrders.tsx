@@ -10,6 +10,7 @@ import {
   Panel,
 } from "@/components/retailer/ui";
 import { useRetailerData } from "@/hooks/useRetailerData";
+import { useLang } from "@/i18n/LanguageContext";
 import {
   ORDER_STATUSES,
   ORDER_STATUS_STYLE,
@@ -23,20 +24,20 @@ import {
 import type { RetailerOrder, RetailerOrderStatus } from "@/lib/retailer";
 
 /** The next step a shopkeeper can take on an order, and its button label. */
-const NEXT_ACTION: Partial<Record<RetailerOrderStatus, { to: RetailerOrderStatus; label: string }>> = {
-  processing: { to: "shipped", label: "Mark shipped" },
-  shipped: { to: "delivered", label: "Mark delivered" },
+const NEXT_ACTION: Partial<Record<RetailerOrderStatus, { to: RetailerOrderStatus; labelKey: string }>> = {
+  processing: { to: "shipped", labelKey: "r.o.markShipped" },
+  shipped: { to: "delivered", labelKey: "r.o.markDelivered" },
 };
 
 export const RETAILER_ORDER_TABS = ["all", ...ORDER_STATUSES] as const;
 type Tab = (typeof RETAILER_ORDER_TABS)[number];
 
 const TAB_LABEL: Record<Tab, string> = {
-  all: "All orders",
-  processing: "Processing",
-  shipped: "Shipped",
-  delivered: "Delivered",
-  cancelled: "Cancelled",
+  all: "r.o.allOrders",
+  processing: "r.o.processing",
+  shipped: "r.o.shipped",
+  delivered: "r.o.delivered",
+  cancelled: "r.o.cancelled",
 };
 
 /**
@@ -47,6 +48,7 @@ const TAB_LABEL: Record<Tab, string> = {
  * than refetching, and the DB stamps the shipped/delivered timestamp.
  */
 export default function RetailerOrders() {
+  const { t, tf } = useLang();
   const { data, setData, state, error, reload } = useRetailerData<RetailerOrder[]>(
     () => listOrders(180),
     []
@@ -84,14 +86,14 @@ export default function RetailerOrders() {
       const saved = await setOrderStatus(order.id, status);
       setData(orders.map((o) => (o.id === saved.id ? saved : o)));
     } catch (err) {
-      setActionError(err instanceof Error ? err.message : "Could not update the order.");
+      setActionError(err instanceof Error ? err.message : t("r.c.updateFailed"));
     } finally {
       setBusyId(null);
     }
   }
 
   return (
-    <RetailerLayout title="Orders" subtitle="Customer orders, processing, shipped & delivered">
+    <RetailerLayout title={t("r.o.title")} subtitle={t("r.o.subtitle")}>
       {/* Tabs + sort */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div
@@ -113,7 +115,7 @@ export default function RetailerOrders() {
                 {key !== "all" && (
                   <span className={`h-1.5 w-1.5 rounded-full ${ORDER_STATUS_STYLE[key].dot}`} />
                 )}
-                {TAB_LABEL[key]}
+                {t(TAB_LABEL[key] as never)}
                 <span className={active ? "text-forest" : "text-slate-400"}>{counts[key]}</span>
               </button>
             );
@@ -128,7 +130,7 @@ export default function RetailerOrders() {
             aria-haspopup="listbox"
             className="inline-flex h-9 items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 text-xs font-medium text-slate-600 hover:bg-slate-50"
           >
-            {sort === "newest" ? "Newest first" : sort === "oldest" ? "Oldest first" : "Amount: high to low"}
+            {sort === "newest" ? t("r.o.newestFirst") : sort === "oldest" ? t("r.o.oldestFirst") : t("r.o.amountHighLow")}
             <ChevronDown className="h-3.5 w-3.5 text-slate-400" />
           </button>
           {sortOpen && (
@@ -138,9 +140,9 @@ export default function RetailerOrders() {
             >
               {(
                 [
-                  ["newest", "Newest first"],
-                  ["oldest", "Oldest first"],
-                  ["amount", "Amount: high to low"],
+                  ["newest", t("r.o.newestFirst")],
+                  ["oldest", t("r.o.oldestFirst")],
+                  ["amount", t("r.o.amountHighLow")],
                 ] as const
               ).map(([value, label]) => (
                 <li key={value}>
@@ -170,21 +172,21 @@ export default function RetailerOrders() {
         </div>
       )}
 
-      {state === "loading" && <Loading label="Loading orders…" />}
+      {state === "loading" && <Loading label={t("r.c.loadingOrders")} />}
 
       {state === "ready" && visible.length === 0 && (
         <div className="card mt-4">
           <EmptyState
             icon={ShoppingCart}
-            title={orders.length === 0 ? "No customer orders yet" : `Nothing in “${TAB_LABEL[tab]}”`}
+            title={orders.length === 0 ? t("r.o.noOrders") : tf("r.o.nothingIn", { tab: t(TAB_LABEL[tab] as never) })}
             description={
               orders.length === 0
-                ? "Orders placed by farmers against your shop appear here with the customer, amount and delivery status."
-                : "Switch tabs to see the rest of your orders."
+                ? t("r.o.noOrdersDesc")
+                : t("r.o.switchTabs")
             }
             action={
               <Link to={RETAILER_ROUTES.products} className="btn-primary h-9 px-4 text-xs">
-                Manage products
+                {t("r.o.manageProducts")}
               </Link>
             }
           />
@@ -215,17 +217,17 @@ export default function RetailerOrders() {
                 <div className="mt-3 flex flex-wrap items-end justify-between gap-3 border-t border-slate-100 pt-3">
                   <dl className="grid grid-cols-2 gap-x-6 gap-y-1 text-[11px] sm:grid-cols-4">
                     <div>
-                      <dt className="text-slate-400">Quantity</dt>
+                      <dt className="text-slate-400">{t("r.k.quantity")}</dt>
                       <dd className="font-semibold text-slate-700">
                         {formatQty(order.quantity, order.unit)}
                       </dd>
                     </div>
                     <div>
-                      <dt className="text-slate-400">Amount</dt>
+                      <dt className="text-slate-400">{t("r.k.amount")}</dt>
                       <dd className="font-bold text-forest">{formatINR(order.amount_inr)}</dd>
                     </div>
                     <div>
-                      <dt className="text-slate-400">Profit</dt>
+                      <dt className="text-slate-400">{t("r.k.profit")}</dt>
                       <dd className="text-emerald-700">{formatINR(orderProfit(order))}</dd>
                     </div>
                     <div>
@@ -252,7 +254,7 @@ export default function RetailerOrders() {
                         className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-brand-700 px-3 text-[11px] font-semibold text-white transition hover:bg-brand-800 disabled:opacity-60"
                       >
                         <Truck className="h-3 w-3" />
-                        {busy ? "Saving…" : next.label}
+                        {busy ? t("r.c.saving") : t(next.labelKey as never)}
                       </button>
                     )}
                     {canCancel && (
@@ -260,13 +262,13 @@ export default function RetailerOrders() {
                         type="button"
                         disabled={busy}
                         onClick={() => {
-                          if (window.confirm(`Cancel the order for ${order.product_name}?`)) {
+                          if (window.confirm(tf("r.o.confirmCancel", { product: order.product_name }))) {
                             void changeStatus(order, "cancelled");
                           }
                         }}
                         className="h-8 rounded-lg border border-slate-200 px-3 text-[11px] font-semibold text-slate-600 transition hover:border-rose-200 hover:bg-rose-50 hover:text-rose-700 disabled:opacity-60"
                       >
-                        Cancel
+                        {t("r.k.cancel")}
                       </button>
                     )}
                   </div>

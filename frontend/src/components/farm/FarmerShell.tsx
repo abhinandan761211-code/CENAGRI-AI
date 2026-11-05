@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { KalikaMark } from "@/components/Logo";
 import type { ReactNode } from "react";
 import {
   BadgeCheck,
@@ -47,7 +48,7 @@ import {
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import type { LucideIcon } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
-import { useCreatorChannel } from "@/hooks/useCreatorChannel";
+import { useCreatorMode } from "@/hooks/useCreatorMode";
 import { useLang } from "@/i18n/LanguageContext";
 import type { TranslationKey } from "@/i18n/locales/en";
 import LanguageSwitcher from "@/i18n/LanguageSwitcher";
@@ -165,11 +166,17 @@ export const FARMER_NAV_GROUPS: FarmerNavGroup[] = [
     key: "f.nav.community",
     icon: Users,
     items: [
-      { key: "f.nav.cenfriend", icon: Users, to: "/cenfriend" },
+      // "CenFriend" (/cenfriend) used to sit here next to "CenFriend Explore".
+      // Once you are inside CenFriend, its own rail already offers Home, and
+      // the two entries pointed at the same page — so this one is gone. The
+      // Explore entry stays as the single door into the community.
+      { key: "f.nav.cenfriendExplore", icon: Search, to: "/cenfriend/explore" },
       { key: "f.nav.videoHub", icon: Play, to: "/video-hub" },
       { key: "f.nav.creatorStudio", icon: Video, to: "/video-hub?mode=create", creatorOnly: true },
       { key: "f.nav.groups", icon: MessageSquare, to: "/farming-groups" },
-      { key: "f.nav.messages", icon: MessageSquare, to: "/messages" },
+      // Messages (/messages) is intentionally NOT listed here. CenFriend's own
+      // rail already has a Messages entry pointing at the same page, so the
+      // outer copy was a second door to one room.
       { key: "f.nav.notifications", icon: Bell, to: "/notifications" },
     ],
   },
@@ -261,7 +268,7 @@ function groupForKey(pathname: string): TranslationKey | null {
 }
 
 /** Remembers whether the farmer pinned the sidebar open on this device. */
-const SIDEBAR_PREF_KEY = "cenagri.farmer.sidebar";
+const SIDEBAR_PREF_KEY = "kalika.farmer.sidebar";
 
 /* ── Component ────────────────────────────────────────────────────────── */
 
@@ -288,11 +295,10 @@ export function FarmerShell({
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const { t } = useLang();
-  const { channel } = useCreatorChannel();
-
-  // Creator Mode: a channel is what the Content Creator system uses to decide
-  // whether an account may publish. Same rule as every other account type.
-  const creatorMode = Boolean(channel);
+  // Creator Mode is an explicit account setting (see useCreatorMode), not a
+  // side effect of having a channel — otherwise every farmer gained the
+  // publishing entries as soon as they opened the studio once.
+  const { enabled: creatorMode } = useCreatorMode();
   void _legacyPanel;
   void notificationsPanel;
 
@@ -553,13 +559,11 @@ export function FarmerShell({
           to="/farmer-account"
           onClick={() => setDrawerOpen(false)}
           className="flex min-w-0 items-center gap-2"
-          title="CenAGRI — Farmer account"
+          title="Kalika"
         >
-          <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-brand-700 text-xs font-black text-white">
-            CA
-          </span>
-          <span className={`truncate text-sm font-bold text-forest ${iconOnly ? "lg:hidden" : ""}`}>
-            CenAGRI Farm
+          <KalikaMark size={36} />
+          <span className={`truncate font-display text-sm font-extrabold tracking-tight text-forest ${iconOnly ? "lg:hidden" : ""}`}>
+            Kalika
           </span>
         </Link>
         <button
@@ -652,8 +656,16 @@ export function FarmerShell({
       </nav>
 
       <div className="farmer-sidebar-foot shrink-0 border-t border-slate-200 px-3 py-2">
-        {/* Pin / unpin the rail. This row sits at the very bottom and never
-            moves with the width animation, so it stays under the pointer. */}
+        {/* Language lives in the sidebar too, not only behind the settings
+            menu: on a phone the drawer is the one place a farmer looks for it,
+            and a menu that closes on the first tap made it hard to find. */}
+        <div className={`mb-1.5 ${iconOnly ? "lg:hidden" : ""}`}>
+          <LanguageSwitcher
+            tone="panel"
+            className="w-full [&>button]:w-full [&>button]:justify-start"
+            label={t("f.nav.language")}
+          />
+        </div>
         <button
           type="button"
           onClick={togglePin}

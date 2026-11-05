@@ -147,7 +147,7 @@ export default function CreatorSettings() {
                   />
                 </div>
                 <span className="mt-1 block text-[10px] text-slate-500">
-                  Must be unique across CenAGRI.
+                  Must be unique across Kalika.
                 </span>
               </label>
 

@@ -1,6 +1,6 @@
-import { Clapperboard, Eye, Radio } from "lucide-react";
-import { Link, useSearchParams } from "react-router-dom";
-import CreatorShell, { CREATOR_ROUTES } from "@/components/creator/CreatorShell";
+import { Radio } from "lucide-react";
+import { useSearchParams } from "react-router-dom";
+import CreatorShell from "@/components/creator/CreatorShell";
 import CreatorHomePanel from "@/components/creator/CreatorHomePanel";
 import VideoHubFeed, {
   useHubParams,
@@ -9,6 +9,7 @@ import VideoHubFeed, {
   type WatchTab,
 } from "@/components/creator/VideoHubFeed";
 import { useCreatorChannel } from "@/hooks/useCreatorChannel";
+import { useCreatorMode } from "@/hooks/useCreatorMode";
 
 /**
  * Kisan Video Hub — ONE page for watching and creating.
@@ -33,10 +34,17 @@ const isMode = (value: string | null): value is Mode => value === "watch" || val
 export default function VideoHub() {
   const [params] = useSearchParams();
   const { setParam } = useHubParams();
-  const { channel, canCreate } = useCreatorChannel();
+  const { channel } = useCreatorChannel();
   const suggestions = useHubSuggestions();
+  const { enabled: creatorMode } = useCreatorMode();
 
-  const mode: Mode = isMode(params.get("mode")) ? (params.get("mode") as Mode) : "watch";
+  const requested: Mode = isMode(params.get("mode")) ? (params.get("mode") as Mode) : "watch";
+  /**
+   * Watching is open to every account; publishing needs Creator Mode. A link
+   * that asks for `?mode=create` without it still loads the hub, just on the
+   * watch feed — the page never dead-ends behind a permission error.
+   */
+  const mode: Mode = requested === "create" && !creatorMode ? "watch" : requested;
   const tab = params.get("tab");
   const watchTitle = watchTabTitle(tab);
 
@@ -77,60 +85,17 @@ export default function VideoHub() {
             ? `Publishing to Kisan Video Hub · ${channel.video_count} videos · ${channel.subscriber_count} subscribers`
             : "Set up your channel to start publishing to Kisan Video Hub"
       }
-      action={
-        mode === "watch" ? (
-          <button
-            type="button"
-            onClick={() => setMode("create")}
-            className="creator-btn-primary h-9 px-4 text-xs"
-          >
-            <Clapperboard className="h-3.5 w-3.5" />
-            {canCreate ? "Create content" : "Become a creator"}
-          </button>
-        ) : (
-          <div className="flex flex-wrap gap-2">
-            <Link to={CREATOR_ROUTES.upload} className="creator-btn-primary h-9 px-4 text-xs">
-              <Clapperboard className="h-3.5 w-3.5" />
-              Upload video
-            </Link>
-            <button
-              type="button"
-              onClick={() => setMode("watch")}
-              className="creator-btn-ghost h-9 px-3 text-xs"
-            >
-              <Eye className="h-3.5 w-3.5" />
-              Watch videos
-            </button>
-          </div>
-        )
-      }
+      /*
+       * Deliberately no header actions and no Watch/Create tab strip here.
+       *
+       * The navbar already carries Create content and My Videos, and the rail
+       * carries Creator Studio, so repeating them on the page gave three
+       * competing "what do I click" buttons above the content. `mode` is read
+       * from the URL (?mode=create), so the page still opens in the right mode
+       * when reached from the navbar — the buttons were never the mechanism,
+       * only a duplicate.
+       */
     >
-      {/* ── Watch / Create: one page, two modes ── */}
-      <div
-        role="tablist"
-        aria-label="Video hub mode"
-        className="inline-flex rounded-xl border border-[var(--cr-border)] bg-[var(--cr-card)] p-1"
-      >
-        {(
-          [
-            { key: "watch", label: "Watch", icon: Eye },
-            { key: "create", label: "Create", icon: Clapperboard },
-          ] as const
-        ).map(({ key, label, icon: Icon }) => (
-          <button
-            key={key}
-            type="button"
-            role="tab"
-            aria-selected={mode === key}
-            onClick={() => setMode(key)}
-            className={`creator-chip ${mode === key ? "is-active" : ""}`}
-          >
-            <Icon className="h-3.5 w-3.5" />
-            {label}
-          </button>
-        ))}
-      </div>
-
       {mode === "watch" ? <VideoHubFeed /> : <CreatorHomePanel />}
 
       {mode === "create" && (

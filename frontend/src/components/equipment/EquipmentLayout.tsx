@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import {
   Bell,
   CalendarDays,
+  Clapperboard,
   CalendarRange,
   ChartNoAxesCombined,
   ClipboardList,
@@ -16,6 +17,7 @@ import {
   Settings2,
   Star,
   Tractor,
+  Video,
   UserCog,
   UserRound,
   Wrench,
@@ -51,9 +53,11 @@ export type EquipmentNavKey =
   | "reviews"
   | "messages"
   | "profile"
+  | "hub"
+  | "creator"
   | "settings";
 
-export const EQUIPMENT_ROUTES: Record<EquipmentNavKey, string> = {
+export const EQUIPMENT_ROUTES: Record<Exclude<EquipmentNavKey, "hub" | "creator">, string> = {
   home: EQUIPMENT_BASE,
   equipment: `${EQUIPMENT_BASE}/equipment`,
   add: `${EQUIPMENT_BASE}/equipment/new`,
@@ -80,25 +84,34 @@ export const equipmentEditPath = (id: string) => `${EQUIPMENT_ROUTES.equipment}/
  * prefix, so the nav highlights `equipment` for both. `add` is a shortcut that
  * lands on the form with no id.
  */
-const NAV: { key: EquipmentNavKey; label: string; icon: ShellNavItem["icon"] }[] = [
-  { key: "home", label: "Overview", icon: LayoutDashboard },
-  { key: "equipment", label: "My Equipment", icon: Tractor },
-  { key: "add", label: "Add Equipment", icon: PlusCircle },
-  { key: "requests", label: "Rental Requests", icon: ClipboardList },
-  { key: "bookings", label: "Bookings & Rentals", icon: CalendarDays },
-  { key: "calendar", label: "Equipment Calendar", icon: CalendarRange },
-  { key: "operators", label: "Operator Management", icon: UserCog },
-  { key: "maintenance", label: "Equipment Maintenance", icon: Wrench },
-  { key: "availability", label: "Equipment Availability", icon: ChartNoAxesCombined },
-  { key: "location", label: "Equipment Location", icon: MapPin },
-  { key: "earnings", label: "Earnings & Payments", icon: IndianRupee },
-  { key: "agreements", label: "Rental Agreements", icon: FileText },
-  { key: "documents", label: "Documents & Verification", icon: FileCheck2 },
-  { key: "reviews", label: "Reviews & Ratings", icon: Star },
-  { key: "messages", label: "Messages", icon: MessageSquare },
-  { key: "profile", label: "My Profile", icon: UserRound },
-  { key: "settings", label: "Settings", icon: Settings2 },
+const NAV: { key: EquipmentNavKey; label: string; tkey: string; icon: ShellNavItem["icon"] }[] = [
+  { key: "home", label: "Overview", tkey: "s.overview", icon: LayoutDashboard },
+  { key: "equipment", label: "My Equipment", tkey: "s.equipment", icon: Tractor },
+  { key: "add", label: "Add Equipment", tkey: "s.addEquipment", icon: PlusCircle },
+  { key: "requests", label: "Rental Requests", tkey: "s.rentalRequests", icon: ClipboardList },
+  { key: "bookings", label: "Bookings & Rentals", tkey: "s.rentals", icon: CalendarDays },
+  { key: "calendar", label: "Equipment Calendar", tkey: "s.equipmentCalendar", icon: CalendarRange },
+  { key: "operators", label: "Operator Management", tkey: "s.operators", icon: UserCog },
+  { key: "maintenance", label: "Equipment Maintenance", tkey: "s.maintenance", icon: Wrench },
+  { key: "availability", label: "Equipment Availability", tkey: "s.equipmentAvailability", icon: ChartNoAxesCombined },
+  { key: "location", label: "Equipment Location", tkey: "s.location", icon: MapPin },
+  { key: "earnings", label: "Earnings & Payments", icon: IndianRupee, tkey: "Earnings & Payments" },
+  { key: "agreements", label: "Rental Agreements", tkey: "s.agreements", icon: FileText },
+  { key: "documents", label: "Documents & Verification", tkey: "s.documents", icon: FileCheck2 },
+  { key: "reviews", label: "Reviews & Ratings", icon: Star, tkey: "Reviews & Ratings" },
+  { key: "messages", label: "Messages", tkey: "s.messages", icon: MessageSquare },
+  /* Watching is open to every account; publishing is the separate studio entry. */
+  { key: "hub", label: "Kisan Video Hub", tkey: "s.videoHub", icon: Video },
+  { key: "creator", label: "Creator Studio", tkey: "s.creatorStudio", icon: Clapperboard },
+  { key: "profile", label: "My Profile", tkey: "s.profile", icon: UserRound },
+  { key: "settings", label: "Settings", icon: Settings2, tkey: "Settings" },
 ];
+
+/** "hub" and "creator" live outside /equipment-owner, so they resolve here. */
+const NAV_HREF: Partial<Record<EquipmentNavKey, string>> = {
+  hub: "/video-hub",
+  creator: "/creator-mode",
+};
 
 const KIND_ICON = {
   request: ClipboardList,
@@ -117,14 +130,15 @@ const SEARCH: SearchEntry[] = [
   { label: "Add equipment", keywords: "register new machine create", section: "Equipment", to: EQUIPMENT_ROUTES.add },
   { label: "Rental requests", keywords: "request farmer job quote rent enquiry", section: "Work", to: EQUIPMENT_ROUTES.requests },
   { label: "Bookings", keywords: "booking rental confirmed scheduled job", section: "Work", to: EQUIPMENT_ROUTES.bookings },
-  { label: "Calendar", keywords: "calendar slots dates availability booked", section: "Work", to: EQUIPMENT_ROUTES.calendar },
+  { label: "Calendar", tkey: "s.calendar", keywords: "calendar slots dates availability booked", section: "Work", to: EQUIPMENT_ROUTES.calendar },
   { label: "Operators", keywords: "driver operator assign licence staff", section: "Work", to: EQUIPMENT_ROUTES.operators },
   { label: "Maintenance", keywords: "service repair breakdown parts spare", section: "Fleet", to: EQUIPMENT_ROUTES.maintenance },
   { label: "Availability", keywords: "available schedule block unavailable", section: "Fleet", to: EQUIPMENT_ROUTES.availability },
   { label: "Location", keywords: "location service area district village radius", section: "Fleet", to: EQUIPMENT_ROUTES.location },
-  { label: "Earnings", keywords: "revenue payment invoice money profit", section: "Money", to: EQUIPMENT_ROUTES.earnings },
+  { label: "Earnings", tkey: "s.earnings", keywords: "revenue payment invoice money profit", section: "Money", to: EQUIPMENT_ROUTES.earnings },
   { label: "Agreements", keywords: "agreement contract terms rental", section: "Money", to: EQUIPMENT_ROUTES.agreements },
-  { label: "Reviews", keywords: "rating feedback stars customer", section: "Account", to: EQUIPMENT_ROUTES.reviews },
+  { label: "Reviews", tkey: "s.reviews", keywords: "rating feedback stars customer", section: "Account", to: EQUIPMENT_ROUTES.reviews },
+  { label: "Kisan Video Hub", tkey: "s.videoHub", keywords: "video watch learn tutorial shorts machine training", section: "Learn", to: "/video-hub" },
 ];
 
 /**
@@ -209,12 +223,13 @@ export default function EquipmentLayout({
       : "home");
   const activeKey = match as EquipmentNavKey;
 
-  const nav: ShellNavItem[] = NAV.map(({ key, label, icon }) => ({
+  const nav: ShellNavItem[] = NAV.map(({ key, label, tkey, icon }) => ({
     label,
+    tkey,
     icon,
     badge: key === "home" && unread > 0 ? unread : undefined,
     active: key === activeKey,
-    to: EQUIPMENT_ROUTES[key],
+    to: NAV_HREF[key] ?? EQUIPMENT_ROUTES[key as Exclude<EquipmentNavKey, "hub" | "creator">],
   }));
 
   async function handleSignOut() {
@@ -231,7 +246,9 @@ export default function EquipmentLayout({
       displayName={name}
       initials={initials}
       avatarUrl={profile?.avatar_url}
-      settingsTo={EQUIPMENT_ROUTES.settings}
+      // The settings page has no personal-details form, so the profile menu goes
+      // to the shared editor (same `profiles` row, this module's shell).
+      settingsTo="/account/details"
       helpCard={{
         title: "Equipment Support",
         body: "Booking, operator aur payment help — Hindi, Bengali aur English mein.",

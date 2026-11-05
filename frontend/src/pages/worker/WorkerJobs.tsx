@@ -23,6 +23,7 @@ import {
 } from "@/lib/worker";
 import type { JobCategory, JobListing, WorkType } from "@/lib/worker";
 import { Link } from "react-router-dom";
+import { useLang } from "@/i18n/LanguageContext";
 
 /**
  * Job discovery.
@@ -33,6 +34,7 @@ import { Link } from "react-router-dom";
  * nothing rather than a guessed number.
  */
 export default function WorkerJobs() {
+  const { t } = useLang();
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState<JobCategory | "all">("all");
   const [district, setDistrict] = useState("all");
@@ -135,7 +137,7 @@ export default function WorkerJobs() {
 
   return (
     <WorkerLayout
-      title="Find Jobs"
+      title={t("wk.j.title")}
       subtitle={`${filtered.length} job${filtered.length === 1 ? "" : "s"} match what you are looking for`}
       action={
         <button
@@ -160,15 +162,15 @@ export default function WorkerJobs() {
             type="search"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by job, crop work, employer or village…"
-            aria-label="Search jobs"
+            placeholder={t("wk.j.searchPlaceholder")}
+            aria-label={t("wk.j.search")}
             className="h-10 w-full rounded-lg border border-slate-300 bg-white pl-9 pr-9 text-sm text-slate-700 outline-none focus:border-brand-500"
           />
           {search && (
             <button
               type="button"
               onClick={() => setSearch("")}
-              aria-label="Clear search"
+              aria-label={t("wk.j.clearSearch")}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
             >
               <X className="h-3.5 w-3.5" />
@@ -201,7 +203,7 @@ export default function WorkerJobs() {
         {/* ── Filters ── */}
         <aside className={`${filtersOpen ? "block" : "hidden"} lg:block`}>
           <Panel
-            title="Filters"
+            title={t("wk.j.filters")}
             action={
               <button
                 type="button"
@@ -213,7 +215,7 @@ export default function WorkerJobs() {
             }
           >
             <div className="space-y-4 p-4">
-              <FilterBlock label="Job category">
+              <FilterBlock label={t("wk.j.jobCategory")}>
                 <div className="flex flex-wrap gap-1.5">
                   <FilterChip active={category === "all"} onClick={() => setCategory("all")}>
                     All
@@ -226,12 +228,12 @@ export default function WorkerJobs() {
                 </div>
               </FilterBlock>
 
-              <FilterBlock label="Location">
+              <FilterBlock label={t("wk.j.location")}>
                 <div className="relative">
                   <select
                     value={district}
                     onChange={(e) => setDistrict(e.target.value)}
-                    aria-label="District"
+                    aria-label={t("wk.j.district")}
                     className="h-9 w-full appearance-none rounded-lg border border-slate-300 bg-white px-2.5 pr-8 text-xs font-medium text-slate-700 outline-none focus:border-brand-500"
                   >
                     <option value="all">All districts</option>
@@ -245,7 +247,7 @@ export default function WorkerJobs() {
                 </div>
               </FilterBlock>
 
-              <FilterBlock label="Distance">
+              <FilterBlock label={t("wk.j.distance")}>
                 <div className="flex flex-wrap gap-1.5">
                   {[null, 5, 10, 25, 50].map((km) => (
                     <FilterChip
@@ -263,7 +265,7 @@ export default function WorkerJobs() {
                 </div>
               </FilterBlock>
 
-              <FilterBlock label="Work type">
+              <FilterBlock label={t("wk.j.workType")}>
                 <div className="flex flex-wrap gap-1.5">
                   <FilterChip active={workType === "all"} onClick={() => setWorkType("all")}>
                     All
@@ -276,7 +278,7 @@ export default function WorkerJobs() {
                 </div>
               </FilterBlock>
 
-              <FilterBlock label="Maximum daily wage">
+              <FilterBlock label={t("wk.j.maxWage")}>
                 <div className="flex flex-wrap gap-1.5">
                   {[null, 400, 600, 800, 1200].map((w) => (
                     <FilterChip key={String(w)} active={maxWage === w} onClick={() => setMaxWage(w)}>
@@ -286,7 +288,7 @@ export default function WorkerJobs() {
                 </div>
               </FilterBlock>
 
-              <FilterBlock label="Experience needed">
+              <FilterBlock label={t("wk.j.experienceNeeded")}>
                 <div className="flex flex-wrap gap-1.5">
                   {[null, 0, 1, 3, 5].map((y) => (
                     <FilterChip
@@ -317,7 +319,7 @@ export default function WorkerJobs() {
 
         {/* ── Results ── */}
         <section>
-          {jobs.state === "loading" && <Loading label="Loading jobs…" />}
+          {jobs.state === "loading" && <Loading label={t("wk.c.loadingJobs")} />}
           {jobs.state === "error" && <ErrorNotice message={jobs.error} onRetry={jobs.reload} />}
           {jobs.state === "ready" && filtered.length === 0 && (
             <div className="card">
@@ -370,6 +372,7 @@ export default function WorkerJobs() {
 /* ── small filter primitives ───────────────────────────────────────────── */
 
 function FilterBlock({ label, children }: { label: string; children: React.ReactNode }) {
+  const { t } = useLang();
   return (
     <div>
       <p className="mb-1.5 flex items-center gap-1 text-[10.5px] font-bold uppercase tracking-wider text-slate-500">
@@ -391,6 +394,7 @@ function FilterChip({
   children: React.ReactNode;
   disabled?: boolean;
 }) {
+  const { t } = useLang();
   return (
     <button
       type="button"

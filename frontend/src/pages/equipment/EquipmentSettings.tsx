@@ -139,14 +139,14 @@ export default function EquipmentSettings() {
         </Panel>
 
         <aside className="space-y-4">
-          <Panel title="Account" description="Shared across every CenAGRI account">
+          <Panel title="Account" description="Shared across every Kalika account">
             <div className="space-y-2 p-4 text-[11.5px]">
               <Row label="Name" value={profile?.full_name ?? user?.email?.split("@")[0] ?? "—"} />
               <Row label="Email" value={user?.email ?? "—"} />
               <Row label="Phone" value={profile?.phone ?? "—"} />
               <Row label="Role" value={profile?.role ?? "Equipment"} />
               <p className="pt-1 text-[10px] leading-relaxed text-slate-400">
-                These come from your CenAGRI profile — changing them here would create a second copy.
+                These come from your Kalika profile — changing them here would create a second copy.
               </p>
             </div>
           </Panel>

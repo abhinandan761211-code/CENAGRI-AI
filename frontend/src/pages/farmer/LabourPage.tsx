@@ -33,7 +33,7 @@ import { farmerError, label } from "@/lib/farmer";
 /**
  * Farm Labour — find agricultural workers and hire them.
  *
- * Reads the worker profiles the CenAGRI Worker account already maintains
+ * Reads the worker profiles the Kalika Worker account already maintains
  * (`worker_profiles` / profiles with role = Worker, see worker.sql). Only
  * workers who set themselves available are listed, and contact details are
  * shown only to a signed-in farmer.
@@ -56,7 +56,7 @@ type Worker = {
 };
 
 export default function LabourPage() {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const { toast, showToast } = useToast();
 
   const [workers, setWorkers] = useState<Worker[]>([]);
@@ -120,26 +120,26 @@ export default function LabourPage() {
   );
 
   const myDistrict = useMemo(() => {
-    // The farmer's own district is read from the profile through the shell's
-    // context; here we simply compare against what workers declare.
-    return null as string | null;
-  }, []);
-  void myDistrict;
+    // The farmer's own district, used by the "nearby" toggle. Before this the
+    // toggle was rendered but the filter compared against `null`, so it did
+    // nothing at all.
+    return (profile?.details?.district ?? "").trim();
+  }, [profile?.details?.district]);
 
   const visible = useMemo(() => {
     const q = query.trim().toLowerCase();
+    const mine = myDistrict.toLowerCase();
     return workers.filter((w) => {
       if (skill && !(w.skills ?? "").toLowerCase().includes(skill.toLowerCase())) return false;
-      if (nearby && w.availability && /on call|seasonal|weekend/i.test(w.availability) === false) {
-        // Native filter only narrows "nearby" when there is something to compare;
-        // district matching happens below when the farmer has one.
-      }
+      // "Nearby" means the same district. With no district on the profile the
+      // filter is skipped rather than hiding every worker.
+      if (nearby && mine && (w.district ?? "").toLowerCase() !== mine) return false;
       if (!q) return true;
       return [w.full_name, w.village, w.district, w.skills]
         .filter(Boolean)
         .some((value) => String(value).toLowerCase().includes(q));
     });
-  }, [workers, query, skill, nearby]);
+  }, [workers, query, skill, nearby, myDistrict]);
 
   function openHire(worker: Worker) {
     setHire(worker);
@@ -199,7 +199,7 @@ export default function LabourPage() {
       />
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <Stat label="Workers listed" value={workers.length} icon={HardHat} hint="On CenAGRI" />
+        <Stat label="Workers listed" value={workers.length} icon={HardHat} hint="On Kalika" />
         <Stat
           label="Available now"
           value={workers.filter((w) => /\bfull|on call|seasonal\b/i.test(w.availability ?? "")).length}
@@ -223,7 +223,7 @@ export default function LabourPage() {
 
       <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3">
         <p className="text-[11px] leading-relaxed text-amber-900">
-          Job details and pay are agreed directly between you and the worker. CenAGRI does not guarantee a hire,
+          Job details and pay are agreed directly between you and the worker. Kalika does not guarantee a hire,
           a wage or the quality of work.
         </p>
       </div>
@@ -260,7 +260,7 @@ export default function LabourPage() {
             title={workers.length === 0 ? "No workers listed yet" : "No workers match this filter"}
             body={
               workers.length === 0
-                ? "Workers who register on CenAGRI with their skills appear here. You can also post a job and let them apply."
+                ? "Workers who register on Kalika with their skills appear here. You can also post a job and let them apply."
                 : "Try another skill or clear the search."
             }
             action={

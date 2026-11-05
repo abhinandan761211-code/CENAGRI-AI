@@ -123,7 +123,7 @@ export default function EquipmentEarnings() {
 
   function downloadInvoice(invoice: EquipmentInvoice) {
     const lines = [
-      "CenAGRI AI — Equipment rental invoice",
+      "Kalika — Equipment rental invoice",
       "",
       `Invoice: ${invoice.invoice_no}`,
       `Issued: ${formatDate(invoice.issued_on)}`,
@@ -134,7 +134,7 @@ export default function EquipmentEarnings() {
       `Total: ${formatINR(Number(invoice.total_inr))}`,
       invoice.reference ? `Reference: ${invoice.reference}` : "",
       "",
-      "Generated from your CenAGRI records.",
+      "Generated from your Kalika records.",
     ].filter(Boolean);
     const blob = new Blob([lines.join("\n")], { type: "text/plain;charset=utf-8" });
     const url = URL.createObjectURL(blob);
@@ -181,7 +181,7 @@ export default function EquipmentEarnings() {
       <div className="flex items-start gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-[11px] leading-relaxed text-slate-600">
         <Receipt className="mt-0.5 h-3.5 w-3.5 shrink-0 text-slate-400" />
         <span>
-          An invoice is issued and marked paid by CenAGRI after the renter settles. You can read and
+          An invoice is issued and marked paid by Kalika after the renter settles. You can read and
           download it, but you cannot mark it paid yourself, and no card details are ever stored here.
           Profit is <strong>estimated</strong> — it uses the expenses you recorded, not an audited ledger.
         </span>
@@ -232,7 +232,7 @@ export default function EquipmentEarnings() {
             )}
           </Panel>
 
-          <Panel title="Invoices" description="Read-only — issued by CenAGRI">
+          <Panel title="Invoices" description="Read-only — issued by Kalika">
             {invoiceList.length === 0 ? (
               <div className="px-4 py-8 text-center text-[11.5px] text-slate-500">No invoice issued yet.</div>
             ) : (
@@ -398,7 +398,7 @@ export default function EquipmentEarnings() {
         <Panel title="Order of operations">
           <ol className="space-y-1.5 p-4 text-[11px] leading-relaxed text-slate-600 sm:p-5">
             <li>1. Work is completed and recorded on the booking.</li>
-            <li>2. CenAGRI issues the invoice against that booking.</li>
+            <li>2. Kalika issues the invoice against that booking.</li>
             <li>3. The renter settles; the backend marks the invoice paid.</li>
             <li>4. Only then does the amount appear in revenue — never earlier.</li>
           </ol>

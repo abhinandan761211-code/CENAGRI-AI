@@ -42,7 +42,7 @@ import type {
  * it arrived anyway.
  *
  * Payment is deliberately absent: an invoice is issued and settled by the
- * CenAGRI backend, so there is no "mark paid" control here at all.
+ * Kalika backend, so there is no "mark paid" control here at all.
  */
 export default function EquipmentBookings() {
   const D = describeEquipmentError;
@@ -463,7 +463,7 @@ function ManageModal({
             <p className="text-[11px] font-semibold text-emerald-900">Job finished?</p>
             <p className="mt-0.5 text-[10.5px] text-emerald-800">
               Recording completion captures what actually happened — hours, acreage and notes — and moves
-              the booking to Work completed. Payment is confirmed separately by CenAGRI.
+              the booking to Work completed. Payment is confirmed separately by Kalika.
             </p>
             <button
               type="button"
@@ -531,7 +531,7 @@ function ManageModal({
           )}
           {booking.status === "work_completed" && (
             <p className="mt-2 rounded-lg bg-sky-50 px-2.5 py-2 text-[10.5px] leading-relaxed text-sky-900">
-              Payment cannot be marked here. CenAGRI confirms payment after the renter settles; the booking
+              Payment cannot be marked here. Kalika confirms payment after the renter settles; the booking
               then moves to Payment confirmed.
             </p>
           )}

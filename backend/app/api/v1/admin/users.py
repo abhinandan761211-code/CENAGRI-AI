@@ -235,11 +235,18 @@ async def get_user(
         raise HTTPException(status_code=404, detail="Account not found.")
     profile = _safe_profile(rows[0])
 
-    async def _c(table: str, column: str) -> int | None:
+    async def _c(table: str, *columns: str) -> int | None:
+        """Count rows of ``table`` where any of ``columns`` is this account.
+
+        More than one column means the SAME row could match twice (an account
+        can be both shop and customer on a retailer order), so the count is taken
+        with ``or=(...)``: PostgREST accepts a disjunction on one filter key.
+        A column that this deployment's schema does not have makes that leg
+        report ``None`` instead of failing the whole page.
+        """
+        flt = "or=(" + ",".join(f"{c}.eq.{user_id}" for c in columns) + ")"
         try:
-            _, total = await store.select(
-                table, columns=column, filters={column: f"eq.{user_id}"}, limit=1, count=True
-            )
+            _, total = await store.select(table, columns=columns[0], filters=flt, limit=1, count=True)
             return total
         except AdminStoreError:
             return None
@@ -250,7 +257,11 @@ async def get_user(
         _c("farms", "owner_id"),
         _c("listings", "seller_id"),
         _c("orders", "buyer_id"),
-        _c("retailer_orders", "owner_id"),
+        # `retailer_orders` has NO owner_id column (retailer.sql): the shop side
+        # is `retailer_id`, the customer side is `customer_id`. Asking for
+        # owner_id made PostgREST answer 42703 "column ... does not exist", which
+        # surfaced as "Something went wrong" on the whole account page.
+        _c("retailer_orders", "retailer_id", "customer_id"),
         _c("videos", "owner_id"),
         _c("posts", "author_id"),
     )

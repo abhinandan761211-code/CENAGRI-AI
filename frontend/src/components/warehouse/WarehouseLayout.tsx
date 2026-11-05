@@ -5,6 +5,7 @@ import {
   Boxes,
   CalendarCheck,
   ChartNoAxesCombined,
+  Clapperboard,
   ClipboardCheck,
   FileText,
   IndianRupee,
@@ -21,6 +22,7 @@ import {
   Truck,
   UserRound,
   Users,
+  Video,
   Warehouse as WarehouseIcon,
 } from "lucide-react";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
@@ -51,9 +53,11 @@ export type WarehouseNavKey =
   | "reports"
   | "messages"
   | "profile"
+  | "hub"
+  | "creator"
   | "settings";
 
-export const WAREHOUSE_ROUTES: Record<WarehouseNavKey, string> = {
+export const WAREHOUSE_ROUTES: Record<Exclude<WarehouseNavKey, "hub" | "creator">, string> = {
   home: WAREHOUSE_BASE,
   warehouses: `${WAREHOUSE_BASE}/warehouses`,
   requests: `${WAREHOUSE_BASE}/requests`,
@@ -79,27 +83,36 @@ export const WAREHOUSE_ROUTES: Record<WarehouseNavKey, string> = {
 export const WAREHOUSE_DETAIL_ROUTE = `${WAREHOUSE_BASE}/warehouses/:id`;
 export const warehouseDetailPath = (id: string) => `${WAREHOUSE_ROUTES.warehouses}/${id}`;
 
-const NAV: { key: WarehouseNavKey; label: string; icon: ShellNavItem["icon"] }[] = [
-  { key: "home", label: "Overview", icon: LayoutDashboard },
-  { key: "warehouses", label: "My Warehouses", icon: WarehouseIcon },
-  { key: "requests", label: "Storage Requests", icon: Inbox },
-  { key: "bookings", label: "Bookings & Reservations", icon: CalendarCheck },
-  { key: "inventory", label: "Inventory Management", icon: Boxes },
-  { key: "inward", label: "Goods Inward", icon: PackageCheck },
-  { key: "outward", label: "Goods Outward", icon: PackageMinus },
-  { key: "monitoring", label: "Storage Monitoring", icon: Thermometer },
-  { key: "inspections", label: "Quality Inspection", icon: ClipboardCheck },
-  { key: "pricing", label: "Pricing & Storage Plans", icon: Tag },
-  { key: "customers", label: "Customer Management", icon: Users },
-  { key: "staff", label: "Staff Management", icon: PercentCircle },
-  { key: "transport", label: "Transport Coordination", icon: Truck },
-  { key: "earnings", label: "Earnings & Payments", icon: IndianRupee },
-  { key: "documents", label: "Invoices & Documents", icon: FileText },
-  { key: "reports", label: "Reports & Analytics", icon: ChartNoAxesCombined },
-  { key: "messages", label: "Messages", icon: MessageSquare },
-  { key: "profile", label: "My Profile", icon: Store },
-  { key: "settings", label: "Settings", icon: Settings2 },
+const NAV: { key: WarehouseNavKey; label: string; tkey: string; icon: ShellNavItem["icon"] }[] = [
+  { key: "home", label: "Overview", tkey: "s.overview", icon: LayoutDashboard },
+  { key: "warehouses", label: "My Warehouses", tkey: "s.warehouses", icon: WarehouseIcon },
+  { key: "requests", label: "Storage Requests", tkey: "s.storageRequests", icon: Inbox },
+  { key: "bookings", label: "Bookings & Reservations", tkey: "s.reservations", icon: CalendarCheck },
+  { key: "inventory", label: "Inventory Management", tkey: "s.inventoryManagement", icon: Boxes },
+  { key: "inward", label: "Goods Inward", tkey: "s.goodsInward", icon: PackageCheck },
+  { key: "outward", label: "Goods Outward", tkey: "s.goodsOutward", icon: PackageMinus },
+  { key: "monitoring", label: "Storage Monitoring", tkey: "s.monitoring", icon: Thermometer },
+  { key: "inspections", label: "Quality Inspection", tkey: "s.inspection", icon: ClipboardCheck },
+  { key: "pricing", label: "Pricing & Storage Plans", tkey: "s.pricing", icon: Tag },
+  { key: "customers", label: "Customer Management", tkey: "s.customers", icon: Users },
+  { key: "staff", label: "Staff Management", tkey: "s.staff", icon: PercentCircle },
+  { key: "transport", label: "Transport Coordination", tkey: "s.transport", icon: Truck },
+  { key: "earnings", label: "Earnings & Payments", icon: IndianRupee, tkey: "Earnings & Payments" },
+  { key: "documents", label: "Invoices & Documents", tkey: "s.invoices", icon: FileText },
+  { key: "reports", label: "Reports & Analytics", tkey: "s.reports", icon: ChartNoAxesCombined },
+  { key: "messages", label: "Messages", tkey: "s.messages", icon: MessageSquare },
+  /* Watching is open to every account; publishing is the separate studio entry. */
+  { key: "hub", label: "Kisan Video Hub", tkey: "s.videoHub", icon: Video },
+  { key: "creator", label: "Creator Studio", tkey: "s.creatorStudio", icon: Clapperboard },
+  { key: "profile", label: "My Profile", tkey: "s.profile", icon: Store },
+  { key: "settings", label: "Settings", icon: Settings2, tkey: "Settings" },
 ];
+
+/** "hub" and "creator" live outside /warehouse, so they resolve here. */
+const NAV_HREF: Partial<Record<WarehouseNavKey, string>> = {
+  hub: "/video-hub",
+  creator: "/creator-mode",
+};
 
 const KIND_ICON = {
   request: Inbox,
@@ -118,7 +131,7 @@ const SEARCH: SearchEntry[] = [
   { label: "My warehouses", keywords: "godown storage capacity location add edit", section: "Warehouses", to: WAREHOUSE_ROUTES.warehouses },
   { label: "Storage requests", keywords: "request crop requisition quote farmer depositor", section: "Bookings", to: WAREHOUSE_ROUTES.requests },
   { label: "Bookings", keywords: "booking reservation confirmed reserved allot", section: "Bookings", to: WAREHOUSE_ROUTES.bookings },
-  { label: "Inventory", keywords: "stock lot crop bags inventory stored goods", section: "Operations", to: WAREHOUSE_ROUTES.inventory },
+  { label: "Inventory", tkey: "s.inventory", keywords: "stock lot crop bags inventory stored goods", section: "Operations", to: WAREHOUSE_ROUTES.inventory },
   { label: "Goods inward", keywords: "inward grn receive receipt delivery gate entry", section: "Operations", to: WAREHOUSE_ROUTES.inward },
   { label: "Goods outward", keywords: "outward dispatch release gate pass delivery", section: "Operations", to: WAREHOUSE_ROUTES.outward },
   { label: "Storage monitoring", keywords: "temperature humidity moisture pest fumigation reading", section: "Operations", to: WAREHOUSE_ROUTES.monitoring },
@@ -127,7 +140,7 @@ const SEARCH: SearchEntry[] = [
   { label: "Customers", keywords: "depositor farmer buyer retailer trader contact", section: "Business", to: WAREHOUSE_ROUTES.customers },
   { label: "Staff", keywords: "staff operator permissions inward outward role", section: "Business", to: WAREHOUSE_ROUTES.staff },
   { label: "Transport", keywords: "vehicle truck transporter pickup dispatch request", section: "Business", to: WAREHOUSE_ROUTES.transport },
-  { label: "Earnings", keywords: "revenue payment invoice money pending paid", section: "Money", to: WAREHOUSE_ROUTES.earnings },
+  { label: "Earnings", tkey: "s.earnings", keywords: "revenue payment invoice money pending paid", section: "Money", to: WAREHOUSE_ROUTES.earnings },
   { label: "Reports", keywords: "analytics export csv occupancy revenue report", section: "Money", to: WAREHOUSE_ROUTES.reports },
 ];
 
@@ -211,12 +224,13 @@ export default function WarehouseLayout({
       .filter(([, path]) => pathname === path || pathname.startsWith(`${path}/`))
       .sort((a, b) => b[1].length - a[1].length)[0]?.[0] as WarehouseNavKey | undefined) ?? "home";
 
-  const nav: ShellNavItem[] = NAV.map(({ key, label, icon }) => ({
+  const nav: ShellNavItem[] = NAV.map(({ key, label, tkey, icon }) => ({
     label,
+    tkey,
     icon,
     badge: key === "home" && unread > 0 ? unread : undefined,
     active: key === activeKey,
-    to: WAREHOUSE_ROUTES[key],
+    to: NAV_HREF[key] ?? WAREHOUSE_ROUTES[key as Exclude<WarehouseNavKey, "hub" | "creator">],
   }));
 
   async function handleSignOut() {
@@ -233,7 +247,9 @@ export default function WarehouseLayout({
       displayName={name}
       initials={initials}
       avatarUrl={profile?.avatar_url}
-      settingsTo={WAREHOUSE_ROUTES.settings}
+      // The settings page only shows notifications and a read-only account
+      // card, so point the profile menu at the shared details editor instead.
+      settingsTo="/account/details"
       helpCard={{
         title: "Warehouse Support",
         body: "Booking, GRN, cold-chain aur payment help — Hindi, Bengali aur English mein.",

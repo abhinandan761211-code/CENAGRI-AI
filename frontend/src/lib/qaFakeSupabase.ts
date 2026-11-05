@@ -188,13 +188,28 @@ function applyFilters(rows: Row[], s: State): Row[] {
       if (f.op === "is") return f.value === null ? v == null : v === f.value;
       if (f.op === "lte") return String(v ?? "") <= String(f.value);
       if (f.op === "gte") return String(v ?? "") >= String(f.value);
+      if (f.op === "lt") return String(v ?? "") < String(f.value);
+      if (f.op === "gt") return String(v ?? "") > String(f.value);
       if (f.op === "neq") return v !== f.value;
+      // Case-insensitive contains, matching PostgREST's `ilike` with `%…%`.
+      if (f.op === "ilike") return String(v ?? "").toLowerCase().includes(String(f.value ?? "").toLowerCase());
       return true;
     });
   }
   if (s.or) {
-    const clauses = s.or.split(",").map((c) => c.split("."));
-    out = out.filter((row) => clauses.some(([col, op, val]) => (op === "eq" ? row[col] === val : true)));
+    // `col.ilike.%term%` style clauses are OR-ed together, as PostgREST does.
+    const clauses = s.or.split(",").map((c) => {
+      const [col, op, ...rest] = c.split(".");
+      return { col, op, val: rest.join(".") };
+    });
+    out = out.filter((row) =>
+      clauses.some(({ col, op, val }) => {
+        const cell = String(row[col] ?? "").toLowerCase();
+        if (op === "ilike") return cell.includes(val.replace(/%/g, "").toLowerCase());
+        if (op === "eq") return cell === val.toLowerCase();
+        return true;
+      })
+    );
   }
   return out;
 }
@@ -231,6 +246,32 @@ class Query {
   neq(col: string, val: unknown) { this.s.filters[col] = { op: "neq", value: val }; return this; }
   lte(col: string, val: unknown) { this.s.filters[col] = { op: "lte", value: val }; return this; }
   gte(col: string, val: unknown) { this.s.filters[col] = { op: "gte", value: val }; return this; }
+  lt(col: string, val: unknown) { this.s.filters[col] = { op: "lt", value: val }; return this; }
+  gt(col: string, val: unknown) { this.s.filters[col] = { op: "gt", value: val }; return this; }
+  /**
+   * Case-insensitive "contains" — `ilike(col, "%paddy%")`.
+   *
+   * The Video Hub feed searches by title, description, crop and district with
+   * `ilike`, so without this the whole feed threw and rendered the red
+   * "Could not load this screen" banner.
+   */
+  ilike(col: string, pattern: string) {
+    const needle = String(pattern).replace(/%/g, "").toLowerCase();
+    this.s.filters[col] = { op: "ilike", value: needle };
+    return this;
+  }
+  /**
+   * Keyset pagination — `range(from, to)` both inclusive.
+   *
+   * Stored as offset/limit because the fake filters in memory; the caller only
+   * relies on "next page starts after the previous one", which is what the real
+   * PostgREST range does too.
+   */
+  range(from: number, to: number) {
+    this.s.filters["__offset"] = { op: "eq", value: from };
+    this.s.limit = Math.max(0, to - from + 1);
+    return this;
+  }
   or(expr: string) { this.s.or = expr; return this; }
   order(col: string, opts?: { ascending?: boolean }) {
     this.s.order = { col, ascending: opts?.ascending !== false };
@@ -304,6 +345,9 @@ class Query {
         return (av > bv ? 1 : av < bv ? -1 : 0) * (this.s.order!.ascending ? 1 : -1);
       });
     }
+    // `range(from, to)` is offset + limit: skip first, then take the page.
+    const offset = Number(this.s.filters["__offset"]?.value ?? 0);
+    if (offset > 0) rows = rows.slice(offset);
     if (this.s.limit) rows = rows.slice(0, this.s.limit);
 
     const data = this.s.single ? rows[0] ?? null : rows;
@@ -339,10 +383,49 @@ const storage = {
   }),
 };
 
+/**
+ * Stored procedures.
+ *
+ * A real Supabase client has `rpc`, so any code path that calls one crashed
+ * here with "client.rpc is not a function" — which surfaced as a red
+ * "Could not load this screen" banner over the Video Hub. The fake implements
+ * the same `{ data, error }` contract so a missing procedure is a returned
+ * error the caller already handles, never a TypeError.
+ *
+ * `record_video_view` mirrors creator.sql: it increments the video's counter
+ * and writes a view row together. The remaining procedures are accepted as
+ * no-ops because nothing in the preview depends on their side effects; add a
+ * case here when one does.
+ */
+const RPC: Record<string, (args: Record<string, unknown>) => { data: unknown; error: unknown }> = {
+  record_video_view: (args) => {
+    const videoId = String(args.p_video_id ?? "");
+    const videos = db.videos ?? (db.videos = []);
+    const video = videos.find((v) => v.id === videoId);
+    if (!video) return { data: null, error: { message: "That video does not exist." } };
+    video.view_count = Number(video.view_count ?? 0) + 1;
+    const views = db.video_views ?? (db.video_views = []);
+    views.push({
+      id: `view-${views.length + 1}`,
+      video_id: videoId,
+      user_id: QA_USER.id,
+      watched_seconds: Number(args.p_watched_seconds ?? 0),
+      completed: Boolean(args.p_completed),
+      created_at: new Date().toISOString(),
+    });
+    return { data: null, error: null };
+  },
+};
+
 export function createClient(_url?: string, _key?: string, _opts?: unknown) {
   return {
     auth,
     from: (table: string) => new Query(table),
+    rpc: async (fn: string, args?: Record<string, unknown>) => {
+      const run = RPC[fn];
+      if (!run) return { data: null, error: { message: `Procedure ${fn} is not available in preview mode.` } };
+      return run(args ?? {});
+    },
     storage,
     channel: () => ({ on() { return this; }, subscribe() { return this; } }),
     removeChannel: () => undefined,

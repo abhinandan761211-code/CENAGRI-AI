@@ -116,7 +116,7 @@ export default function WarehouseMessages() {
   }
 
   return (
-    <WarehouseLayout title="Messages" subtitle="Depositors, transporters and CenAGRI support">
+    <WarehouseLayout title="Messages" subtitle="Depositors, transporters and Kalika support">
       {messages.state === "error" && <ErrorNotice message={messages.error} onRetry={messages.reload} />}
       {error && <ErrorNotice message={error} />}
 

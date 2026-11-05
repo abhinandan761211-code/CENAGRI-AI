@@ -3,6 +3,7 @@ import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-route
 import { AuthProvider } from "./hooks/useAuth";
 import { LanguageProvider } from "./i18n/LanguageContext";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
+import RoleHome from "./components/auth/RoleHome";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
@@ -39,8 +40,21 @@ import NotificationSettingsPage from "./pages/farmer/NotificationSettingsPage";
 import PrivacyPage from "./pages/farmer/PrivacyPage";
 import HelpPage from "./pages/farmer/HelpPage";
 import AccountManagePage from "./pages/farmer/AccountManagePage";
+import AccountPersonalDetails from "./pages/account/AccountPersonalDetails";
 import Marketplace from "./pages/Marketplace";
 import CenFriend from "./pages/CenFriend";
+import CenFriendHome from "./pages/cenfriend/CenFriendHome";
+import CenFriendExplore from "./pages/cenfriend/CenFriendExplore";
+import CenFriendCreate from "./pages/cenfriend/CenFriendCreate";
+import CenFriendProfile from "./pages/cenfriend/CenFriendProfile";
+import CenFriendPost from "./pages/cenfriend/CenFriendPost";
+import CenFriendRelations from "./pages/cenfriend/CenFriendRelations";
+import CenFriendRequests from "./pages/cenfriend/CenFriendRequests";
+import CenFriendNotifications from "./pages/cenfriend/CenFriendNotifications";
+import CenFriendSaved from "./pages/cenfriend/CenFriendSaved";
+import CenFriendStories from "./pages/cenfriend/CenFriendStories";
+import CenFriendComments from "./pages/cenfriend/CenFriendComments";
+import CenFriendSettings from "./pages/cenfriend/CenFriendSettings";
 import EquipmentRental from "./pages/EquipmentRental";
 import TransportServices from "./pages/TransportServices";
 import StorageWarehouse from "./pages/StorageWarehouse";
@@ -96,6 +110,8 @@ import TransporterMessages from "./pages/transporter/TransporterMessages";
 import TransporterProfilePage from "./pages/transporter/TransporterProfilePage";
 import TransporterSettings from "./pages/transporter/TransporterSettings";
 import CreatorChannel from "./pages/creator/CreatorChannel";
+import CreatorMode from "./pages/creator/CreatorMode";
+import CreatorModeRoute from "./components/creator/CreatorModeRoute";
 
 // ── Warehouse (agricultural storage & warehousing) account ────────────────
 import WarehouseHome from "./pages/warehouse/WarehouseHome";
@@ -221,6 +237,8 @@ export default function App() {
               </ProtectedRoute>
             }
           />
+          {/* One role-aware landing for post-login redirects and deep links. */}
+          <Route path="/home" element={<ProtectedRoute><RoleHome /></ProtectedRoute>} />
           <Route
             path="/farmer-account"
             element={
@@ -349,24 +367,30 @@ export default function App() {
           <Route path="/equipment-owner/settings" element={<ProtectedRoute><EquipmentSettings /></ProtectedRoute>} />
 
           {/* Content Creator module. Watching and creating are ONE screen —
-              `/video-hub` with `?mode=create` — because whoever can watch a
-              video can also publish one. `/creator` is kept as a redirect into
-              the Create mode of that page, so old links still land right. */}
+              `/video-hub` with `?mode=create`. Watching is open to every
+              account; publishing requires Creator Mode, so every `/creator/*`
+              route is wrapped in <CreatorModeRoute>. `/creator` itself is only
+              a redirect, and VideoHub decides what to do if the mode is off. */}
           <Route path="/creator" element={<Navigate to="/video-hub?mode=create" replace />} />
+          {/* The switch itself. NOT wrapped in <CreatorModeRoute>: an account
+              with the mode off is exactly who needs this page, and the guarded
+              /creator/* tree would bounce it back to the watch feed. */}
+          <Route path="/creator-mode" element={<ProtectedRoute><CreatorMode /></ProtectedRoute>} />
           {/* Alias for the Create mode panel, kept for old internal links. */}
-          <Route path="/creator/studio" element={<ProtectedRoute><CreatorHomePanel /></ProtectedRoute>} />
-          <Route path="/creator/channel" element={<ProtectedRoute><CreatorChannel /></ProtectedRoute>} />
-          <Route path="/creator/upload" element={<ProtectedRoute><CreatorUpload /></ProtectedRoute>} />
-          <Route path="/creator/shorts" element={<ProtectedRoute><CreatorShorts /></ProtectedRoute>} />
-          <Route path="/creator/live" element={<ProtectedRoute><CreatorLive /></ProtectedRoute>} />
-          <Route path="/creator/analytics" element={<ProtectedRoute><CreatorAnalytics /></ProtectedRoute>} />
-          <Route path="/creator/monetization" element={<ProtectedRoute><CreatorMonetization /></ProtectedRoute>} />
-          <Route path="/creator/comments" element={<ProtectedRoute><CreatorComments /></ProtectedRoute>} />
-          <Route path="/creator/messages" element={<ProtectedRoute><CreatorMessages /></ProtectedRoute>} />
-          <Route path="/creator/notifications" element={<ProtectedRoute><CreatorNotifications /></ProtectedRoute>} />
-          <Route path="/creator/settings" element={<ProtectedRoute><CreatorSettings /></ProtectedRoute>} />
+          <Route path="/creator/studio" element={<ProtectedRoute><CreatorModeRoute><CreatorHomePanel /></CreatorModeRoute></ProtectedRoute>} />
+          <Route path="/creator/channel" element={<ProtectedRoute><CreatorModeRoute><CreatorChannel /></CreatorModeRoute></ProtectedRoute>} />
+          <Route path="/creator/upload" element={<ProtectedRoute><CreatorModeRoute><CreatorUpload /></CreatorModeRoute></ProtectedRoute>} />
+          <Route path="/creator/shorts" element={<ProtectedRoute><CreatorModeRoute><CreatorShorts /></CreatorModeRoute></ProtectedRoute>} />
+          <Route path="/creator/live" element={<ProtectedRoute><CreatorModeRoute><CreatorLive /></CreatorModeRoute></ProtectedRoute>} />
+          <Route path="/creator/analytics" element={<ProtectedRoute><CreatorModeRoute><CreatorAnalytics /></CreatorModeRoute></ProtectedRoute>} />
+          <Route path="/creator/monetization" element={<ProtectedRoute><CreatorModeRoute><CreatorMonetization /></CreatorModeRoute></ProtectedRoute>} />
+          <Route path="/creator/comments" element={<ProtectedRoute><CreatorModeRoute><CreatorComments /></CreatorModeRoute></ProtectedRoute>} />
+          <Route path="/creator/messages" element={<ProtectedRoute><CreatorModeRoute><CreatorMessages /></CreatorModeRoute></ProtectedRoute>} />
+          <Route path="/creator/notifications" element={<ProtectedRoute><CreatorModeRoute><CreatorNotifications /></CreatorModeRoute></ProtectedRoute>} />
+          <Route path="/creator/settings" element={<ProtectedRoute><CreatorModeRoute><CreatorSettings /></CreatorModeRoute></ProtectedRoute>} />
 
-          {/* Kisan Video Hub — one page for watching and creating. */}
+          {/* Kisan Video Hub — watching is open to every signed-in account; the
+              Create mode inside this page is gated on Creator Mode. */}
           <Route path="/video-hub" element={<ProtectedRoute><VideoHub /></ProtectedRoute>} />
           <Route path="/shorts/:id" element={<ProtectedRoute><ShortsPlayer /></ProtectedRoute>} />
           <Route path="/watch/:id" element={<ProtectedRoute><WatchVideo /></ProtectedRoute>} />
@@ -403,6 +427,10 @@ export default function App() {
           <Route path="/account" element={<Navigate to="/account/profile" replace />} />
           <Route path="/account/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
           <Route path="/account/personal" element={<ProtectedRoute><PersonalPage /></ProtectedRoute>} />
+          {/* Personal details inside the signed-in account's own shell. The farmer
+              and Content Creator are redirected back to /account/personal, which
+              renders the same form in FarmerShell. */}
+          <Route path="/account/details" element={<ProtectedRoute><AccountPersonalDetails /></ProtectedRoute>} />
           <Route path="/account/farming" element={<ProtectedRoute><FarmingInfoPage /></ProtectedRoute>} />
           <Route path="/account/documents" element={<ProtectedRoute><DocumentsPage /></ProtectedRoute>} />
           <Route path="/account/language" element={<ProtectedRoute><LanguagePage /></ProtectedRoute>} />
@@ -412,7 +440,36 @@ export default function App() {
           <Route path="/account/manage" element={<ProtectedRoute><AccountManagePage /></ProtectedRoute>} />
 
           <Route path="/marketplace" element={<ProtectedRoute><Marketplace /></ProtectedRoute>} />
+          {/* ── CenFriend: the social network ──
+              /cenfriend keeps the original community screen (posts/comments
+              through Supabase). Everything under /cenfriend/* is the social
+              layer, which goes through the FastAPI `/social` API so that
+              privacy, blocks and ownership are enforced server-side.
+              Every route is behind ProtectedRoute: a signed-out visitor gets
+              no feed, no profiles and no counts. */}
           <Route path="/cenfriend" element={<ProtectedRoute><CenFriend /></ProtectedRoute>} />
+          <Route path="/cenfriend/home" element={<ProtectedRoute><CenFriendHome /></ProtectedRoute>} />
+          <Route path="/cenfriend/explore" element={<ProtectedRoute><CenFriendExplore /></ProtectedRoute>} />
+          <Route path="/cenfriend/create" element={<ProtectedRoute><CenFriendCreate /></ProtectedRoute>} />
+          <Route path="/cenfriend/requests" element={<ProtectedRoute><CenFriendRequests /></ProtectedRoute>} />
+          <Route path="/cenfriend/notifications" element={<ProtectedRoute><CenFriendNotifications /></ProtectedRoute>} />
+          <Route path="/cenfriend/saved" element={<ProtectedRoute><CenFriendSaved /></ProtectedRoute>} />
+          <Route path="/cenfriend/comments" element={<ProtectedRoute><CenFriendComments /></ProtectedRoute>} />
+          {/* Messages stays inside CenFriend when opened from its rail, so the
+              community navigation does not disappear mid-journey. */}
+          <Route path="/cenfriend/messages" element={<ProtectedRoute><MessagesPage inCenFriend /></ProtectedRoute>} />
+          <Route path="/cenfriend/stories" element={<ProtectedRoute><CenFriendStories /></ProtectedRoute>} />
+          <Route path="/cenfriend/settings" element={<ProtectedRoute><CenFriendSettings /></ProtectedRoute>} />
+          <Route path="/cenfriend/post/:id" element={<ProtectedRoute><CenFriendPost /></ProtectedRoute>} />
+          <Route path="/cenfriend/u/:id" element={<ProtectedRoute><CenFriendProfile /></ProtectedRoute>} />
+          <Route
+            path="/cenfriend/u/:id/followers"
+            element={<ProtectedRoute><CenFriendRelations mode="followers" /></ProtectedRoute>}
+          />
+          <Route
+            path="/cenfriend/u/:id/following"
+            element={<ProtectedRoute><CenFriendRelations mode="following" /></ProtectedRoute>}
+          />
           <Route path="/equipment" element={<ProtectedRoute><EquipmentRental /></ProtectedRoute>} />
           <Route path="/transport" element={<ProtectedRoute><TransportServices /></ProtectedRoute>} />
           <Route path="/storage" element={<ProtectedRoute><StorageWarehouse /></ProtectedRoute>} />

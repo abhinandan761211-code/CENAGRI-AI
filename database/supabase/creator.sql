@@ -184,7 +184,10 @@ create index if not exists video_comments_video_idx  on public.video_comments (v
 create index if not exists video_comments_parent_idx on public.video_comments (parent_id, created_at);
 create index if not exists video_comments_author_idx on public.video_comments (author_id, created_at desc);
 
-create table if not exists public.comment_likes (
+-- Likes on VIDEO comments. Deliberately NOT named `comment_likes`: CenFriend
+-- (social.sql) uses that name for likes on SOCIAL post comments, and sharing the
+-- name meant whichever file ran first silently owned the foreign key.
+create table if not exists public.creator_comment_likes (
   user_id     uuid not null references auth.users (id) on delete cascade,
   comment_id  uuid not null references public.video_comments (id) on delete cascade,
   created_at  timestamptz not null default now(),
@@ -408,7 +411,7 @@ alter table public.video_likes          enable row level security;
 alter table public.video_saves          enable row level security;
 alter table public.video_views          enable row level security;
 alter table public.video_comments       enable row level security;
-alter table public.comment_likes        enable row level security;
+alter table public.creator_comment_likes enable row level security;
 alter table public.playlists            enable row level security;
 alter table public.playlist_videos      enable row level security;
 alter table public.video_reports        enable row level security;
@@ -489,11 +492,11 @@ create policy "Users delete their own comments" on public.video_comments
     or exists (select 1 from public.videos v where v.id = video_id and v.owner_id = auth.uid())
   );
 
-drop policy if exists "Comment likes are readable" on public.comment_likes;
-create policy "Comment likes are readable" on public.comment_likes for select using (true);
+drop policy if exists "Comment likes are readable" on public.creator_comment_likes;
+create policy "Comment likes are readable" on public.creator_comment_likes for select using (true);
 
-drop policy if exists "Users manage their comment likes" on public.comment_likes;
-create policy "Users manage their comment likes" on public.comment_likes
+drop policy if exists "Users manage their comment likes" on public.creator_comment_likes;
+create policy "Users manage their comment likes" on public.creator_comment_likes
   for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
 drop policy if exists "Public playlists are readable" on public.playlists;

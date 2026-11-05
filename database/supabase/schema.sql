@@ -17,6 +17,8 @@ create table if not exists public.profiles (
     )
   ),
   avatar_url  text,
+  -- Creator Mode: may publish to the Kisan Video Hub. Opt-in for every role.
+  creator_mode boolean not null default false,
   -- Role-specific onboarding answers (district, crops, vehicle type …).
   -- Kept as jsonb so new questions never need a migration.
   details     jsonb not null default '{}'::jsonb,
@@ -27,7 +29,35 @@ create table if not exists public.profiles (
 -- For projects created before `details` existed.
 alter table public.profiles add column if not exists details jsonb not null default '{}'::jsonb;
 
+-- For projects created before `creator_mode` existed. Older rows stored the
+-- same choice as `details->>'creator_mode'`; carry that value over once.
+alter table public.profiles add column if not exists creator_mode boolean not null default false;
+update public.profiles
+   set creator_mode = true
+ where creator_mode = false
+   and lower(coalesce(details ->> 'creator_mode', '')) in ('true', 'on', '1');
+
 create index if not exists idx_profiles_role on public.profiles (role);
+
+-- ── Multilingual preference ─────────────────────────────────────────────
+-- The interface + AI answer language chosen by the user. Kept on the existing
+-- profile row (no separate preference table, no second identity).
+-- NULL means "not chosen yet" — the browser language is used until then.
+-- Only languages with tested support are allowed, so a stale or mistyped value
+-- can never reach the AI pipeline; new languages are added by extending BOTH
+-- this check and the frontend capability matrix.
+alter table public.profiles add column if not exists preferred_language text;
+
+do $$
+begin
+  if not exists (
+    select 1 from pg_constraint where conname = 'profiles_preferred_language_check'
+  ) then
+    alter table public.profiles
+      add constraint profiles_preferred_language_check
+      check (preferred_language is null or preferred_language in ('en', 'hi', 'or', 'bn'));
+  end if;
+end $$;
 create index if not exists idx_profiles_district on public.profiles ((details ->> 'district'));
 create index if not exists idx_profiles_state on public.profiles ((details ->> 'state'));
 create index if not exists idx_profiles_village on public.profiles ((details ->> 'village'));

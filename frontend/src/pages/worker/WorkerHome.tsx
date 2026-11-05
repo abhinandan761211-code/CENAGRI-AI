@@ -36,6 +36,7 @@ import type {
   WorkerSkill,
   WorkAssignment,
 } from "@/lib/worker";
+import { useLang } from "@/i18n/LanguageContext";
 import {
   dashboardTotals,
   ensureWorkerProfile,
@@ -56,6 +57,7 @@ import {
  * made-up number.
  */
 export default function WorkerHome() {
+  const { t } = useLang();
   const { profile: account } = useAuth();
   const navigate = useNavigate();
 
@@ -136,7 +138,7 @@ export default function WorkerHome() {
 
   if (loading) {
     return (
-      <WorkerLayout title="Dashboard">
+      <WorkerLayout title={t("wk.h.title")}>
         <Loading label="Loading your dashboard…" />
       </WorkerLayout>
     );
@@ -144,7 +146,7 @@ export default function WorkerHome() {
 
   if (failed) {
     return (
-      <WorkerLayout title="Dashboard">
+      <WorkerLayout title={t("wk.h.title")}>
         <ErrorNotice message={failed.error} onRetry={failed.reload} />
       </WorkerLayout>
     );
@@ -152,7 +154,7 @@ export default function WorkerHome() {
 
   return (
     <WorkerLayout
-      title="Dashboard"
+      title={t("wk.h.title")}
       action={
         <Link
           to={WORKER_ROUTES.profile}
@@ -166,7 +168,7 @@ export default function WorkerHome() {
       <ShellHero
         locationLine={home}
         greeting={`Namaste, ${firstName} 👋`}
-        subtitle="Find agricultural jobs, manage your work, and grow your income with CenAGRI AI."
+        subtitle={t("wk.h.subtitle")}
         aside={
           <div className="rounded-xl bg-white/12 p-4 backdrop-blur-sm">
             <div className="flex items-center gap-3">
@@ -200,37 +202,37 @@ export default function WorkerHome() {
       <section className="grid grid-cols-2 gap-3 lg:grid-cols-3 xl:grid-cols-6">
         <StatCard
           icon={Briefcase}
-          label="Available jobs"
+          label={t("wk.h.availableJobs")}
           value={String(totals.availableJobs)}
           hint="Open near you"
         />
         <StatCard
           icon={FileText}
-          label="Applied jobs"
+          label={t("wk.h.appliedJobs")}
           value={String(totals.appliedJobs)}
           hint="Awaiting or accepted"
         />
         <StatCard
           icon={Clock}
-          label="Active work"
+          label={t("wk.h.activeWork")}
           value={String(totals.activeWork)}
           hint="Scheduled or running"
         />
         <StatCard
           icon={CheckCircle2}
-          label="Completed jobs"
+          label={t("wk.h.completedJobs")}
           value={String(totals.completedJobs)}
           hint="All time"
         />
         <StatCard
           icon={IndianRupee}
-          label="Total earnings"
+          label={t("wk.h.totalEarnings")}
           value={formatINR(totals.totalEarnings)}
           hint="Confirmed payments only"
         />
         <StatCard
           icon={Wallet}
-          label="Pending payments"
+          label={t("wk.h.pendingPayments")}
           value={formatINR(totals.pendingPayments)}
           hint="Not paid yet"
         />
@@ -238,7 +240,7 @@ export default function WorkerHome() {
 
       {/* ── Quick actions ── */}
       <ShellQuickActions
-        title="Quick Actions"
+        title={t("wk.h.quickActions")}
         actions={[
           { label: "Find Jobs", icon: Search, onClick: () => navigate(WORKER_ROUTES.jobs) },
           { label: "My Applications", icon: FileText, onClick: () => navigate(WORKER_ROUTES.applications) },
@@ -251,7 +253,7 @@ export default function WorkerHome() {
       <div className="grid gap-4 lg:grid-cols-3">
         {/* ── Next work / applications ── */}
         <div className="lg:col-span-2 space-y-4">
-          <Panel title="Upcoming work" description="Your next scheduled job">
+          <Panel title={t("wk.h.upcomingWork")} description={t("wk.h.nextJob")}>
             {nextWork ? (
               <div className="rounded-lg border border-slate-200 p-3.5">
                 <div className="flex items-start justify-between gap-3">
@@ -297,8 +299,8 @@ export default function WorkerHome() {
             ) : (
               <EmptyState
                 icon={CalendarDays}
-                title="No scheduled work yet"
-                description="Apply for a job and it will appear here once an employer accepts you."
+                title={t("wk.h.noScheduled")}
+                description={t("wk.h.noScheduledDesc")}
                 action={
                   <Link
                     to={WORKER_ROUTES.jobs}
@@ -312,8 +314,8 @@ export default function WorkerHome() {
           </Panel>
 
           <Panel
-            title="Recent applications"
-            description="Where your applications stand"
+            title={t("wk.h.recentApplications")}
+            description={t("wk.h.whereStand")}
             action={
               <Link to={WORKER_ROUTES.applications} className="text-[11.5px] font-bold text-brand-700 hover:underline">
                 View all
@@ -323,8 +325,8 @@ export default function WorkerHome() {
             {appList.length === 0 ? (
               <EmptyState
                 icon={FileText}
-                title="No applications yet"
-                description="When you apply for a job, its status shows up here."
+                title={t("wk.h.noApplications")}
+                description={t("wk.h.noApplicationsDesc")}
               />
             ) : (
               <ul className="divide-y divide-slate-100">
@@ -351,8 +353,8 @@ export default function WorkerHome() {
         {/* ── Recommended ── */}
         <div className="space-y-4">
           <Panel
-            title="Jobs for you"
-            description="Best paying in your area"
+            title={t("wk.h.jobsForYou")}
+            description={t("wk.h.bestPaying")}
             action={
               <Link to={WORKER_ROUTES.jobs} className="text-[11.5px] font-bold text-brand-700 hover:underline">
                 See all
@@ -362,7 +364,7 @@ export default function WorkerHome() {
             {jobs.state === "ready" && recommended.length === 0 ? (
               <EmptyState
                 icon={Briefcase}
-                title="No open jobs right now"
+                title={t("wk.h.noOpenJobs")}
                 description="New work is posted throughout the season — check back soon."
               />
             ) : (

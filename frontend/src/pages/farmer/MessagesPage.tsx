@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { Bell, Check, CloudSun, Clock, MessageSquare, Package, Send, TrendingUp } from "lucide-react";
 
 import FarmerShell from "@/components/farm/FarmerShell";
+import CenFriendShell from "@/components/cenfriend/CenFriendShell";
 import {
   Chip,
   EmptyState,
@@ -12,7 +13,7 @@ import {
   PageHeader,
   Panel,
   PrimaryButton,
-
+  Select,
   Stat,
   Textarea,
   Toast,
@@ -46,9 +47,19 @@ type Thread = {
   last: FarmerMessage;
 };
 
-export default function MessagesPage() {
+export default function MessagesPage({ inCenFriend = false }: { inCenFriend?: boolean }) {
   const { user } = useAuth();
   const { toast, showToast } = useToast();
+  /**
+   * Two shells, one page.
+   *
+   * Opened from CenFriend's rail, the page must keep CenFriend's rail — that is
+   * the whole point of the fix: Messages used to jump out to the app shell and
+   * the community navigation disappeared mid-journey. Opened from anywhere
+   * else it keeps the farmer shell it has always had. The logic, the data and
+   * the layout are identical either way; only the chrome differs.
+   */
+  const Shell = inCenFriend ? CenFriendShell : FarmerShell;
 
   const [messages, setMessages] = useState<FarmerMessage[]>([]);
   const [loading, setLoading] = useState(true);
@@ -71,7 +82,7 @@ export default function MessagesPage() {
       let names = new Map<string, string>();
       if (peerIds.length > 0 && supabase) {
         const { data } = await supabase.from("profiles").select("id, full_name").in("id", peerIds);
-        names = new Map((data ?? []).map((p) => [p.id as string, (p.full_name as string | null) ?? "CenAGRI user"]));
+        names = new Map((data ?? []).map((p) => [p.id as string, (p.full_name as string | null) ?? "Kalika user"]));
       }
       setMessages(rows.map((m) => ({ ...m })));
       setPeers(names);
@@ -153,7 +164,7 @@ export default function MessagesPage() {
         .maybeSingle();
       if (err) throw err;
       if (!data) {
-        setComposeError("No CenAGRI account uses that email.");
+        setComposeError("No Kalika account uses that email.");
         return;
       }
       await sendMessage({ recipient_id: data.id as string, body: compose.body, context_type: "general" });
@@ -167,7 +178,8 @@ export default function MessagesPage() {
   }
 
   return (
-    <FarmerShell>
+    // `activeOverride="messages"` keeps the rail's Messages item highlighted.
+    <Shell {...(inCenFriend ? { activeOverride: "messages" as const } : { title: "Messages" })}>
       <PageHeader
         icon={MessageSquare}
         title="Messages"
@@ -238,12 +250,11 @@ export default function MessagesPage() {
                   <button
                     type="button"
                     onClick={() => setActiveId(thread.id)}
-                    className={`w-full px-4 py-3 text-left hover:bg-slate-50 ${
-                      active?.id === thread.id ? "bg-brand-50/70" : ""
-                    }`}
+                    className={`w-full px-4 py-3 text-left hover:bg-slate-50 ${active?.id === thread.id ? "bg-brand-50/70" : ""
+                      }`}
                   >
                     <p className="flex items-center justify-between gap-2 text-xs font-bold text-forest">
-                      <span className="truncate">{thread.peerName ?? "CenAGRI user"}</span>
+                      <span className="truncate">{thread.peerName ?? "Kalika user"}</span>
                       {thread.unread > 0 && (
                         <span className="grid h-4 min-w-4 shrink-0 place-items-center rounded-full bg-brand-600 px-1 text-[9px] font-bold text-white">
                           {thread.unread}
@@ -277,11 +288,10 @@ export default function MessagesPage() {
                   return (
                     <li key={message.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
                       <div
-                        className={`max-w-[85%] rounded-2xl px-3 py-2 text-[12px] leading-relaxed ${
-                          mine
+                        className={`max-w-[85%] rounded-2xl px-3 py-2 text-[12px] leading-relaxed ${mine
                             ? "rounded-br-sm bg-brand-700 text-white"
                             : "rounded-bl-sm border border-slate-200 bg-white text-slate-700"
-                        }`}
+                          }`}
                       >
                         <p className="whitespace-pre-wrap">{message.body}</p>
                         <p className={`mt-1 text-[9px] ${mine ? "text-white/70" : "text-slate-400"}`}>
@@ -320,7 +330,7 @@ export default function MessagesPage() {
       </div>
 
       <Toast message={toast} />
-    </FarmerShell>
+    </Shell>
   );
 }
 
@@ -456,7 +466,7 @@ export function NotificationsPage() {
   const visible = notices.filter((n) => filter === "all" || n.kind === filter);
 
   return (
-    <FarmerShell>
+    <FarmerShell title="Notifications">
       <PageHeader
         icon={Bell}
         title="Notifications"
@@ -486,9 +496,8 @@ export function NotificationsPage() {
             type="button"
             onClick={() => setFilter(option)}
             aria-pressed={filter === option}
-            className={`rounded-full px-3 py-1.5 text-[11px] font-semibold capitalize ${
-              filter === option ? "bg-forest text-white" : "bg-white text-slate-600 hover:bg-slate-50"
-            }`}
+            className={`rounded-full px-3 py-1.5 text-[11px] font-semibold capitalize ${filter === option ? "bg-forest text-white" : "bg-white text-slate-600 hover:bg-slate-50"
+              }`}
           >
             {option}
           </button>
@@ -551,3 +560,4 @@ export function NotificationsPage() {
   );
 }
 
+export { Select };

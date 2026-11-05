@@ -190,7 +190,7 @@ export default function TransporterReviews() {
                       )}
                       {review.is_reported && (
                         <p className="mt-1 text-[10.5px] font-semibold text-amber-700">
-                          Reported — under review by CenAGRI.
+                          Reported — under review by Kalika.
                         </p>
                       )}
                     </li>

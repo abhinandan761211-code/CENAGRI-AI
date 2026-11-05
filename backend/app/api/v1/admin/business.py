@@ -133,7 +133,11 @@ async def retailer_products(
         or_filter = f"name.ilike.*{safe}*,brand.ilike.*{safe}*"
     rows, total = await store.select(
         "retailer_products",
-        columns="id,owner_id,name,brand,category,price,stock,unit,created_at",
+        # Column names come from retailer.sql: the shop side is retailer_id, the
+        # price is price_inr and the status is `status` ('active' | 'paused' |
+        # 'archived'). There is no owner_id / price / stock / is_active column, and
+        # asking for one failed the whole page with 42703.
+        columns="id,retailer_id,name,brand,category,price_inr,stock_qty,unit,status,created_at",
         or_filter=or_filter,
         order="created_at.desc",
         limit=pagination.page_size,
@@ -158,12 +162,14 @@ async def moderate_product(
         raise HTTPException(status_code=422, detail="Give a reason for the change.")
 
     rows = await store.select(
-        "retailer_products", columns="id,name,is_active", filters={"id": f"eq.{product_id}", "limit": "1"}
+        "retailer_products", columns="id,name,status", filters={"id": f"eq.{product_id}", "limit": "1"}
     )
     if not rows:
         raise HTTPException(status_code=404, detail="Product not found.")
-    active = payload.action == "restore"
-    updated = await store.update("retailer_products", {"is_active": active}, filters={"id": f"eq.{product_id}"})
+    # `status` is the real column; hiding a product pauses the listing without
+    # destroying the price history, and restoring puts it back on sale.
+    status = "active" if payload.action == "restore" else "paused"
+    updated = await store.update("retailer_products", {"status": status}, filters={"id": f"eq.{product_id}"})
     await audit(
         store,
         request,
@@ -173,8 +179,8 @@ async def moderate_product(
         target_type="product",
         target_id=product_id,
         reason=payload.reason,
-        before={"is_active": rows[0].get("is_active")},
-        after={"is_active": active},
+        before={"status": rows[0].get("status")},
+        after={"status": status},
     )
     return {"ok": True, "product": updated[0] if updated else None}
 
@@ -184,7 +190,9 @@ async def moderate_product(
 # Column names differ between the two order tables; pick the right set per
 # source instead of pretending they are identical.
 ORDER_COLUMNS = {
-    "retailer": "id,owner_id,customer_id,customer_name,amount_inr,status,created_at",
+    # retailer.sql: the shop is `retailer_id` (there is no owner_id) and the
+    # order is stamped `placed_at`, not created_at.
+    "retailer": "id,retailer_id,customer_id,customer_name,amount_inr,status,placed_at",
     "marketplace": "id,buyer_id,seller_id,amount_inr,status,created_at",
 }
 
@@ -201,12 +209,15 @@ async def orders(
     if status_filter and status_filter not in spec["statuses"]:
         raise HTTPException(status_code=422, detail="Unknown order status for this order source.")
     filters = {"status": f"eq.{status_filter}"} if status_filter else {}
+    # `placed_at` is the order date on retailer_orders; marketplace orders only
+    # have created_at. Sorting on a missing column is another 42703.
+    order_by = "placed_at.desc" if source == "retailer" else "created_at.desc"
     try:
         rows, total = await store.select(
             spec["table"],
             columns=ORDER_COLUMNS[source],
             filters=filters,
-            order="created_at.desc",
+            order=order_by,
             limit=pagination.page_size,
             offset=pagination.offset,
             count=True,

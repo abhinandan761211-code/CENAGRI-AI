@@ -4,7 +4,7 @@ import CreatorShell, { CreatorSection } from "@/components/creator/CreatorShell"
 /**
  * Monetization — architecture only.
  *
- * There is no payment provider wired into CenAGRI yet (no Razorpay/Stripe
+ * There is no payment provider wired into Kalika yet (no Razorpay/Stripe
  * keys, no payout account, no tax handling). Showing a rupee balance here would
  * be a number a creator could plan around and then not receive, so every block
  * is explicitly marked as coming soon.
@@ -24,7 +24,7 @@ export default function CreatorMonetization() {
       <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-4">
         <p className="text-[12px] font-bold text-amber-200">Coming soon</p>
         <p className="mt-1 max-w-2xl text-[11px] leading-relaxed text-amber-100/80">
-          No payment provider is connected to CenAGRI yet, so no earnings are being calculated.
+          No payment provider is connected to Kalika yet, so no earnings are being calculated.
           Nothing on this page is a real balance — it describes what will be available once
           payouts, tax handling and creator verification are in place.
         </p>

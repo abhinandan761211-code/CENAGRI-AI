@@ -3,9 +3,11 @@ import type { ReactNode } from "react";
 import {
   Bell,
   Briefcase,
+  Clapperboard,
   MessageSquare,
   PlusCircle,
   Users,
+  Video,
 } from "lucide-react";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import AccountShell from "@/components/account/AccountShell";
@@ -17,9 +19,17 @@ import type { EmployerNotification } from "@/lib/employer";
 /** Every employer screen lives under this prefix. */
 export const EMPLOYER_BASE = "/employer";
 
-export type EmployerNavKey = "home" | "post" | "jobs" | "applicants" | "messages" | "notifications";
+export type EmployerNavKey =
+  | "home"
+  | "post"
+  | "jobs"
+  | "applicants"
+  | "messages"
+  | "notifications"
+  | "hub"
+  | "creator";
 
-export const EMPLOYER_ROUTES: Record<EmployerNavKey, string> = {
+export const EMPLOYER_ROUTES: Record<Exclude<EmployerNavKey, "hub" | "creator">, string> = {
   home: EMPLOYER_BASE,
   post: `${EMPLOYER_BASE}/post`,
   jobs: `${EMPLOYER_BASE}/jobs`,
@@ -28,21 +38,30 @@ export const EMPLOYER_ROUTES: Record<EmployerNavKey, string> = {
   notifications: `${EMPLOYER_BASE}/notifications`,
 };
 
-const NAV: { key: EmployerNavKey; label: string; icon: ShellNavItem["icon"] }[] = [
-  { key: "home", label: "Dashboard", icon: Briefcase },
-  { key: "post", label: "Post a Job", icon: PlusCircle },
-  { key: "jobs", label: "My Jobs", icon: Briefcase },
-  { key: "applicants", label: "Applicants", icon: Users },
-  { key: "messages", label: "Messages", icon: MessageSquare },
-  { key: "notifications", label: "Notifications", icon: Bell },
+const NAV: { key: EmployerNavKey; label: string; tkey: string; icon: ShellNavItem["icon"] }[] = [
+  { key: "home", label: "Dashboard", tkey: "s.dashboard", icon: Briefcase },
+  { key: "post", label: "Post a Job", tkey: "s.postJob", icon: PlusCircle },
+  { key: "jobs", label: "My Jobs", tkey: "s.myJobs", icon: Briefcase },
+  { key: "applicants", label: "Applicants", tkey: "s.applicants", icon: Users },
+  { key: "messages", label: "Messages", tkey: "s.messages", icon: MessageSquare },
+  { key: "notifications", label: "Notifications", tkey: "s.notifications", icon: Bell },
+  /* Watching is open to every account; publishing is the separate studio entry. */
+  { key: "hub", label: "Kisan Video Hub", tkey: "s.videoHub", icon: Video },
+  { key: "creator", label: "Creator Studio", tkey: "s.creatorStudio", icon: Clapperboard },
 ];
+
+/** "hub" and "creator" live outside /employer, so they resolve here. */
+const NAV_HREF: Partial<Record<EmployerNavKey, string>> = {
+  hub: "/video-hub",
+  creator: "/creator-mode",
+};
 
 const EMPLOYER_SEARCH: SearchEntry[] = [
   { label: "Post a job", keywords: "new job hiring wage workers post", section: "Jobs", to: "/employer/post" },
   { label: "My jobs", keywords: "listings posted open closed jobs", section: "Jobs", to: "/employer/jobs" },
-  { label: "Applicants", keywords: "apply accept reject workers applications", section: "Hiring", to: "/employer/applicants" },
-  { label: "Messages", keywords: "worker chat reply talk", section: "Hiring", to: "/employer/messages" },
-  { label: "Pay & attendance", keywords: "payment attendance money wage", section: "Hiring", to: "/employer/jobs" },
+  { label: "Applicants", tkey: "s.applicants", keywords: "apply accept reject workers applications", section: "Hiring", to: "/employer/applicants" },
+  { label: "Messages", tkey: "s.messages", keywords: "worker chat reply talk", section: "Hiring", to: "/employer/messages" },
+  { label: "Pay & attendance", tkey: "s.payAttendance", keywords: "payment attendance money wage", section: "Hiring", to: "/employer/jobs" },
 ];
 
 const KIND_ICON = {
@@ -130,12 +149,13 @@ export default function EmployerLayout({
       | EmployerNavKey
       | undefined) ?? "home";
 
-  const nav: ShellNavItem[] = NAV.map(({ key, label, icon }) => ({
+  const nav: ShellNavItem[] = NAV.map(({ key, label, tkey, icon }) => ({
     label,
+    tkey,
     icon,
     badge: key === "notifications" ? unread : undefined,
     active: key === activeKey,
-    to: EMPLOYER_ROUTES[key],
+    to: NAV_HREF[key] ?? EMPLOYER_ROUTES[key as Exclude<EmployerNavKey, "hub" | "creator">],
   }));
 
   async function handleSignOut() {
@@ -152,7 +172,8 @@ export default function EmployerLayout({
       displayName={name}
       initials={initials}
       avatarUrl={profile?.avatar_url}
-      settingsTo={EMPLOYER_ROUTES.home}
+      // Was EMPLOYER_ROUTES.home, so "Edit profile" reloaded the dashboard.
+      settingsTo="/account/details"
       helpCard={{
         title: "Employer Support",
         body: "Hiring, wages aur worker verification help — Hindi, Bengali aur English mein.",

@@ -48,7 +48,7 @@ import type { DiseaseAnalysis } from "@/lib/farmer";
 /**
  * Disease Detection — crop-photo advisory.
  *
- * A photo plus described symptoms go to the CenAGRI assistant, which returns
+ * A photo plus described symptoms go to the Kalika assistant, which returns
  * *possible* causes and next steps. The page never claims a diagnosis: the
  * wording, the disclaimer and the expert-consultation prompt are part of the
  * result, and every answer is stored with its mode (AI vs. rule base) so the
@@ -308,7 +308,7 @@ export default function DiseaseDetectionPage() {
           <div className="space-y-2 p-4 text-[11px] leading-relaxed text-slate-600">
             <p>The photo is resized, then stored privately in your own account folder.</p>
             <p>
-              Your symptoms and crop details are sent to the CenAGRI assistant to produce the answer. Nothing is
+              Your symptoms and crop details are sent to the Kalika assistant to produce the answer. Nothing is
               shared publicly.
             </p>
             <p>You can delete any analysis from the history below.</p>

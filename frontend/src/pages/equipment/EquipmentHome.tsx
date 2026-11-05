@@ -153,7 +153,7 @@ export default function EquipmentHome() {
       <ShellHero
         locationLine={locationLine}
         greeting="Welcome Back, Equipment Owner!"
-        subtitle="Manage your agricultural machinery, receive rental bookings, and grow your equipment business with CenAGRI AI."
+        subtitle="Manage your agricultural machinery, receive rental bookings, and grow your equipment business with Kalika."
         aside={
           <div className="rounded-xl bg-white/12 p-4 backdrop-blur-sm">
             <p className="text-[11px] font-bold uppercase tracking-wider text-white/70">Fleet ready</p>
@@ -246,7 +246,7 @@ export default function EquipmentHome() {
             <EmptyState
               icon={IndianRupee}
               title="No earnings recorded"
-              description="Revenue appears once a rental is completed and the invoice is settled by CenAGRI. Nothing is shown as earned before that."
+              description="Revenue appears once a rental is completed and the invoice is settled by Kalika. Nothing is shown as earned before that."
             />
           ) : (
             <div className="p-4 sm:p-5">

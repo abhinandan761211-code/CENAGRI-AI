@@ -329,7 +329,7 @@ export default function CropCalendarPage() {
   const monthLabel = month.toLocaleDateString("en-IN", { month: "long", year: "numeric" });
 
   return (
-    <FarmerShell title="Crop Calendar">
+    <FarmerShell>
       <PageHeader
         icon={CalendarDays}
         title="Crop Calendar"

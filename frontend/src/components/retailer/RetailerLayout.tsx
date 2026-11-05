@@ -5,6 +5,7 @@ import {
   Bell,
   CalendarClock,
   ChartNoAxesCombined,
+  Clapperboard,
   IndianRupee,
   LayoutDashboard,
   Megaphone,
@@ -20,6 +21,8 @@ import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import AccountShell from "@/components/account/AccountShell";
 import type { SearchEntry, ShellNavItem, ShellNotification } from "@/components/account/AccountShell";
 import { useAuth } from "@/hooks/useAuth";
+import { homeForRole } from "@/lib/roleHome";
+import { useLang } from "@/i18n/LanguageContext";
 import { listNotifications } from "@/lib/retailer";
 import type { RetailerNotification } from "@/lib/retailer";
 
@@ -37,11 +40,12 @@ export type RetailerNavKey =
   | "buy"
   | "messages"
   | "notifications"
+  | "hub"
   | "creator"
   | "settings"
   | "help";
 
-export const RETAILER_ROUTES: Record<Exclude<RetailerNavKey, "creator">, string> = {
+export const RETAILER_ROUTES: Record<Exclude<RetailerNavKey, "creator" | "hub">, string> = {
   home: RETAILER_BASE,
   shop: `${RETAILER_BASE}/shop`,
   products: `${RETAILER_BASE}/products`,
@@ -56,26 +60,31 @@ export const RETAILER_ROUTES: Record<Exclude<RetailerNavKey, "creator">, string>
   help: `${RETAILER_BASE}/help`,
 };
 
-const NAV: { key: RetailerNavKey; label: string; icon: ShellNavItem["icon"] }[] = [
-  { key: "home", label: "Home", icon: LayoutDashboard },
-  { key: "shop", label: "My Shop", icon: Store },
-  { key: "products", label: "Products", icon: Package },
-  { key: "orders", label: "Orders", icon: ShoppingCart },
-  { key: "inventory", label: "Inventory", icon: Warehouse },
-  { key: "analytics", label: "Sales Analytics", icon: ChartNoAxesCombined },
-  { key: "offers", label: "Offers & Discounts", icon: Megaphone },
-  { key: "buy", label: "Buy from Farmers", icon: Sprout },
-  { key: "messages", label: "Messages", icon: MessageSquare },
-  { key: "notifications", label: "Notifications", icon: Bell },
-  { key: "creator", label: "Creator Studio", icon: Video },
+const NAV: { key: RetailerNavKey; label: string; tkey: string; icon: ShellNavItem["icon"] }[] = [
+  { key: "home", label: "Home", tkey: "s.dashboard", icon: LayoutDashboard },
+  { key: "shop", label: "My Shop", tkey: "s.shop", icon: Store },
+  { key: "products", label: "Products", tkey: "s.products", icon: Package },
+  { key: "orders", label: "Orders", tkey: "s.orders", icon: ShoppingCart },
+  { key: "inventory", label: "Inventory", tkey: "s.inventory", icon: Warehouse },
+  { key: "analytics", label: "Sales Analytics", tkey: "s.analytics", icon: ChartNoAxesCombined },
+  { key: "offers", label: "Offers & Discounts", tkey: "s.offers", icon: Megaphone },
+  { key: "buy", label: "Buy from Farmers", tkey: "s.buyFromFarmers", icon: Sprout },
+  { key: "messages", label: "Messages", tkey: "s.messages", icon: MessageSquare },
+  { key: "notifications", label: "Notifications", tkey: "s.notifications", icon: Bell },
+  /* Watching needs no Creator Mode; publishing is the separate studio entry. */
+  { key: "hub", label: "Kisan Video Hub", tkey: "s.videoHub", icon: Video },
+  { key: "creator", label: "Creator Studio", tkey: "s.creatorStudio", icon: Clapperboard },
 ];
 
 /**
- * Where each key goes. "creator" lives outside /retailer, so it is kept out of
- * `RETAILER_ROUTES` (that map is typed to the in-app keys the shell uses for
- * its active state) and resolved here instead.
+ * Where each key goes. "hub" and "creator" live outside /retailer, so they are
+ * kept out of `RETAILER_ROUTES` (that map is typed to the in-app keys the shell
+ * uses for its active state) and resolved here instead.
  */
-const NAV_HREF: Partial<Record<RetailerNavKey, string>> = { creator: "/creator/settings" };
+const NAV_HREF: Partial<Record<RetailerNavKey, string>> = {
+  hub: "/video-hub",
+  creator: "/creator-mode",
+};
 
 /** Notification kind → the icon shown in the header bell. */
 const KIND_ICON = {
@@ -120,6 +129,7 @@ export default function RetailerLayout({
   children: ReactNode;
 }) {
   const { user, profile, needsRole, needsDetails, signOut } = useAuth();
+  const { t } = useLang();
   const navigate = useNavigate();
   const { pathname } = useLocation();
 
@@ -153,11 +163,12 @@ export default function RetailerLayout({
   if (needsRole || needsDetails) {
     return <Navigate to="/complete-profile?next=/retailer" replace />;
   }
-  // Legacy accounts may still carry the old "Shop" label.
+  // Legacy accounts may still carry the old "Shop" label. A wrong role goes to
+  // its own account, never to the bare `/dashboard` (which would send it back).
   const role = profile?.role;
   const isRetailer = role === "Retailer" || role === "Shop";
   if (role && !isRetailer) {
-    return <Navigate to={role === "Buyer" ? "/buyer-account" : "/dashboard"} replace />;
+    return <Navigate to={homeForRole(role)} replace />;
   }
 
   const shopName = profile?.details?.shop_name;
@@ -179,12 +190,13 @@ export default function RetailerLayout({
       | RetailerNavKey
       | undefined) ?? "home";
 
-  const nav: ShellNavItem[] = NAV.map(({ key, label, icon }) => ({
+  const nav: ShellNavItem[] = NAV.map(({ key, label, tkey, icon }) => ({
     label,
+    tkey,
     icon,
     badge: key === "notifications" ? unreadCount : undefined,
     active: key === activeKey,
-    to: NAV_HREF[key] ?? RETAILER_ROUTES[key as Exclude<RetailerNavKey, "creator">],
+    to: NAV_HREF[key] ?? RETAILER_ROUTES[key as Exclude<RetailerNavKey, "creator" | "hub">],
   }));
 
   async function handleSignOut() {
@@ -196,7 +208,7 @@ export default function RetailerLayout({
     <AccountShell
       nav={nav}
       search={NOTIFICATION_SEARCH}
-      searchPlaceholder="Search products, orders, stock…"
+      searchPlaceholder={t("r.c.searchPlaceholder")}
       notifications={notifications}
       displayName={name}
       initials={initials}

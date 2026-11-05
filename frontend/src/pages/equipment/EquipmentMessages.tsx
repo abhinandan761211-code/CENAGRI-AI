@@ -112,7 +112,7 @@ export default function EquipmentMessages() {
   }
 
   return (
-    <EquipmentLayout title="Messages" subtitle="Renters and CenAGRI support">
+    <EquipmentLayout title="Messages" subtitle="Renters and Kalika support">
       {messages.state === "error" && <ErrorNotice message={messages.error} onRetry={messages.reload} />}
       {error && <ErrorNotice message={error} />}
 
@@ -226,7 +226,7 @@ export default function EquipmentMessages() {
           <span>
             Rentals go wrong over things nobody wrote down: who supplies fuel, what time the machine
             arrives, how many acres were actually worked. Agreeing it here means a later disagreement has a
-            factual record. This is the same messaging system the other CenAGRI accounts use.
+            factual record. This is the same messaging system the other Kalika accounts use.
           </span>
         </div>
       </Panel>

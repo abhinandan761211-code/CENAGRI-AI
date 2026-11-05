@@ -87,7 +87,7 @@ export default function AuthLayout({
           </div>
 
           <p className="mt-auto pt-10 text-[11px] text-brand-200/50">
-            © {new Date().getFullYear()} CenAGRI-AI · {t("auth.sdg")}
+            © {new Date().getFullYear()} Kalika · {t("auth.sdg")}
           </p>
         </div>
       </aside>

@@ -10,7 +10,7 @@
 .landing {
   /* Dark surfaces use the project's own forest greens (tailwind.config.js),
      not an ad-hoc navy. Before this change the hero sat on #0b1020, a
-     blue-black that appears nowhere else in CenAGRI — so the landing page
+     blue-black that appears nowhere else in Kalika — so the landing page
      read as a different product from the dashboards. */
   --ld-ink: #12352a;        /* forest.dark  — also the footer */
   --ld-ink-2: #1d4b3a;      /* forest       */

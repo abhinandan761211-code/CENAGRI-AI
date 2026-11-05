@@ -56,7 +56,7 @@ const DOC_STATUS_STYLE: Record<WarehouseDocument["status"], string> = {
 /**
  * Invoices & Documents.
  *
- * Two kinds of paperwork: invoices CenAGRI issued to you, and the compliance
+ * Two kinds of paperwork: invoices Kalika issued to you, and the compliance
  * documents that let you operate. Files go to the private bucket and only the
  * object path is stored — the list never renders a public URL.
  *
@@ -93,7 +93,7 @@ export default function WarehouseDocuments() {
 
   function downloadInvoice(invoice: StorageInvoice) {
     const lines = [
-      "CenAGRI AI — Storage invoice",
+      "Kalika — Storage invoice",
       "",
       `Invoice: ${invoice.invoice_no}`,
       `Issued: ${formatDate(invoice.issued_on)}`,
@@ -104,7 +104,7 @@ export default function WarehouseDocuments() {
       `Total: ${formatINR(Number(invoice.total_inr))}`,
       invoice.reference ? `Reference: ${invoice.reference}` : "",
       "",
-      "Generated from your CenAGRI records.",
+      "Generated from your Kalika records.",
     ].filter(Boolean);
     const blob = new Blob([lines.join("\n")], { type: "text/plain;charset=utf-8" });
     const url = URL.createObjectURL(blob);
@@ -226,7 +226,7 @@ export default function WarehouseDocuments() {
               <EmptyState
                 icon={FileCheck2}
                 title="No documents uploaded"
-                description="Ownership proof, registration or licence, fire safety and insurance keep your listing credible. Uploading does not by itself establish legal compliance — a CenAGRI reviewer checks each file."
+                description="Ownership proof, registration or licence, fire safety and insurance keep your listing credible. Uploading does not by itself establish legal compliance — a Kalika reviewer checks each file."
               />
             ) : (
               <ul className="divide-y divide-slate-100">
@@ -313,7 +313,7 @@ export default function WarehouseDocuments() {
             <Panel title="What verification means" description="Honest about the limits">
               <ul className="space-y-1.5 p-4 text-[11px] leading-relaxed text-slate-600">
                 <li>• A reviewer checks that the file matches the warehouse and is not expired.</li>
-                <li>• Verification is a CenAGRI badge, not a government licence.</li>
+                <li>• Verification is a Kalika badge, not a government licence.</li>
                 <li>• You remain responsible for the actual licences your facility needs.</li>
                 <li>• An expired document shows as <strong>Expired</strong>; upload the renewal to restore it.</li>
               </ul>
@@ -334,7 +334,7 @@ export default function WarehouseDocuments() {
       )}
 
       {tab === "invoices" && (
-        <Panel title="Invoices" description="Issued by CenAGRI after a release">
+        <Panel title="Invoices" description="Issued by Kalika after a release">
           {invoiceList.length === 0 ? (
             <EmptyState
               icon={FileText}
@@ -436,7 +436,7 @@ export default function WarehouseDocuments() {
 
           <p className="flex items-start gap-1.5 rounded-lg bg-amber-50 px-2.5 py-2 text-[10.5px] leading-relaxed text-amber-900">
             <Lock className="mt-0.5 h-3 w-3 shrink-0" />
-            Uploading does not verify you. A CenAGRI reviewer checks the file, and only then does the
+            Uploading does not verify you. A Kalika reviewer checks the file, and only then does the
             status change.
           </p>
 

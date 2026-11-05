@@ -207,7 +207,7 @@ export default function EquipmentDocuments() {
             <EmptyState
               icon={FileCheck2}
               title="No documents uploaded"
-              description="Registration, RC, insurance, fitness and operator licences keep your listing credible. Uploading does not by itself establish legal compliance — a CenAGRI reviewer checks each file."
+              description="Registration, RC, insurance, fitness and operator licences keep your listing credible. Uploading does not by itself establish legal compliance — a Kalika reviewer checks each file."
             />
           ) : (
             <ul className="divide-y divide-slate-100">
@@ -258,7 +258,7 @@ export default function EquipmentDocuments() {
           )}
           <div className="flex items-start gap-2 border-t border-slate-100 px-4 py-3 text-[10.5px] text-slate-500">
             <Lock className="mt-0.5 h-3 w-3 shrink-0" />
-            Files are stored privately. Only you and an authorised CenAGRI reviewer can open them.
+            Files are stored privately. Only you and an authorised Kalika reviewer can open them.
           </div>
         </Panel>
       </section>
@@ -266,7 +266,7 @@ export default function EquipmentDocuments() {
       <Panel title="What verification means" description="Honest about the limits">
         <ul className="space-y-1.5 p-4 text-[11px] leading-relaxed text-slate-600 sm:p-5">
           <li>• A reviewer checks that the document matches the machine and has not expired.</li>
-          <li>• Verification is a CenAGRI badge, not a government certificate.</li>
+          <li>• Verification is a Kalika badge, not a government certificate.</li>
           <li>• You remain responsible for every licence your machine legally needs.</li>
           <li>• An expired document shows as <strong>Expired</strong>; upload the renewal to restore it.</li>
           <li>• Operator licence photographs belong here too, and are never shown to a renter.</li>

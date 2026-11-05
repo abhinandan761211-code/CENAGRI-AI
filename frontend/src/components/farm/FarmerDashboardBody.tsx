@@ -75,7 +75,7 @@ import {
  *
  * Every figure comes from a real source and is labelled:
  *   • farms / crops / tasks / expenses → the farmer's own rows (Supabase, or
- *     the CenAGRI server when it is configured — the badge says which)
+ *     the Kalika server when it is configured — the badge says which)
  *   • weather                          → live forecast for the farmer's district
  *   • mandi                            → live price feed for the district
  *   • AI answers                       → labelled "AI" or "Rule-based"
@@ -313,7 +313,7 @@ export default function FarmerDashboard() {
                   {/* Chip colours are chosen for a light surface; on the dark hero
                       this one is painted in translucent white instead. */}
                   <span className="inline-flex items-center gap-1 rounded-full border border-white/25 bg-white/10 px-2.5 py-0.5 text-[11px] font-semibold text-white/85">
-                    {source === "server" ? "Verified by the CenAGRI server" : "From your own farm records"}
+                    {source === "server" ? "Verified by the Kalika server" : "From your own farm records"}
                   </span>
                 </p>
                 <div className="mt-3 flex flex-wrap gap-2">

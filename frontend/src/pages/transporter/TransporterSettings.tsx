@@ -24,7 +24,7 @@ import type { FleetVehicle, TransporterProfile } from "@/lib/transporter";
  * Settings.
  *
  * Operating preferences only — the things that decide whether you are offered
- * work. Messaging, notifications and security belong to the shared CenAGRI
+ * work. Messaging, notifications and security belong to the shared Kalika
  * account, so this screen points at them instead of duplicating them.
  */
 export default function TransporterSettings() {
@@ -195,7 +195,7 @@ export default function TransporterSettings() {
           </div>
         </Panel>
 
-        <Panel title="Related pages" description="Shared with your CenAGRI account">
+        <Panel title="Related pages" description="Shared with your Kalika account">
           <ul className="divide-y divide-slate-100">
             <li>
               <Link

@@ -96,7 +96,7 @@ export default function AdminUsers() {
   async function exportCsv() {
     try {
       setNotice(null);
-      await adminDownload("/users/export", "cenagri-users.csv", {
+      await adminDownload("/users/export", "kalika-users.csv", {
         q: filters.q || undefined,
         role: filters.role || undefined,
         status: filters.status || undefined,

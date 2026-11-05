@@ -20,6 +20,7 @@ import {
   markNotificationRead,
 } from "@/lib/retailer";
 import type { NotificationKind, RetailerNotification } from "@/lib/retailer";
+import { useLang } from "@/i18n/LanguageContext";
 
 const KIND_META: Record<NotificationKind, { label: string; icon: typeof Bell; className: string }> = {
   order: { label: "Orders", icon: ShoppingCart, className: "bg-blue-50 text-blue-700" },
@@ -51,6 +52,7 @@ const FILTER_LABEL: Record<Filter, string> = {
  * only write this page performs.
  */
 export default function RetailerNotifications() {
+  const { t } = useLang();
   const { data, setData, state, error, reload } = useRetailerData<RetailerNotification[]>(
     () => listNotifications(),
     []
@@ -91,7 +93,7 @@ export default function RetailerNotifications() {
 
   return (
     <RetailerLayout
-      title="Notifications"
+      title={t("r.n.title")}
       subtitle={`${unreadCount} unread of ${rows.length}`}
       action={
         unreadCount > 0 ? (
@@ -133,7 +135,7 @@ export default function RetailerNotifications() {
       </div>
 
       <div className="mt-4">
-        {state === "loading" && <Loading label="Loading notifications…" />}
+        {state === "loading" && <Loading label={t("r.c.loadingNotifications")} />}
         {state === "error" && <ErrorNotice message={error} onRetry={() => void reload()} />}
 
         {state === "ready" && visible.length === 0 && (
@@ -141,7 +143,7 @@ export default function RetailerNotifications() {
             <EmptyState
               icon={Bell}
               title={rows.length === 0 ? "No notifications yet" : "Nothing in this filter"}
-              description="Order, payment, low-stock and expiry alerts are raised automatically and land here."
+              description={t("r.n.noneDesc")}
             />
           </div>
         )}

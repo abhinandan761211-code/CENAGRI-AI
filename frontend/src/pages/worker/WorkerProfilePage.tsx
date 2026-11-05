@@ -40,6 +40,7 @@ import {
   removeSkill,
   saveWorkerProfile,
 } from "@/lib/worker";
+import { useLang } from "@/i18n/LanguageContext";
 import type {
   AvailabilityOption,
   SkillLevel,
@@ -55,6 +56,7 @@ import type {
  * read-only here — it is decided by the admin KYC workflow, not by the worker.
  */
 export default function WorkerProfilePage() {
+  const { t } = useLang();
   const { profile: account } = useAuth();
   const profile = useWorkerData<WorkerProfile>(() =>
     ensureWorkerProfile({
@@ -188,15 +190,15 @@ export default function WorkerProfilePage() {
 
   if (profile.state === "loading" || !form) {
     return (
-      <WorkerLayout title="My Profile">
-        <Loading label="Loading your profile…" />
+      <WorkerLayout title={t("wk.p.title")}>
+        <Loading label={t("wk.c.loadingProfile")} />
       </WorkerLayout>
     );
   }
 
   if (profile.state === "error" || !profile.data) {
     return (
-      <WorkerLayout title="My Profile">
+      <WorkerLayout title={t("wk.p.title")}>
         <ErrorNotice message={profile.error || "Profile not found."} onRetry={profile.reload} />
       </WorkerLayout>
     );
@@ -206,8 +208,8 @@ export default function WorkerProfilePage() {
 
   return (
     <WorkerLayout
-      title="My Profile"
-      subtitle="Your details, skills and availability — what employers see"
+      title={t("wk.p.title")}
+      subtitle={t("wk.p.subtitle")}
       action={
         <button
           type="button"
@@ -273,9 +275,9 @@ export default function WorkerProfilePage() {
       <div className="grid gap-4 lg:grid-cols-3">
         <div className="space-y-4 lg:col-span-2">
           {/* ── Basic details ── */}
-          <Panel title="Basic details" description="Shown on your applications">
+          <Panel title={t("wk.p.basic")} description={t("wk.p.shownOnApplications")}>
             <div className="grid gap-3 p-4 sm:grid-cols-2 sm:p-5">
-              <Field label="Full name">
+              <Field label={t("wk.p.fullName")}>
                 <input
                   value={form.full_name}
                   onChange={(e) => setForm({ ...form, full_name: e.target.value })}
@@ -283,7 +285,7 @@ export default function WorkerProfilePage() {
                   placeholder="e.g. Ramesh Kumar"
                 />
               </Field>
-              <Field label="Phone" hint="Also used for job updates">
+              <Field label={t("wk.p.phone")} hint={t("wk.p.phoneHint")}>
                 <input
                   value={form.phone}
                   onChange={(e) => setForm({ ...form, phone: e.target.value })}
@@ -292,7 +294,7 @@ export default function WorkerProfilePage() {
                   placeholder="e.g. 9876543210"
                 />
               </Field>
-              <Field label="State">
+              <Field label={t("wk.p.state")}>
                 <select
                   value={form.state}
                   onChange={(e) => setForm({ ...form, state: e.target.value })}
@@ -306,7 +308,7 @@ export default function WorkerProfilePage() {
                   ))}
                 </select>
               </Field>
-              <Field label="District">
+              <Field label={t("wk.p.district")}>
                 <input
                   value={form.district}
                   onChange={(e) => setForm({ ...form, district: e.target.value })}
@@ -486,7 +488,7 @@ export default function WorkerProfilePage() {
             </div>
           </Panel>
 
-          <Panel title="Verification" description="Decided by the CenAGRI team">
+          <Panel title="Verification" description="Decided by the Kalika team">
             <div className="space-y-2.5 p-4 text-[11.5px]">
               <Row
                 icon={Phone}
@@ -517,7 +519,7 @@ export default function WorkerProfilePage() {
               {me.identity_status === "not_submitted" && (
                 <p className="flex items-start gap-1.5 rounded-lg bg-slate-50 px-2.5 py-2 text-[11px] leading-relaxed text-slate-600">
                   <ShieldQuestion className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-                  Identity documents are reviewed by the CenAGRI team, not uploaded here. Verified
+                  Identity documents are reviewed by the Kalika team, not uploaded here. Verified
                   workers appear higher to employers.
                 </p>
               )}

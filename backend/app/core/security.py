@@ -108,7 +108,20 @@ async def _fetch_jwks() -> list[dict[str, Any]]:
 
 
 def _decode_token(token: str, jwks: list[dict[str, Any]]) -> dict[str, Any]:
-    from jose import jwt  # imported lazily so the app still starts without it
+    try:
+        from jose import jwt
+    except ModuleNotFoundError as exc:
+        # Imported lazily so the app still starts without it — but silence is
+        # worse than a failure: without this library every authenticated route
+        # dies mid-request, and a 404 is what the browser ends up showing.
+        # A 503 with the real cause gets fixed; a missing feature does not.
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=(
+                "The server cannot verify sessions because 'python-jose' is not "
+                "installed. Run: pip install -r backend/requirements.txt"
+            ),
+        ) from exc
 
     errors: list[Exception] = []
     # Modern projects sign with an asymmetric key published in JWKS.

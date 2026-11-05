@@ -41,6 +41,7 @@ import {
   startLabel,
 } from "@/lib/worker";
 import type { JobApplication, JobListing } from "@/lib/worker";
+import { useLang } from "@/i18n/LanguageContext";
 
 /**
  * One job, in full, with the apply flow.
@@ -51,6 +52,7 @@ import type { JobApplication, JobListing } from "@/lib/worker";
  * cannot be created from any direction.
  */
 export default function WorkerJobDetail() {
+  const { t } = useLang();
   const { id = "" } = useParams();
   const navigate = useNavigate();
 
@@ -115,15 +117,15 @@ export default function WorkerJobDetail() {
 
   if (job.state === "loading") {
     return (
-      <WorkerLayout title="Job details">
-        <Loading label="Loading job…" />
+      <WorkerLayout title={t("wk.d.title")}>
+        <Loading label={t("wk.c.loadingJob")} />
       </WorkerLayout>
     );
   }
 
   if (job.state === "error") {
     return (
-      <WorkerLayout title="Job details">
+      <WorkerLayout title={t("wk.d.title")}>
         <ErrorNotice message={job.error} onRetry={job.reload} />
       </WorkerLayout>
     );
@@ -131,7 +133,7 @@ export default function WorkerJobDetail() {
 
   if (!current) {
     return (
-      <WorkerLayout title="Job not found">
+      <WorkerLayout title={t("wk.d.notFound")}>
         <div className="card p-8 text-center">
           <p className="text-sm font-semibold text-forest">This job is no longer available</p>
           <p className="mt-1 text-xs text-slate-500">
@@ -168,7 +170,7 @@ export default function WorkerJobDetail() {
       <div className="grid gap-4 lg:grid-cols-3">
         {/* ── Main ── */}
         <div className="space-y-4 lg:col-span-2">
-          <Panel title="Job details">
+          <Panel title={t("wk.d.title")}>
             <div className="space-y-4 p-4 sm:p-5">
               <div className="flex flex-wrap items-center gap-2">
                 <span className="rounded-full bg-brand-50 px-2.5 py-1 text-[11px] font-bold text-brand-800">
@@ -190,9 +192,9 @@ export default function WorkerJobDetail() {
 
               <dl className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                 <Stat label="Pay" value={formatINR(Number(current.wage_inr))} sub={current.pay_type === "daily" ? "per day" : "fixed total"} icon={Banknote} />
-                <Stat label="Duration" value={durationLabel(current)} sub={current.end_date ? `Ends ${formatDate(current.end_date)}` : "One-off"} icon={Clock} />
-                <Stat label="Starts" value={formatDate(current.start_date)} sub={startLabel(current.start_date)} icon={CalendarDays} />
-                <Stat label="Workers" value={`${slotsLeft} left`} sub={`of ${current.workers_needed} needed`} icon={Users} />
+                <Stat label={t("wk.d.duration")} value={durationLabel(current)} sub={current.end_date ? `Ends ${formatDate(current.end_date)}` : "One-off"} icon={Clock} />
+                <Stat label={t("wk.d.starts")} value={formatDate(current.start_date)} sub={startLabel(current.start_date)} icon={CalendarDays} />
+                <Stat label={t("wk.d.workers")} value={`${slotsLeft} left`} sub={`of ${current.workers_needed} needed`} icon={Users} />
               </dl>
 
               {current.description && (
@@ -248,7 +250,7 @@ export default function WorkerJobDetail() {
             </div>
           </Panel>
 
-          <Panel title="Safety first" description="Before you accept any farm work">
+          <Panel title={t("wk.d.safety")} description={t("wk.d.safetyBody")}>
             <ul className="space-y-2 p-4 text-[12px] leading-relaxed text-slate-600 sm:p-5">
               <li className="flex gap-2">
                 <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-600" />
@@ -268,7 +270,7 @@ export default function WorkerJobDetail() {
 
         {/* ── Sidebar ── */}
         <aside className="space-y-4">
-          <Panel title="Employer">
+          <Panel title={t("wk.c.employer")}>
             <div className="p-4 sm:p-5">
               <div className="flex items-center gap-3">
                 <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-forest text-sm font-bold text-white">
@@ -289,7 +291,7 @@ export default function WorkerJobDetail() {
               {!current.employer_verified && (
                 <p className="mt-3 flex items-start gap-1.5 rounded-lg bg-amber-50 px-2.5 py-2 text-[11px] leading-relaxed text-amber-800">
                   <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-                  This employer has not completed CenAGRI verification yet. Take normal precautions.
+                  This employer has not completed Kalika verification yet. Take normal precautions.
                 </p>
               )}
             </div>
@@ -366,7 +368,7 @@ export default function WorkerJobDetail() {
             )}
           </div>
 
-          <Panel title="Your rating" description="How employers see you">
+          <Panel title={t("wk.d.yourRating")} description={t("wk.d.howSeen")}>
             <div className="flex items-center gap-3 p-4">
               <StarRating value={0} size="md" />
               <Link to={WORKER_ROUTES.reviews} className="text-[11.5px] font-bold text-brand-700 hover:underline">
@@ -378,7 +380,7 @@ export default function WorkerJobDetail() {
       </div>
 
       {/* ── Apply modal ── */}
-      <Modal open={applyOpen} onClose={() => setApplyOpen(false)} title="Apply for this job">
+      <Modal open={applyOpen} onClose={() => setApplyOpen(false)} title={t("wk.d.apply")}>
         <div className="space-y-3">
           <div className="rounded-lg bg-slate-50 px-3 py-2.5">
             <p className="text-[12.5px] font-bold text-forest">{current.title}</p>
@@ -480,6 +482,7 @@ function Stat({
   sub: string;
   icon: typeof Banknote;
 }) {
+  const { t } = useLang();
   return (
     <div className="rounded-lg border border-slate-200 p-3">
       <p className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-slate-500">

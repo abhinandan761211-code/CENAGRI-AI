@@ -5,6 +5,8 @@ import RetailerLayout, { RETAILER_ROUTES } from "@/components/retailer/RetailerL
 import { Panel, inputClass } from "@/components/retailer/ui";
 import { useAuth } from "@/hooks/useAuth";
 import { formatLocation } from "@/lib/locations";
+import { supabase } from "@/lib/supabase";
+import { useLang } from "@/i18n/LanguageContext";
 
 /**
  * Profile & Settings — account management for the retailer: contact details,
@@ -14,6 +16,7 @@ import { formatLocation } from "@/lib/locations";
  * uses, so the retailer does not get its own parallel settings model.
  */
 export default function RetailerSettings() {
+  const { t } = useLang();
   const { user, profile, saveDetails, updatePassword } = useAuth();
 
   const details = profile?.details ?? {};
@@ -34,6 +37,15 @@ export default function RetailerSettings() {
     setProfileState("saving");
     setProfileError("");
     try {
+      // `phone` is a real column on `profiles`, not a `details` key, so the
+      // details write below would silently drop it.
+      if (!supabase) throw new Error("The database is not configured on this deployment.");
+      const { error: phoneError } = await supabase
+        .from("profiles")
+        .update({ phone: phone.trim() || null })
+        .eq("id", user!.id);
+      if (phoneError) throw phoneError;
+
       await saveDetails({ ...details, full_name: fullName, district, village });
       setProfileState("ok");
     } catch (err) {
@@ -68,10 +80,10 @@ export default function RetailerSettings() {
   }
 
   return (
-    <RetailerLayout title="Profile & Settings" subtitle="Account management">
+    <RetailerLayout title={t("s.profileSettings")} subtitle={t("r.g.accountManagement")}>
       <div className="grid gap-4 lg:grid-cols-3">
         <form onSubmit={handleProfile} className="space-y-4 lg:col-span-2">
-          <Panel title="Account details" description="Name and contact shown to customers">
+          <Panel title={t("r.g.accountDetails")} description={t("r.g.contactHint")}>
             <div className="grid gap-3 p-4 sm:grid-cols-2 sm:p-5">
               <label className="block">
                 <span className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-slate-600">
@@ -83,7 +95,7 @@ export default function RetailerSettings() {
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                     className={`${inputClass} pl-9`}
-                    placeholder="Your name"
+                    placeholder={t("r.g.name")}
                   />
                 </div>
               </label>
@@ -97,7 +109,7 @@ export default function RetailerSettings() {
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     className={`${inputClass} pl-9`}
-                    placeholder="Mobile number"
+                    placeholder={t("r.g.mobile")}
                   />
                 </div>
               </label>
@@ -123,7 +135,7 @@ export default function RetailerSettings() {
             </div>
           </Panel>
 
-          <Panel title="Location" description="Drives nearest-dealer search and local procurement">
+          <Panel title={t("r.g.location")} description={t("r.g.locationHint")}>
             <div className="grid gap-3 p-4 sm:grid-cols-2 sm:p-5">
               <label className="block">
                 <span className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-slate-600">
@@ -172,7 +184,7 @@ export default function RetailerSettings() {
         </form>
 
         <div className="space-y-4">
-          <Panel title="Shop & GST">
+          <Panel title={t("r.g.shopGst")}>
             <div className="space-y-3 p-4 sm:p-5">
               <p className="text-[11px] leading-relaxed text-slate-600">
                 {details.shop_name ? (
@@ -186,22 +198,22 @@ export default function RetailerSettings() {
               </p>
               <Link to={RETAILER_ROUTES.shop} className="btn-outline h-9 w-full text-xs">
                 <Store className="h-3.5 w-3.5" />
-                Manage shop & verification
+                {t("r.g.manageShop")}
               </Link>
               <p className="flex items-start gap-1.5 text-[11px] text-slate-500">
                 <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-600" />
-                GSTIN, licence, address and opening hours live on the My Shop screen.
+                {t("r.g.gstNote")}
               </p>
             </div>
           </Panel>
 
-          <Panel title="Password" description="Sign-in password for this account">
+          <Panel title={t("r.g.password")} description={t("r.g.passwordHint")}>
             <form onSubmit={handlePassword} className="space-y-3 p-4 sm:p-5">
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="New password"
+                placeholder={t("r.g.newPassword")}
                 autoComplete="new-password"
                 className={inputClass}
               />
@@ -209,7 +221,7 @@ export default function RetailerSettings() {
                 type="password"
                 value={confirm}
                 onChange={(e) => setConfirm(e.target.value)}
-                placeholder="Confirm new password"
+                placeholder={t("r.g.confirmPassword")}
                 autoComplete="new-password"
                 className={inputClass}
               />
@@ -226,14 +238,14 @@ export default function RetailerSettings() {
             </form>
           </Panel>
 
-          <Panel title="Account type">
+          <Panel title={t("r.g.accountType")}>
             <p className="p-4 text-[11px] leading-relaxed text-slate-600 sm:p-5">
               You are signed in as a{" "}
               <strong className="text-forest">Retailer</strong> — you sell agricultural inputs and
               manage stock. Sourcing produce from farmers is a buyer account. Both can use direct
               farmer procurement, but the dashboards stay separate.
               <span className="mt-2 flex items-center gap-1 text-slate-400">
-                <MapPin className="h-3 w-3" /> Alipore · CenAGRI AI
+                <MapPin className="h-3 w-3" /> Alipore · Kalika
               </span>
             </p>
           </Panel>

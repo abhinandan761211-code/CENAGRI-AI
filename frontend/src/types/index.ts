@@ -47,6 +47,17 @@ export type Profile = {
   phone: string | null;
   role: string | null;
   avatar_url: string | null;
+  /**
+   * Creator Mode: may publish to the Kisan Video Hub. Opt-in, independent of
+   * `role` — a farmer or buyer can create without becoming a Content Creator.
+   */
+  creator_mode: boolean;
+  /**
+   * Interface + AI answer language (`en` | `hi` | `or` | `bn` …). Saved with the
+   * account so the choice follows the user to another device; `null` means
+   * "not chosen yet" and the browser language is used. See `i18n/preference`.
+   */
+  preferred_language?: string | null;
   /** Role-specific answers (district, crops, vehicle type …). */
   details: Record<string, string> | null;
   created_at: string;

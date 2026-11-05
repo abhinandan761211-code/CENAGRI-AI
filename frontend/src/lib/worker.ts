@@ -2,7 +2,7 @@
  * Worker data layer.
  *
  * A worker finds farm work, applies, works, gets paid and is rated. Employers
- * are ordinary CenAGRI accounts (Farmer / Buyer / Retailer …) — there is no
+ * are ordinary Kalika accounts (Farmer / Buyer / Retailer …) — there is no
  * separate employer account type.
  *
  * All Supabase access for the worker module lives here so the screens stay

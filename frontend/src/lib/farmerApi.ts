@@ -2,7 +2,7 @@ import { supabase } from "@/lib/supabase";
 import { isMissingTable } from "@/lib/schemaCheck";
 
 /**
- * Calls the signed-in farmer API on the CenAGRI FastAPI backend.
+ * Calls the signed-in farmer API on the Kalika FastAPI backend.
  *
  * Authentication: the Supabase access token is attached here, and the backend
  * verifies its signature before reading anything. The browser never sends a
@@ -20,7 +20,7 @@ const BASE = ((import.meta.env.VITE_API_BASE_URL as string | undefined) ?? "/api
 export const isFarmerApiConfigured = Boolean(BASE);
 
 export class ApiUnavailable extends Error {
-  constructor(message = "The CenAGRI server is not configured for this build.") {
+  constructor(message = "The Kalika server is not configured for this build.") {
     super(message);
     this.name = "ApiUnavailable";
   }

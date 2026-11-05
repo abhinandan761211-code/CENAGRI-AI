@@ -28,6 +28,7 @@ import {
   stockLevel,
 } from "@/lib/retailer";
 import type { RetailerProduct } from "@/lib/retailer";
+import { useLang } from "@/i18n/LanguageContext";
 
 type Filter = "all" | "low" | "expiring" | "expired";
 
@@ -40,6 +41,7 @@ type Filter = "all" | "low" | "expiring" | "expired";
  * the header is generated server-side rather than by this page.
  */
 export default function RetailerInventory() {
+  const { t } = useLang();
   const { data, setData, state, error, reload } = useRetailerData<RetailerProduct[]>(
     () => listProducts(),
     []
@@ -87,30 +89,30 @@ export default function RetailerInventory() {
   ];
 
   return (
-    <RetailerLayout title="Inventory" subtitle="Stock levels, low-stock alerts & expiry tracking">
+    <RetailerLayout title={t("r.i.title")} subtitle={t("r.i.subtitle")}>
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard
-          label="Stock value"
+          label={t("r.i.stockValue")}
           value={state === "ready" ? formatINR(stats.stockValue) : "—"}
           icon={Warehouse}
           hint={`${products.length} product lines`}
         />
         <StatCard
-          label="Low or out"
+          label={t("r.i.lowOrOut")}
           value={state === "ready" ? stats.low.length : "—"}
           icon={AlertTriangle}
           tone="amber"
           hint="At or below the alert level"
         />
         <StatCard
-          label="Expiring in 90 days"
+          label={t("r.i.expiring90")}
           value={state === "ready" ? stats.expiring.length : "—"}
           icon={CalendarClock}
           tone="violet"
           hint="Fertiliser & pesticide batches"
         />
         <StatCard
-          label="Expired"
+          label={t("r.i.expired")}
           value={state === "ready" ? stats.expired.length : "—"}
           icon={Boxes}
           tone="rose"
@@ -144,7 +146,7 @@ export default function RetailerInventory() {
       )}
 
       <div className="mt-4">
-        {state === "loading" && <Loading label="Loading stock…" />}
+        {state === "loading" && <Loading label={t("r.c.loadingStock")} />}
 
         {state === "ready" && visible.length === 0 && (
           <div className="card">
@@ -176,7 +178,7 @@ export default function RetailerInventory() {
         )}
 
         {state === "ready" && visible.length > 0 && (
-          <Panel title="Stock register" description="Adjust stock in place; a notification fires at the alert level.">
+          <Panel title={t("r.i.stockRegister")} description={t("r.i.stockRegisterDesc")}>
             <div className="overflow-x-auto">
               <table className="w-full min-w-[760px] text-left text-xs">
                 <thead className="bg-slate-50 text-[10px] uppercase tracking-wide text-slate-500">

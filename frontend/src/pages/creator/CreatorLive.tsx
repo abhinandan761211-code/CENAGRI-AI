@@ -14,7 +14,7 @@ export default function CreatorLive() {
       <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-4">
         <p className="text-[12px] font-bold text-amber-200">Coming soon</p>
         <p className="mt-1 max-w-2xl text-[11px] leading-relaxed text-amber-100/80">
-          Live video needs an ingest server (RTMP/SRT), a transcoder and an HLS player. CenAGRI
+          Live video needs an ingest server (RTMP/SRT), a transcoder and an HLS player. Kalika
           does not have that infrastructure yet, so this screen does not offer a working broadcast
           button.
         </p>

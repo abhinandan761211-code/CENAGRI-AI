@@ -7,7 +7,7 @@ import { AlertTriangle, Loader2, X } from "lucide-react";
  * Presentational primitives for the admin panel.
  *
  * One card, one table, one dialog — shared by all 20 modules so the panel reads
- * as one product. Palette follows the CenAGRI identity:
+ * as one product. Palette follows the Kalika identity:
  *   forest #0F3D2E · primary #16A34A · tint #DCFCE7 · page #F8FAFC · ink #172033
  */
 

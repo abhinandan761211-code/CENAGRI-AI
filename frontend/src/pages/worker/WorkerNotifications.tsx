@@ -20,6 +20,7 @@ import {
   markWorkerNotificationRead,
 } from "@/lib/worker";
 import type { WorkerNotification } from "@/lib/worker";
+import { useLang } from "@/i18n/LanguageContext";
 
 const KIND_ICON = {
   job: Briefcase,
@@ -46,6 +47,7 @@ const KIND_STYLE: Record<WorkerNotification["kind"], string> = {
  * application is sent or accepted. Marking read is the only mutation here.
  */
 export default function WorkerNotifications() {
+  const { t } = useLang();
   const notifications = useWorkerData<WorkerNotification[]>(() => listWorkerNotifications());
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -82,7 +84,7 @@ export default function WorkerNotifications() {
 
   return (
     <WorkerLayout
-      title="Notifications"
+      title={t("wk.n.title")}
       subtitle={unread > 0 ? `${unread} unread` : "You are all caught up"}
       action={
         unread > 0 ? (
@@ -121,18 +123,18 @@ export default function WorkerNotifications() {
 
       {error && <p className="text-[11.5px] font-semibold text-rose-600">{error}</p>}
 
-      {notifications.state === "loading" && <Loading label="Loading notifications…" />}
+      {notifications.state === "loading" && <Loading label={t("wk.c.loadingNotifications")} />}
       {notifications.state === "error" && (
         <ErrorNotice message={notifications.error} onRetry={notifications.reload} />
       )}
 
       {notifications.state === "ready" && (
-        <Panel title="Your alerts">
+        <Panel title={t("wk.n.alerts")}>
           {visible.length === 0 ? (
             <EmptyState
               icon={Bell}
               title={filter === "unread" ? "No unread notifications" : "No notifications yet"}
-              description="Job opportunities, application updates, schedule reminders and payment notices will appear here."
+              description={t("wk.n.noneDesc")}
             />
           ) : (
             <ul className="divide-y divide-slate-100">

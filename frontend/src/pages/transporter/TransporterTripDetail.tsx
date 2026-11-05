@@ -440,7 +440,7 @@ export default function TransporterTripDetail() {
           <Panel title="Requester">
             <div className="p-4 text-[11.5px]">
               <p className="font-semibold text-forest">{row.requester_name ?? "Requester"}</p>
-              <p className="text-slate-500">{row.requester_role ?? "CenAGRI account"}</p>
+              <p className="text-slate-500">{row.requester_role ?? "Kalika account"}</p>
               <a
                 href={`tel:`}
                 onClick={(e) => e.preventDefault()}
@@ -603,7 +603,7 @@ export default function TransporterTripDetail() {
             </div>
           </Field>
           <p className="rounded-lg bg-slate-50 px-2.5 py-2 text-[10.5px] leading-relaxed text-slate-500">
-            The delivery OTP is verified by the CenAGRI backend and is never entered or stored in this
+            The delivery OTP is verified by the Kalika backend and is never entered or stored in this
             form. The photo is uploaded to private storage and stored as a file reference, not a public
             link.
           </p>

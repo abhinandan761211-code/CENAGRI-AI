@@ -81,7 +81,7 @@ function demoCrops(today = new Date()): Crop[] {
 /** True for a row that only exists in the preview, so writes can refuse it. */
 export const isDemoCrop = (crop: { id: string }) => crop.id.startsWith("demo-");
 
-const DEMO_FLAG = "cenagri.crops.demo";
+const DEMO_FLAG = "kalika.crops.demo";
 
 /** Preview mode is off by default; set the flag to inspect the screen. */
 function demoEnabled() {

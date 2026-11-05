@@ -33,12 +33,7 @@ const WHY_KEYS = [
 
 /** The modules a signed-in account actually gets, by role area. */
 const MODULES: { title: string; body: string; icon: LucideIcon; tone: string }[] = [
-  {
-    title: "modules.advisoryTitle",
-    body: "modules.advisoryBody",
-    icon: Sprout,
-    tone: "bg-emerald-500/12 text-emerald-300",
-  },
+
   {
     title: "modules.pricesTitle",
     body: "modules.pricesBody",

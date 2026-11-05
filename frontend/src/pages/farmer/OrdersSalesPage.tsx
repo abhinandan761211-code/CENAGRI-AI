@@ -227,7 +227,7 @@ export default function OrdersSalesPage() {
         <Modal title={`Invoice ${invoice.reference}`} description="A summary of the order record" onClose={() => setInvoice(null)}>
           <div className="space-y-3 text-sm">
             <div className="rounded-lg border border-slate-200 p-4">
-              <p className="text-xs font-bold uppercase tracking-wide text-slate-500">CenAGRI AI · Marketplace</p>
+              <p className="text-xs font-bold uppercase tracking-wide text-slate-500">Kalika · Marketplace</p>
               <dl className="mt-3 space-y-2 text-xs">
                 {[
                   ["Order", invoice.reference],

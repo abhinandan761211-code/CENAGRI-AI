@@ -3,6 +3,8 @@ import type { ReactNode } from "react";
 import type { Session, User } from "@supabase/supabase-js";
 import { isSupabaseConfigured, supabase } from "@/lib/supabase";
 import { loadProfile } from "@/lib/profile";
+import { creatorModeFromDetails, resolveCreatorMode } from "@/hooks/useCreatorMode";
+import type { CreatorModeSource } from "@/hooks/useCreatorMode";
 import { USER_ROLES } from "@/types";
 import type { Profile, UserRole } from "@/types";
 
@@ -18,6 +20,8 @@ type AuthValue = {
   needsDetails: boolean;
   completeRole: (role: UserRole, details?: Record<string, string>) => Promise<void>;
   saveDetails: (details: Record<string, string>) => Promise<void>;
+  /** Persist Creator Mode to `profiles.creator_mode`. Resolves false if the column is missing. */
+  setCreatorMode: (enabled: boolean) => Promise<boolean>;
   signInWithEmail: (email: string, password: string) => Promise<void>;
   signUpWithEmail: (params: {
     email: string;
@@ -249,7 +253,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       const { data, error } = await client
         .from("profiles")
-        .upsert({ id: user.id, details: profileDetails }, { onConflict: "id" })
+        .upsert(
+          { id: user.id, details: profileDetails, creator_mode: creatorModeFromDetails(profileDetails) },
+          { onConflict: "id" }
+        )
         .select()
         .maybeSingle();
       if (error) throw error;
@@ -258,6 +265,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       else await syncProfile(await client.auth.getUser().then((r) => r.data.user));
     },
     [syncProfile]
+  );
+
+  /**
+   * Writes Creator Mode to `profiles.creator_mode` and keeps the legacy
+   * `details.creator_mode` key in sync for rows created before the column.
+   * Never throws for a missing column — the details write already succeeded.
+   */
+  const setCreatorMode = useCallback(
+    async (enabled: boolean) => {
+      const client = assertClient();
+      const {
+        data: { user },
+      } = await client.auth.getUser();
+      if (!user) throw new Error("You are not signed in.");
+
+      const { data, error } = await client
+        .from("profiles")
+        .update({ creator_mode: enabled })
+        .eq("id", user.id)
+        .select()
+        .maybeSingle();
+      if (error) {
+        // 42703 / schema cache: the migration has not run in this project yet.
+        if (error.code === "42703" || /creator_mode/i.test(error.message ?? "")) return false;
+        throw error;
+      }
+      if (data) setProfile(data as Profile);
+      return true;
+    },
+    []
   );
 
   // Metadata is the source of truth right after OAuth (the profile row may not
@@ -303,6 +340,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         (meta.picture as string | undefined) ??
         null,
       details: filledDetails,
+      creator_mode: resolveCreatorMode({
+        profile: currentProfile,
+        metadata: session.user.user_metadata as CreatorModeSource["metadata"],
+      }),
       created_at: currentProfile?.created_at ?? "",
       updated_at: currentProfile?.updated_at ?? "",
     };
@@ -319,6 +360,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       needsDetails,
       completeRole,
       saveDetails,
+      setCreatorMode,
       signInWithEmail,
       signUpWithEmail,
       signInWithGoogle,
@@ -342,6 +384,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       needsDetails,
       completeRole,
       saveDetails,
+      setCreatorMode,
     ]
   );
 

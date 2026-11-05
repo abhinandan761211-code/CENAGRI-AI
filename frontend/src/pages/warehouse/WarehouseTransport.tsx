@@ -48,7 +48,7 @@ const TRANSPORT_STATUS_LABEL: Record<string, string> = {
  * This page does NOT contain a vehicle list, a quote system or a trip tracker.
  * It creates an ordinary `transport_requests` row — the very table the existing
  * Transporter account browses, quotes and books against — so there is exactly
- * one logistics module in CenAGRI, not two.
+ * one logistics module in Kalika, not two.
  */
 export default function WarehouseTransport() {
   const D = describeWarehouseError;
@@ -87,7 +87,7 @@ export default function WarehouseTransport() {
   return (
     <WarehouseLayout
       title="Transport Coordination"
-      subtitle="Ask the CenAGRI transport network to move goods"
+      subtitle="Ask the Kalika transport network to move goods"
       action={
         <button
           type="button"

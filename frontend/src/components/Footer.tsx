@@ -9,7 +9,6 @@ const COLUMNS = [
   {
     title: "footer.colPlatform",
     links: [
-      { label: "footer.aiAdvisory", to: "/signup" },
       { label: "footer.marketplace", to: "/signup" },
       { label: "footer.equipmentRental", to: "/signup" },
       { label: "footer.transport", to: "/signup" },
@@ -64,7 +63,7 @@ export default function Footer() {
                 <Phone className="h-3.5 w-3.5" /> {t("footer.helpline")}
               </a>
               <a
-                href="mailto:hello@cenagri.ai"
+                href="mailto:hello@kalika.example"
                 className="inline-flex items-center gap-1.5 rounded-lg border border-white/15 bg-white/5 px-3 py-2 text-[12.5px] font-semibold text-white transition hover:bg-white/10"
               >
                 <Mail className="h-3.5 w-3.5" /> {t("footer.email")}
@@ -141,7 +140,7 @@ export default function Footer() {
 
         <div className="mt-8 flex flex-col items-center justify-between gap-3 border-t border-white/10 pt-6 sm:flex-row">
           <p className="text-xs text-brand-200/60">
-            © {new Date().getFullYear()} CenAGRI-AI. {t("footer.rights")}
+            © {new Date().getFullYear()} Kalika. {t("footer.rights")}
           </p>
           <LanguageSwitcher tone="dark" />
         </div>

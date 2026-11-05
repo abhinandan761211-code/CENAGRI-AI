@@ -20,6 +20,9 @@ export default function Dashboard() {
   // the remaining roles use this generic profile card.
   const home = homeForRole(profile?.role);
   if (home !== "/dashboard") {
+    // The role's own home wins. A `?redirect=` is never followed from here:
+    // it is how an account ended up on a page that was not its own. Deep links
+    // are checked against the role by `RoleHome` instead.
     return <Navigate to={home} replace />;
   }
 

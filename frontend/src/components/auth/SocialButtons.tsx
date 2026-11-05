@@ -3,6 +3,7 @@ import { Loader2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useSearchParams } from "react-router-dom";
 import { useLang } from "@/i18n/LanguageContext";
+import SigningInOverlay from "@/components/auth/SigningInOverlay";
 
 function GoogleIcon() {
   return (
@@ -49,7 +50,8 @@ export default function SocialButtons({ action, onError }: Props) {
     setBusy(true);
     try {
       await signInWithGoogle(next);
-      // Browser is redirected to Google — keep the spinner until it navigates.
+      // The browser is about to leave for Google. Keep the connecting screen up
+      // until it does, so the page does not look abandoned mid-redirect.
     } catch (err) {
       setBusy(false);
       onError?.(err instanceof Error ? err.message : t("social.failed"));
@@ -57,14 +59,17 @@ export default function SocialButtons({ action, onError }: Props) {
   }
 
   return (
-    <button
-      type="button"
-      onClick={handleGoogle}
-      disabled={busy}
-      className="flex h-11 w-full items-center justify-center gap-2.5 rounded-lg border border-slate-300 bg-white text-sm font-semibold text-slate-700 shadow-sm transition hover:border-slate-400 hover:bg-slate-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600 disabled:cursor-not-allowed disabled:opacity-70"
-    >
-      {busy ? <Loader2 className="h-[18px] w-[18px] animate-spin" /> : <GoogleIcon />}
-      {label}
-    </button>
+    <>
+      <button
+        type="button"
+        onClick={handleGoogle}
+        disabled={busy}
+        className="flex h-11 w-full items-center justify-center gap-2.5 rounded-lg border border-slate-300 bg-white text-sm font-semibold text-slate-700 shadow-sm transition hover:border-slate-400 hover:bg-slate-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600 disabled:cursor-not-allowed disabled:opacity-70"
+      >
+        {busy ? <Loader2 className="h-[18px] w-[18px] animate-spin" /> : <GoogleIcon />}
+        {label}
+      </button>
+      {busy && <SigningInOverlay message={t("auth.connectingGoogle")} />}
+    </>
   );
 }

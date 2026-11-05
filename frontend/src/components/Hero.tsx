@@ -48,7 +48,7 @@ const PRICES = [
  * Desktop: copy on the left, a phone-style advisory preview on the right.
  */
 export default function Hero() {
-  const { t } = useLang();
+  const { t, tf } = useLang();
 
   return (
     <section id="home" className="landing-hero -mt-16 pt-16 lg:-mt-18 lg:pt-18">
@@ -131,8 +131,15 @@ export default function Hero() {
                 <p className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide text-[#2ED3B7]">
                   <Leaf className="h-3.5 w-3.5" /> {t("hero.advisory")}
                 </p>
+                {/*
+                 * The 70% is the rain chance of the SAME forecast card below
+                 * (FORECAST[1].rain), not a separate fact typed into the copy.
+                 * It was hardcoded before, in Bengali, and shown unchanged in
+                 * all 13 languages — so an English page opened with a Bengali
+                 * line while the Hindi one did too.
+                 */}
                 <p className="mt-1.5 text-sm font-semibold leading-snug text-white">
-                  {t("hero.advisoryBangla")}
+                  {tf("hero.advisoryAlert", { rain: FORECAST[1].rain })}
                 </p>
                 <p className="mt-1 text-[11px] leading-relaxed text-slate-400">
                   {t("hero.advisoryBody")}

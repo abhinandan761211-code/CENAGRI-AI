@@ -75,7 +75,7 @@ export default function EmployerMessages() {
       <div className="flex items-start gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-[11.5px] text-slate-600">
         <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-600" />
         <span>
-          Keep hiring conversations inside CenAGRI. Never ask a worker for money to secure a job.
+          Keep hiring conversations inside Kalika. Never ask a worker for money to secure a job.
         </span>
       </div>
 

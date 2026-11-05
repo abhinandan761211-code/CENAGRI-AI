@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import {
   Bell,
   CalendarClock,
+  Clapperboard,
   ClipboardList,
   FileText,
   IndianRupee,
@@ -17,6 +18,7 @@ import {
   Truck,
   UserRound,
   Users,
+  Video,
 } from "lucide-react";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import AccountShell from "@/components/account/AccountShell";
@@ -42,9 +44,11 @@ export type TransporterNavKey =
   | "reviews"
   | "messages"
   | "profile"
+  | "hub"
+  | "creator"
   | "settings";
 
-export const TRANSPORTER_ROUTES: Record<TransporterNavKey, string> = {
+export const TRANSPORTER_ROUTES: Record<Exclude<TransporterNavKey, "hub" | "creator">, string> = {
   home: TRANSPORTER_BASE,
   requests: `${TRANSPORTER_BASE}/requests`,
   bookings: `${TRANSPORTER_BASE}/bookings`,
@@ -61,22 +65,31 @@ export const TRANSPORTER_ROUTES: Record<TransporterNavKey, string> = {
   settings: `${TRANSPORTER_BASE}/settings`,
 };
 
-const NAV: { key: TransporterNavKey; label: string; icon: ShellNavItem["icon"] }[] = [
-  { key: "home", label: "Overview", icon: LayoutDashboard },
-  { key: "requests", label: "Find Transport Requests", icon: Search },
-  { key: "bookings", label: "My Bookings", icon: ClipboardList },
-  { key: "trips", label: "Active Trips", icon: Navigation },
-  { key: "tracking", label: "Live Tracking", icon: MapPin },
-  { key: "vehicles", label: "My Vehicles", icon: Truck },
-  { key: "drivers", label: "Driver Management", icon: Users },
-  { key: "availability", label: "Availability & Schedule", icon: CalendarClock },
-  { key: "earnings", label: "Earnings & Payments", icon: IndianRupee },
-  { key: "invoices", label: "Invoices & Documents", icon: FileText },
-  { key: "reviews", label: "Reviews & Ratings", icon: Star },
-  { key: "messages", label: "Messages", icon: MessageSquare },
-  { key: "profile", label: "My Profile", icon: UserRound },
-  { key: "settings", label: "Settings", icon: Route },
+const NAV: { key: TransporterNavKey; label: string; tkey: string; icon: ShellNavItem["icon"] }[] = [
+  { key: "home", label: "Overview", tkey: "s.overview", icon: LayoutDashboard },
+  { key: "requests", label: "Find Transport Requests", tkey: "s.transportRequests", icon: Search },
+  { key: "bookings", label: "My Bookings", tkey: "s.bookings", icon: ClipboardList },
+  { key: "trips", label: "Active Trips", tkey: "s.activeTrips", icon: Navigation },
+  { key: "tracking", label: "Live Tracking", tkey: "s.tracking", icon: MapPin },
+  { key: "vehicles", label: "My Vehicles", tkey: "s.vehicles", icon: Truck },
+  { key: "drivers", label: "Driver Management", tkey: "s.drivers", icon: Users },
+  { key: "availability", label: "Availability & Schedule", tkey: "s.availability", icon: CalendarClock },
+  { key: "earnings", label: "Earnings & Payments", icon: IndianRupee, tkey: "Earnings & Payments" },
+  { key: "invoices", label: "Invoices & Documents", tkey: "s.invoices", icon: FileText },
+  { key: "reviews", label: "Reviews & Ratings", icon: Star, tkey: "Reviews & Ratings" },
+  { key: "messages", label: "Messages", tkey: "s.messages", icon: MessageSquare },
+  /* Watching is open to every account; publishing is the separate studio entry. */
+  { key: "hub", label: "Kisan Video Hub", tkey: "s.videoHub", icon: Video },
+  { key: "creator", label: "Creator Studio", tkey: "s.creatorStudio", icon: Clapperboard },
+  { key: "profile", label: "My Profile", tkey: "s.profile", icon: UserRound },
+  { key: "settings", label: "Settings", icon: Route, tkey: "Settings" },
 ];
+
+/** "hub" and "creator" live outside /transporter, so they resolve here. */
+const NAV_HREF: Partial<Record<TransporterNavKey, string>> = {
+  hub: "/video-hub",
+  creator: "/creator-mode",
+};
 
 const KIND_ICON = {
   request: Package,
@@ -96,8 +109,9 @@ const SEARCH: SearchEntry[] = [
   { label: "Vehicles", keywords: "fleet truck pickup capacity rc insurance", section: "Fleet", to: "/transporter/vehicles" },
   { label: "Drivers", keywords: "driver licence assign staff", section: "Fleet", to: "/transporter/drivers" },
   { label: "Availability", keywords: "schedule dates unavailable leave", section: "Fleet", to: "/transporter/availability" },
-  { label: "Earnings", keywords: "money revenue payment invoice paid", section: "Money", to: "/transporter/earnings" },
-  { label: "Reviews", keywords: "rating feedback stars customer", section: "Account", to: "/transporter/reviews" },
+  { label: "Earnings", tkey: "s.earnings", keywords: "money revenue payment invoice paid", section: "Money", to: "/transporter/earnings" },
+  { label: "Reviews", tkey: "s.reviews", keywords: "rating feedback stars customer", section: "Account", to: "/transporter/reviews" },
+  { label: "Kisan Video Hub", tkey: "s.videoHub", keywords: "video watch learn tutorial shorts training", section: "Learn", to: "/video-hub" },
 ];
 
 /**
@@ -179,12 +193,13 @@ export default function TransporterLayout({
       .filter(([, path]) => pathname === path || pathname.startsWith(`${path}/`))
       .sort((a, b) => b[1].length - a[1].length)[0]?.[0] as TransporterNavKey | undefined) ?? "home";
 
-  const nav: ShellNavItem[] = NAV.map(({ key, label, icon }) => ({
+  const nav: ShellNavItem[] = NAV.map(({ key, label, tkey, icon }) => ({
     label,
+    tkey,
     icon,
     badge: key === "home" && unread > 0 ? unread : undefined,
     active: key === activeKey,
-    to: TRANSPORTER_ROUTES[key],
+    to: NAV_HREF[key] ?? TRANSPORTER_ROUTES[key as Exclude<TransporterNavKey, "hub" | "creator">],
   }));
 
   async function handleSignOut() {

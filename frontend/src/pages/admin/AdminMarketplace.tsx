@@ -104,15 +104,18 @@ async function moderate(id: string, action: "hide" | "restore") {
   });
 }
 
+/** Shape of `retailer_products` as the admin endpoint returns it. */
 type ProductRow = {
   id: string;
   name: string;
   brand: string | null;
   category: string | null;
-  price: number | null;
-  stock: number | null;
-  is_active: boolean;
+  price_inr: number | null;
+  stock_qty: number | null;
+  status: "active" | "paused" | "archived";
 };
+
+const onSale = (row: ProductRow) => row.status === "active";
 
 function ShopProducts({ onModerate }: { onModerate: (id: string, action: "hide" | "restore") => void }) {
   const columns: Column<ProductRow>[] = [
@@ -127,8 +130,8 @@ function ShopProducts({ onModerate }: { onModerate: (id: string, action: "hide" 
       ),
     },
     { key: "category", header: "Category", render: (row) => <Badge tone="sky">{row.category ?? "—"}</Badge> },
-    { key: "price", header: "Price", render: (row) => <span>{row.price ? `₹${row.price.toLocaleString("en-IN")}` : "—"}</span> },
-    { key: "stock", header: "Stock", render: (row) => <span>{row.stock ?? "—"}</span> },
+    { key: "price_inr", header: "Price", render: (row) => <span>{row.price_inr != null ? `₹${Number(row.price_inr).toLocaleString("en-IN")}` : "—"}</span> },
+    { key: "stock_qty", header: "Stock", render: (row) => <span>{row.stock_qty ?? "—"}</span> },
   ];
 
   return (
@@ -145,11 +148,11 @@ function ShopProducts({ onModerate }: { onModerate: (id: string, action: "hide" 
       rowActions={(row) => (
         <button
           type="button"
-          onClick={() => onModerate(row.id, row.is_active ? "hide" : "restore")}
+          onClick={() => onModerate(row.id, onSale(row) ? "hide" : "restore")}
           className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 hover:underline"
         >
           <Store className="h-3 w-3" />
-          {row.is_active ? "Hide" : "Restore"}
+          {onSale(row) ? "Hide" : "Restore"}
         </button>
       )}
     />

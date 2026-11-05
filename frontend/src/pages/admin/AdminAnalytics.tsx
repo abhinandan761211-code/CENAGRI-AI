@@ -50,7 +50,7 @@ export default function AdminAnalytics() {
 
   async function exportCsv() {
     try {
-      await adminDownload("/system/analytics/export", `cenagri-analytics-${start}_${end}.csv`, { start, end });
+      await adminDownload("/system/analytics/export", `kalika-analytics-${start}_${end}.csv`, { start, end });
       setNotice("Export downloaded. The export is recorded in the audit log.");
     } catch (err) {
       setNotice(err instanceof Error ? err.message : "The export failed.");

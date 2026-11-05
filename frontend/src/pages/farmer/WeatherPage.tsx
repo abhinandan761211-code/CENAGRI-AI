@@ -129,7 +129,7 @@ export default function WeatherPage() {
         <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3">
           <p className="text-xs leading-relaxed text-amber-900">
             <span className="font-bold">Live weather is not connected on this build.</span> The weather feed key
-            is set on the CenAGRI server, not in the browser, so this page cannot fetch a forecast until the
+            is set on the Kalika server, not in the browser, so this page cannot fetch a forecast until the
             backend is configured. No example forecast is shown in its place.
           </p>
         </div>

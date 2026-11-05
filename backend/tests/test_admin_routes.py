@@ -168,3 +168,64 @@ async def _profile_select(table, **kwargs):
     if table == "admin_roles":
         return [{"key": "super_admin", "label": "Super Admin"}]
     return []
+
+
+# ── Column names must match the schema ──────────────────────────────────────
+#
+# Regression: the account page counted retailer orders with
+# `retailer_orders.owner_id`, a column retailer.sql never creates. PostgREST
+# answered 42703 and the whole page showed "Something went wrong". These tests
+# read the SQL instead of the live database, so a renamed column is caught here.
+
+import re
+from pathlib import Path
+
+SQL_DIR = Path(__file__).resolve().parents[2] / "database" / "supabase"
+
+
+def _sql_text() -> str:
+    return "\n".join(p.read_text(encoding="utf-8").lower() for p in sorted(SQL_DIR.glob("*.sql")))
+
+
+def _columns(table: str) -> set[str]:
+    """Column names of a `create table` in the SQL files (declared ones only)."""
+    text = _sql_text()
+    match = re.search(rf"create table if not exists public\.{table}\s*\((.*?)\n\);", text, re.S)
+    assert match, f"{table} is not created in {SQL_DIR}"
+    body = match.group(1)
+    return {
+        line.split()[0]
+        for line in body.splitlines()
+        if line.strip() and not line.strip().startswith("--")
+    }
+
+
+def test_retailer_order_columns_exist():
+    cols = _columns("retailer_orders")
+    assert {"retailer_id", "customer_id", "placed_at", "amount_inr"} <= cols
+    # The bug: owner_id was never part of this table.
+    assert "owner_id" not in cols
+
+
+def test_retailer_product_columns_exist():
+    cols = _columns("retailer_products")
+    assert {"retailer_id", "price_inr", "stock_qty", "status"} <= cols
+    assert not {"owner_id", "is_active", "price", "stock"} & cols
+
+
+def test_admin_endpoints_only_select_real_columns():
+    """Every `retailer_*` select in the admin API names columns the schema has."""
+    api = Path(__file__).resolve().parents[1] / "app" / "api" / "v1" / "admin"
+    for name, table, pattern in [
+        ("users.py", "retailer_orders", r'_c\("retailer_orders"(.+?)\)'),
+        ("business.py", "retailer_products", r'"retailer_products",\s*\n?\s*columns="([^"]+)"'),
+        ("business.py", "retailer_orders", r'"retailer": "([^"]+)"'),
+    ]:
+        source = (api / name).read_text(encoding="utf-8")
+        cols = _columns(table)
+        for block in re.findall(pattern, source, re.S):
+            named = re.findall(r"[a-z_]+", block)
+            missing = [c for c in named if c not in cols and c != "eq" and not c.startswith("eq")]
+            # `user_id` in the f-string is the value being matched, not a column.
+            missing = [c for c in missing if c != "user_id"]
+            assert not missing, f"{name} selects {missing} from {table}, which has no such column"

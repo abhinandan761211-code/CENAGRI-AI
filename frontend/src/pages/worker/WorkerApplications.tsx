@@ -24,6 +24,7 @@ import {
   withdrawApplication,
 } from "@/lib/worker";
 import type { ApplicationStatus, JobApplication } from "@/lib/worker";
+import { useLang } from "@/i18n/LanguageContext";
 
 const TABS: { key: ApplicationStatus | "all"; label: string }[] = [
   { key: "all", label: "All" },
@@ -42,6 +43,7 @@ const TABS: { key: ApplicationStatus | "all"; label: string }[] = [
  * decided, which the database also enforces.
  */
 export default function WorkerApplications() {
+  const { t } = useLang();
   const apps = useWorkerData<JobApplication[]>(() => listApplications());
   const [tab, setTab] = useState<ApplicationStatus | "all">("all");
   const [confirming, setConfirming] = useState<JobApplication | null>(null);
@@ -75,7 +77,7 @@ export default function WorkerApplications() {
 
   return (
     <WorkerLayout
-      title="My Applications"
+      title={t("wk.a.title")}
       subtitle={`${rows.length} application${rows.length === 1 ? "" : "s"} in total`}
       action={
         <Link
@@ -89,13 +91,13 @@ export default function WorkerApplications() {
       {/* Lifecycle strip */}
       <div className="card p-3 sm:p-4">
         <div className="flex flex-wrap items-center gap-1.5 text-[11px] font-semibold text-slate-600">
-          <LifecycleStep label="Applied" done />
+          <LifecycleStep label={t("wk.a.applied")} done />
           <ArrowRight className="h-3 w-3 text-slate-300" />
-          <LifecycleStep label="Under review" done={rows.some((r) => r.status === "under_review" || r.status === "accepted" || r.status === "rejected")} />
+          <LifecycleStep label={t("wk.a.underReview")} done={rows.some((r) => r.status === "under_review" || r.status === "accepted" || r.status === "rejected")} />
           <ArrowRight className="h-3 w-3 text-slate-300" />
-          <LifecycleStep label="Accepted / Not selected" done={rows.some((r) => r.status === "accepted" || r.status === "rejected")} />
+          <LifecycleStep label={t("wk.a.acceptedNotSelected")} done={rows.some((r) => r.status === "accepted" || r.status === "rejected")} />
           <ArrowRight className="h-3 w-3 text-slate-300" />
-          <LifecycleStep label="Work scheduled" done={rows.some((r) => r.status === "accepted")} />
+          <LifecycleStep label={t("wk.a.workScheduled")} done={rows.some((r) => r.status === "accepted")} />
         </div>
       </div>
 
@@ -123,7 +125,7 @@ export default function WorkerApplications() {
         })}
       </div>
 
-      {apps.state === "loading" && <Loading label="Loading applications…" />}
+      {apps.state === "loading" && <Loading label={t("wk.c.loadingApplications")} />}
       {apps.state === "error" && <ErrorNotice message={apps.error} onRetry={apps.reload} />}
 
       {apps.state === "ready" && visible.length === 0 && (
@@ -188,7 +190,7 @@ export default function WorkerApplications() {
                         : "—"
                     }
                   />
-                  <Info icon={FileText} label="Applied on" value={formatDate(app.created_at)} />
+                  <Info icon={FileText} label={t("wk.a.appliedOn")} value={formatDate(app.created_at)} />
                 </div>
 
                 {app.message && (
@@ -268,7 +270,7 @@ export default function WorkerApplications() {
       <Modal
         open={Boolean(confirming)}
         onClose={() => setConfirming(null)}
-        title="Withdraw this application?"
+        title={t("wk.a.confirmWithdraw")}
         subtitle={confirming?.job?.title}
       >
         <p className="text-[12px] leading-relaxed text-slate-600">
@@ -299,6 +301,7 @@ export default function WorkerApplications() {
 }
 
 function LifecycleStep({ label, done }: { label: string; done: boolean }) {
+  const { t } = useLang();
   return (
     <span
       className={`rounded-full px-2 py-1 ${done ? "bg-emerald-50 text-emerald-800" : "bg-slate-50 text-slate-400"

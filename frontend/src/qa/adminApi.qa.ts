@@ -18,7 +18,7 @@ export class AdminApiError extends Error {
 
 const me = {
   user_id: "qa-admin-1",
-  email: "admin@cenagri.test",
+  email: "admin@kalika.test",
   role_key: "super_admin",
   role_label: "Super Admin",
   permissions: [
@@ -55,7 +55,7 @@ const me = {
 const users = Array.from({ length: 12 }).map((_, i) => ({
   id: `user-${i}`,
   full_name: ["Ramesh Yadav", "Sunita Devi", "Ajay Patel", "Meera Sahu", "Kunal Rout", "Fatima Khan"][i % 6] + ` ${i}`,
-  email: `user${i}@cenagri.test`,
+  email: `user${i}@kalika.test`,
   phone: `98${String(700000000 + i).slice(0, 8)}`,
   role: ["Farmer", "Buyer", "Retailer", "Worker", "Transporter", "Content Creator"][i % 6],
   account_status: (["active", "active", "pending", "active", "suspended", "active"] as const)[i % 6],
@@ -91,9 +91,9 @@ const fixtures: Record<string, unknown> = {
     queues: { pending_kyc: 37, pending_reports: 12, open_tickets: 24, pending_deletions: 3 },
     growth,
     activity: [
-      { kind: "admin", title: "admin@cenagri.test · users.status.suspended", detail: "users profile", at: new Date().toISOString() },
-      { kind: "signup", title: "New Farmer · Ramesh Yadav", detail: "ramesh@cenagri.test", at: new Date(Date.now() - 3_600_000).toISOString() },
-      { kind: "admin", title: "admin@cenagri.test · content.video.hide", detail: "video_hub video", at: new Date(Date.now() - 7_200_000).toISOString() },
+      { kind: "admin", title: "admin@kalika.test · users.status.suspended", detail: "users profile", at: new Date().toISOString() },
+      { kind: "signup", title: "New Farmer · Ramesh Yadav", detail: "ramesh@kalika.test", at: new Date(Date.now() - 3_600_000).toISOString() },
+      { kind: "admin", title: "admin@kalika.test · content.video.hide", detail: "video_hub video", at: new Date(Date.now() - 7_200_000).toISOString() },
     ],
     services: { mandi: { configured: true, source: "data.gov.in" }, ai: { configured: false, model: null } },
   },
@@ -139,7 +139,7 @@ const fixtures: Record<string, unknown> = {
         reason: null,
         reviewed_at: null,
         created_at: new Date().toISOString(),
-        applicant: { id: "user-0", full_name: "Ramesh Yadav", email: "ramesh@cenagri.test", role: "Farmer" },
+        applicant: { id: "user-0", full_name: "Ramesh Yadav", email: "ramesh@kalika.test", role: "Farmer" },
       },
     ],
     total: 37,
@@ -199,7 +199,7 @@ const fixtures: Record<string, unknown> = {
   },
   "/business/listings": {
     rows: [
-      { id: "l-1", title: "Organic wheat — 500 kg", category: "grains", quantity_kg: 500, price_inr: 2450, unit: "quintal", district: "Raipur", state: "Chhattisgarh", status: "active", seller: { full_name: "Ramesh Yadav", email: "ramesh@cenagri.test" } },
+      { id: "l-1", title: "Organic wheat — 500 kg", category: "grains", quantity_kg: 500, price_inr: 2450, unit: "quintal", district: "Raipur", state: "Chhattisgarh", status: "active", seller: { full_name: "Ramesh Yadav", email: "ramesh@kalika.test" } },
     ],
     total: 2860,
     page: 1,
@@ -208,7 +208,7 @@ const fixtures: Record<string, unknown> = {
   "/business/retailer-products": { rows: [], total: 0, page: 1, page_size: 25 },
   "/business/service-listings": {
     rows: [
-      { id: "user-3", full_name: "Ajay Patel", email: "ajay@cenagri.test", phone: "9876543210", role: "Worker", account_status: "active", availability: { state: "Chhattisgarh", district: "Raipur", vehicle_type: null } },
+      { id: "user-3", full_name: "Ajay Patel", email: "ajay@kalika.test", phone: "9876543210", role: "Worker", account_status: "active", availability: { state: "Chhattisgarh", district: "Raipur", vehicle_type: null } },
     ],
     total: 820,
     page: 1,
@@ -258,7 +258,7 @@ const fixtures: Record<string, unknown> = {
   },
   "/ops/support/tickets": {
     rows: [
-      { id: "t-1", subject: "Order not delivered", category: "order", priority: "high", status: "open", contact_email: "sunita@cenagri.test", assigned_to: null, created_at: new Date().toISOString() },
+      { id: "t-1", subject: "Order not delivered", category: "order", priority: "high", status: "open", contact_email: "sunita@kalika.test", assigned_to: null, created_at: new Date().toISOString() },
     ],
     total: 24,
     page: 1,
@@ -275,7 +275,7 @@ const fixtures: Record<string, unknown> = {
   "/ops/cms": { rows: [], total: 0, page: 1, page_size: 25 },
   "/ops/settings": {
     rows: [
-      { key: "platform.name", value: "CenAGRI AI", category: "general", label: "Platform name", kind: "text", updated_at: new Date().toISOString() },
+      { key: "platform.name", value: "Kalika", category: "general", label: "Platform name", kind: "text", updated_at: new Date().toISOString() },
       { key: "platform.timezone", value: "Asia/Kolkata", category: "general", label: "Default timezone", kind: "text", updated_at: new Date().toISOString() },
       { key: "registration.approval", value: false, category: "registration", label: "Require admin approval", kind: "boolean", updated_at: new Date().toISOString() },
       { key: "integrations.weather_key", value: "••••••••", category: "integrations", label: "Weather API key", kind: "secret", updated_at: new Date().toISOString() },
@@ -289,7 +289,7 @@ const fixtures: Record<string, unknown> = {
   },
   "/system/audit": {
     rows: [
-      { id: 1, admin_email: "admin@cenagri.test", admin_role: "super_admin", action: "users.status.suspended", module: "users", target_type: "profile", target_id: "user-4", reason: "Spam in marketplace listings", before_state: { account_status: "active" }, after_state: { account_status: "suspended" }, ip_address: "127.0.0.1", created_at: new Date().toISOString() },
+      { id: 1, admin_email: "admin@kalika.test", admin_role: "super_admin", action: "users.status.suspended", module: "users", target_type: "profile", target_id: "user-4", reason: "Spam in marketplace listings", before_state: { account_status: "active" }, after_state: { account_status: "suspended" }, ip_address: "127.0.0.1", created_at: new Date().toISOString() },
     ],
     total: 1,
     page: 1,

@@ -11,6 +11,7 @@ import {
   Truck,
   Users,
   Video,
+  Clapperboard,
 } from "lucide-react";
 import { Navigate, useNavigate } from "react-router-dom";
 import AccountShell, { ShellHero, ShellQuickActions } from "@/components/account/AccountShell";
@@ -111,7 +112,9 @@ export default function BuyerDashboard() {
     { label: "Suppliers", icon: Users, to: "/cenfriend" },
     { label: "Logistics", icon: Truck, to: "/transport" },
     { label: "Inventory", icon: Package, to: "/storage" },
-    { label: "Creator Studio", icon: Video, to: "/creator/settings" },
+    /* Watching the hub needs no Creator Mode — learning is open to every account. */
+    { label: "Kisan Video Hub", icon: Video, to: "/video-hub" },
+    { label: "Creator Studio", icon: Clapperboard, to: "/creator-mode" },
   ];
 
   async function handleSignOut() {
@@ -150,7 +153,9 @@ export default function BuyerDashboard() {
       displayName={name}
       initials={initials}
       avatarUrl={profile?.avatar_url}
-      settingsTo="/complete-profile?next=/buyer-account"
+      // Was `/complete-profile`, which immediately redirects back when the
+      // account is already onboarded — so "Edit profile" did nothing.
+      settingsTo="/account/details"
       helpCard={{
         title: "Buyer Support",
         body: "Orders, suppliers aur delivery help — Bengali, Hindi aur English mein.",

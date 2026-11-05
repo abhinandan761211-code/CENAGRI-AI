@@ -127,7 +127,7 @@ export default function WarehouseCustomers() {
         <Users className="mt-0.5 h-3.5 w-3.5 shrink-0 text-slate-400" />
         <span>
           You see a depositor's name, role and their own bookings with you — nothing else from their
-          CenAGRI account. Contact goes through Messages, which records who said what.
+          Kalika account. Contact goes through Messages, which records who said what.
         </span>
       </div>
 
