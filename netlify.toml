@@ -12,14 +12,12 @@
 [build.environment]
   NODE_VERSION = "20"
 
-# SPA fallback so /login, /signup, /dashboard, /equipment-owner, /auth/callback
-# work on a direct load or refresh. `force = false` lets real files (assets,
-# images, robots.txt) win over the fallback.
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
-
+# ORDER MATTERS. Netlify applies the first matching rule, so the /api proxy
+# MUST come before the SPA catch-all below. With the catch-all first, every
+# /api/... request was answered with index.html (status 200) and never reached
+# Render — which is exactly the "returning the app shell instead of JSON" the
+# admin panel reports.
+#
 # Proxies /api/* to the Render backend. This is what makes the app work when
 # VITE_API_BASE_URL is left at its "/api/v1" default.
 #
@@ -29,14 +27,21 @@
 # Render's plain-text "404 Not Found", the JSON parse failed, and the admin
 # panel showed an empty page. The live service is `cenagri-ai.onrender.com`.
 #
-# `force = false` so a real file under /api (there is none today) still wins,
-# and a missing backend surfaces as the backend's own status instead of being
-# masked by the SPA fallback.
+# `force = true`: nothing is ever served from a local /api path, so the proxy
+# must win unconditionally. Otherwise Netlify can answer from the SPA fallback
+# and the browser receives HTML where it expects JSON.
 [[redirects]]
   from = "/api/*"
   to = "https://cenagri-ai.onrender.com/api/:splat"
   status = 200
-  force = false
+  force = true
+
+# SPA fallback so /login, /signup, /dashboard, /equipment-owner, /auth/callback
+# work on a direct load or refresh. Declared AFTER /api/* on purpose.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
 
 # Hashed build assets never change, so cache them for a year.
 [[headers]]
