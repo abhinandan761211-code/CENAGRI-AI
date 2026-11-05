@@ -64,6 +64,18 @@ export async function adminFetch<T>(
   const text = await res.text();
   const payload = text ? safeJson(text) : null;
 
+  // A 200 that is HTML is not our API — it is a proxy/CDN error page or the SPA
+  // fallback (`<index.html>`) served because /api/* was not forwarded. Returning
+  // it as `T` handed the dashboard an HTML string, `data.accounts` became
+  // undefined, and the render crashed into a blank page with no message.
+  if (res.ok && looksLikeHtml(text)) {
+    throw new AdminApiError(
+      "The admin API is not reachable from this site: /api is returning the app shell instead " +
+        "of JSON. Check that the deployment proxies /api to the backend.",
+      res.status
+    );
+  }
+
   if (!res.ok) {
     const detail =
       payload?.detail ||
@@ -78,6 +90,12 @@ export async function adminFetch<T>(
 }
 
 type ErrorBody = { detail?: string };
+
+/** True for an HTML document or a plain-text proxy error, never for JSON. */
+function looksLikeHtml(text: string): boolean {
+  const head = text.trimStart().slice(0, 40).toLowerCase();
+  return head.startsWith("<!doctype") || head.startsWith("<html") || head.startsWith("not found");
+}
 
 function safeJson(text: string): ErrorBody | null {
   try {

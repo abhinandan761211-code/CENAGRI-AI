@@ -21,16 +21,22 @@
   status = 200
 
 # Proxies /api/* to the Render backend. This is what makes the app work when
-# VITE_API_BASE_URL is left at its "/api/v1" default — set the env var instead
-# if you prefer the browser to call Render directly.
+# VITE_API_BASE_URL is left at its "/api/v1" default.
 #
-# Replace the host below with your actual Render service URL after the first
-# deploy (Render → your service → the https://xxxx.onrender.com address).
+# The host must be the REAL Render service URL (Render → service → the
+# https://xxxx.onrender.com address). It used to point at
+# `cenagri-api.onrender.com`, which hosts nothing: every /api call returned
+# Render's plain-text "404 Not Found", the JSON parse failed, and the admin
+# panel showed an empty page. The live service is `cenagri-ai.onrender.com`.
+#
+# `force = false` so a real file under /api (there is none today) still wins,
+# and a missing backend surfaces as the backend's own status instead of being
+# masked by the SPA fallback.
 [[redirects]]
   from = "/api/*"
-  to = "https://cenagri-api.onrender.com/api/:splat"
+  to = "https://cenagri-ai.onrender.com/api/:splat"
   status = 200
-  force = true
+  force = false
 
 # Hashed build assets never change, so cache them for a year.
 [[headers]]
