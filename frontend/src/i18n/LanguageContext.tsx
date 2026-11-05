@@ -2,11 +2,19 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import type { ReactNode } from "react";
 import {
   detectBrowserLanguage,
-  LANGUAGE_STORAGE_KEY,
-  normalizeLanguage,
   scriptFontStack,
 } from "./languages";
 import type { LanguageCode } from "./languages";
+import {
+  SUPPORTED_LANGUAGES,
+  currentUserId,
+  initialLanguage,
+  loadPreferredLanguage,
+  readLocalLanguage,
+  savePreferredLanguage,
+  writeLocalLanguage,
+} from "./preference";
+import { supabase } from "@/lib/supabase";
 import en from "./locales/en";
 import type { TranslationKey } from "./locales/en";
 
@@ -36,16 +44,6 @@ const LOADERS: Record<string, () => Promise<{ default: LocaleDict }>> = {
 /** Locales already in memory, so a switch back is instant. */
 const cache: Record<string, LocaleDict> = { en };
 
-function readStored(): LanguageCode | null {
-  try {
-    const saved = localStorage.getItem(LANGUAGE_STORAGE_KEY);
-    return saved ? normalizeLanguage(saved) : null;
-  } catch {
-    // Private mode / storage disabled — just use the browser language.
-    return null;
-  }
-}
-
 type LanguageContextValue = {
   /** Language picked right now. */
   lang: LanguageCode;
@@ -63,11 +61,12 @@ type LanguageContextValue = {
 const LanguageContext = createContext<LanguageContextValue | null>(null);
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [lang, setLangState] = useState<LanguageCode>(
-    () => readStored() ?? detectBrowserLanguage()
-  );
+  // Device choice first, browser detection only as the first-ever default.
+  const [lang, setLangState] = useState<LanguageCode>(() => initialLanguage(detectBrowserLanguage()));
   const [dict, setDict] = useState<LocaleDict>(cache[lang] ?? en);
   const [activeLang, setActiveLang] = useState<LanguageCode>(lang);
+  /** The signed-in user whose saved preference has already been applied. */
+  const [restoredFor, setRestoredFor] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -95,12 +94,62 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 
   const setLang = useCallback((next: LanguageCode) => {
     setLangState(next);
-    try {
-      localStorage.setItem(LANGUAGE_STORAGE_KEY, next);
-    } catch {
-      // Ignore: the choice simply won't persist.
-    }
+    writeLocalLanguage(next);
+    // Persist to the account when signed in. Fire and forget: the screen has
+    // already switched, and a slow save must never block the UI.
+    void currentUserId().then((id) => {
+      if (id) {
+        void savePreferredLanguage(id, next);
+        // A manual choice wins over any later restore for this user.
+        setRestoredFor(id);
+      }
+    });
   }, []);
+
+  /**
+   * Apply the account's saved language after sign-in.
+   *
+   * Listens to the auth client directly (rather than importing `useAuth`, which
+   * would create a cycle — see `preference.currentUserId`). Runs once per user:
+   * it never overwrites a language already remembered on this device when the
+   * account has no saved preference, which is how a saved choice used to be
+   * reset to English on every login.
+   */
+  useEffect(() => {
+    let cancelled = false;
+
+    async function restore() {
+      const id = await currentUserId();
+      if (cancelled) return;
+      if (!id) {
+        setRestoredFor(null);
+        return;
+      }
+      if (restoredFor === id) return;
+
+      const saved = await loadPreferredLanguage(id);
+      if (cancelled) return;
+      setRestoredFor(id);
+      if (saved && SUPPORTED_LANGUAGES.includes(saved)) {
+        setLangState(saved);
+        writeLocalLanguage(saved);
+        return;
+      }
+      // No account preference: keep the device choice.
+      const device = readLocalLanguage();
+      if (device) setLangState(device);
+    }
+
+    void restore();
+
+    const subscription = supabase?.auth.onAuthStateChange(() => {
+      void restore();
+    });
+    return () => {
+      cancelled = true;
+      subscription?.data.subscription.unsubscribe();
+    };
+  }, [restoredFor]);
 
   // <html lang> drives hyphenation, spellcheck and how screen readers
   // pronounce the page, so it has to follow the picker.

@@ -53,7 +53,7 @@ export const TRANSLATED: ReadonlySet<string> = new Set([
 /** The few languages shown as quick chips in the picker, before "More". */
 export const QUICK_LANGUAGES: LanguageCode[] = ["en", "hi", "bn", "ta", "te"];
 
-export const LANGUAGE_STORAGE_KEY = "cenagri.lang";
+export const LANGUAGE_STORAGE_KEY = "kalika.lang";
 
 export function normalizeLanguage(value: string | null | undefined): LanguageCode {
   if (!value) return "en";

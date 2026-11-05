@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
-import { Bell, Headphones, LogOut, Menu, Search, Settings, User, Video, X } from "lucide-react";
+import { Bell, Headphones, Languages, LogOut, Menu, Search, Settings, User, Video, X } from "lucide-react";
 import { Link } from "react-router-dom";
 import Logo from "@/components/Logo";
 import type { LucideIcon } from "lucide-react";
+import { useLang } from "@/i18n/LanguageContext";
+import { LanguagePills } from "@/i18n/LanguageSelector";
 import "@/styles/account.css";
 
 /**
@@ -28,6 +30,13 @@ import "@/styles/account.css";
 
 export type ShellNavItem = {
   label: string;
+  /**
+   * Translation key for `label`. The label text stays in English so the
+   * existing nav arrays read naturally and the active-item logic is unchanged;
+   * the shell renders `t(tkey)` when one is present. Without a key the label is
+   * shown as written.
+   */
+  tkey?: string;
   icon: LucideIcon;
   /** Navigate to a route. */
   to?: string;
@@ -43,6 +52,8 @@ export type ShellNavItem = {
 
 export type SearchEntry = {
   label: string;
+  /** Optional translation key; when absent the label is shown as written. */
+  tkey?: string;
   /** Space-separated words the search box matches on. */
   keywords: string;
   /** Small right-hand hint, e.g. "Orders". */
@@ -67,7 +78,7 @@ export type ShellNotification = {
 export default function AccountShell({
   nav,
   search,
-  searchPlaceholder = "Search…",
+  searchPlaceholder,
   notifications = [],
   displayName,
   initials,
@@ -91,6 +102,17 @@ export default function AccountShell({
   onSignOut: () => void;
   children: ReactNode;
 }) {
+  /*
+   * The signed-in shell follows the account's language.
+   *
+   * This is the ONE place the language control lives for every account type
+   * (retailer, worker, transporter, warehouse, equipment, employer …), so no
+   * dashboard needs its own switcher and a language change applies to all of
+   * them the same way.
+   */
+  const { t, lang, tf } = useLang();
+  const [langOpen, setLangOpen] = useState(false);
+  const langRef = useRef<HTMLDivElement | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   /**
    * Desktop hover-to-open. The sidebar is a narrow rail normally; moving the
@@ -179,7 +201,7 @@ export default function AccountShell({
           onMouseEnter={handleSidebarEnter}
           onMouseLeave={handleSidebarLeave}
           onFocusCapture={handleSidebarEnter}
-          aria-label="Sidebar"
+          aria-label={t("s.sidebar")}
           className={`fixed inset-y-0 left-0 z-40 shrink-0 overflow-y-auto overflow-x-hidden border-r border-slate-200 bg-white transition-[transform,width] duration-200 ease-out lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"
             } ${sidebarHovered ? "w-64" : "w-64 lg:w-16"}`}
         >
@@ -191,14 +213,17 @@ export default function AccountShell({
               type="button"
               onClick={() => setSidebarOpen(false)}
               className="grid h-8 w-8 place-items-center rounded-md text-slate-500 hover:bg-slate-100 lg:hidden"
-              aria-label="Close menu"
+              aria-label={t("s.closeMenu")}
             >
               <X className="h-4 w-4" />
             </button>
           </div>
 
-          <nav className="space-y-1 p-3" aria-label="Account">
-            {nav.map(({ label, icon: Icon, to, section, onSelect, badge, active }) => {
+          <nav className="space-y-1 p-3" aria-label={t("s.account")}>
+            {nav.map(({ label: rawLabel, tkey, icon: Icon, to, section, onSelect, badge, active }) => {
+              /* One translation point for every account type: the nav arrays
+                 keep their English text, the shell renders the chosen language. */
+              const label = tkey ? t(tkey as Parameters<typeof t>[0]) : rawLabel;
               const className = `relative flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-[13px] font-medium transition ${
                 active
                   ? "bg-brand-700 text-white shadow-sm"
@@ -269,10 +294,10 @@ export default function AccountShell({
               );
             })}
 
-            <Link
-              to={settingsTo}
-              onClick={() => setSidebarOpen(false)}
-              title="Profile & Settings"
+              <Link
+                to={settingsTo}
+                onClick={() => setSidebarOpen(false)}
+                title={t("s.profileSettings")}
               className={`flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-[13px] font-medium text-slate-600 transition hover:bg-slate-100 hover:text-forest ${
                 sidebarHovered ? "" : "lg:justify-center"
               }`}
@@ -281,7 +306,7 @@ export default function AccountShell({
               <span
                 className={`flex-1 truncate ${sidebarHovered ? "" : "lg:hidden"}`}
               >
-                Profile &amp; Settings
+                {t("s.profileSettings")}
               </span>
             </Link>
           </nav>
@@ -321,7 +346,7 @@ export default function AccountShell({
         {sidebarOpen && (
           <button
             type="button"
-            aria-label="Close menu"
+            aria-label={t("s.closeMenu")}
             onClick={() => setSidebarOpen(false)}
             className="fixed inset-0 z-30 bg-forest-dark/40 lg:hidden"
           />
@@ -335,7 +360,7 @@ export default function AccountShell({
                 type="button"
                 onClick={() => setSidebarOpen(true)}
                 className="grid h-9 w-9 shrink-0 place-items-center rounded-md border border-slate-200 text-forest lg:hidden"
-                aria-label="Open menu"
+                aria-label={t("s.openMenu")}
               >
                 <Menu className="h-4 w-4" />
               </button>
@@ -352,8 +377,8 @@ export default function AccountShell({
                         setSearchOpen(true);
                       }}
                       onFocus={() => setSearchOpen(true)}
-                      placeholder={searchPlaceholder}
-                      aria-label="Search this dashboard"
+                      placeholder={searchPlaceholder ?? t("s.search")}
+                      aria-label={t("s.search")}
                       aria-expanded={searchOpen && query.trim().length > 0}
                       className="w-full bg-transparent text-sm text-slate-700 outline-none placeholder:text-slate-400"
                     />
@@ -361,7 +386,7 @@ export default function AccountShell({
                       <button
                         type="button"
                         onClick={() => setQuery("")}
-                        aria-label="Clear search"
+                        aria-label={t("s.clearSearch")}
                         className="text-slate-400 hover:text-slate-600"
                       >
                         <X className="h-3.5 w-3.5" />
@@ -373,7 +398,7 @@ export default function AccountShell({
                     <ul className="absolute left-0 right-0 top-full z-30 mt-1.5 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-lg">
                       {results.length === 0 ? (
                         <li className="px-3.5 py-3 text-xs text-slate-500">
-                          No matches for “{query.trim()}”.
+                          {tf("s.noMatches", { query: query.trim() })}
                         </li>
                       ) : (
                         results.map((entry) => {
@@ -422,7 +447,7 @@ export default function AccountShell({
                     type="button"
                     onClick={() => setNotifOpen((v) => !v)}
                     className="relative grid h-9 w-9 place-items-center rounded-full border border-slate-200 text-slate-600 hover:bg-slate-50"
-                    aria-label={`Notifications${unread ? ` (${unread} unread)` : ""}`}
+                    aria-label={`${t("s.notifications")}${unread ? ` (${unread})` : ""}`}
                     aria-expanded={notifOpen}
                   >
                     <Bell className="h-4 w-4" />
@@ -434,19 +459,19 @@ export default function AccountShell({
                   {notifOpen && (
                     <div className="absolute right-0 top-full z-40 mt-2 w-72 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl">
                       <div className="flex items-center justify-between border-b border-slate-100 px-3.5 py-2.5">
-                        <p className="text-xs font-bold text-forest">Notifications</p>
+                        <p className="text-xs font-bold text-forest">{t("s.notifications")}</p>
                         <button
                           type="button"
                           onClick={() => setSeen(notifications.map((n) => n.id))}
                           className="text-[11px] font-semibold text-brand-700 hover:underline"
                         >
-                          Mark all read
+                          {t("s.markAllRead")}
                         </button>
                       </div>
                       <ul className="max-h-72 overflow-y-auto">
                         {notifications.length === 0 && (
                           <li className="px-3.5 py-6 text-center text-[11px] text-slate-500">
-                            No alerts right now.
+                            {t("s.noAlerts")}
                           </li>
                         )}
                         {notifications.map((n) => {
@@ -487,12 +512,47 @@ export default function AccountShell({
                   )}
                 </div>
 
-                {/* Creator mode — same entry point for every account. */}
+                {/* Language — the same control on every account type. */}
+                <div className="relative" ref={langRef}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setNotifOpen(false);
+                      setSettingsOpen(false);
+                      setLangOpen((v) => !v);
+                    }}
+                    aria-label={t("s.language")}
+                    aria-haspopup="menu"
+                    aria-expanded={langOpen}
+                    title={t("s.language")}
+                    className="flex h-9 items-center gap-1.5 rounded-full border border-slate-200 px-2.5 text-slate-600 hover:bg-slate-50"
+                  >
+                    <Languages className="h-4 w-4" />
+                    <span className="text-[11px] font-bold uppercase">{lang}</span>
+                  </button>
+                  {langOpen && (
+                    <div className="absolute right-0 top-full z-40 mt-2 w-64 rounded-xl border border-slate-200 bg-white p-2.5 shadow-xl">
+                      <LanguagePills onPick={() => setLangOpen(false)} />
+                      <Link
+                        to="/account/language"
+                        onClick={() => setLangOpen(false)}
+                        className="mt-2 flex items-center justify-between rounded-lg px-2 py-1.5 text-[11px] font-semibold text-brand-700 hover:bg-brand-50"
+                      >
+                        {t("s.langSettings")}
+                        <span aria-hidden="true">→</span>
+                      </Link>
+                    </div>
+                  )}
+                </div>
+
+                {/* Creator mode — same entry point for every account. Points at
+                    the public switch rather than the guarded /creator tree, so
+                    an account with the mode off can actually turn it on. */}
                 <Link
-                  to="/creator/settings"
+                  to="/creator-mode"
                   className="grid h-9 w-9 place-items-center rounded-full border border-slate-200 text-slate-600 hover:bg-slate-50"
-                  title="Creator Studio"
-                  aria-label="Creator Studio"
+                  title={t("s.creatorStudio")}
+                  aria-label={t("s.creatorStudio")}
                 >
                   <Video className="h-4 w-4" />
                 </Link>
@@ -506,7 +566,7 @@ export default function AccountShell({
                       setSettingsOpen((v) => !v);
                     }}
                     className="grid h-9 w-9 place-items-center rounded-full border border-slate-200 text-slate-600 hover:bg-slate-50"
-                    aria-label="Settings"
+                    aria-label={t("s.settings")}
                     aria-haspopup="menu"
                     aria-expanded={settingsOpen}
                   >
@@ -516,12 +576,12 @@ export default function AccountShell({
                   {settingsOpen && (
                     <div
                       role="menu"
-                      aria-label="Account settings"
+                      aria-label={t("s.accountSettings")}
                       className="absolute right-0 top-full z-40 mt-2 w-56 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl"
                     >
                       <div className="border-b border-slate-100 px-3.5 py-2.5">
                         <p className="truncate text-xs font-bold text-forest">{displayName}</p>
-                        <p className="truncate text-[11px] text-slate-500">Account settings</p>
+                        <p className="truncate text-[11px] text-slate-500">{t("s.profileSettings")}</p>
                       </div>
                       <Link
                         to={settingsTo}
@@ -530,7 +590,7 @@ export default function AccountShell({
                         className="flex w-full items-center gap-2.5 px-3.5 py-2.5 text-left text-[13px] font-medium text-slate-600 transition hover:bg-slate-50 hover:text-forest"
                       >
                         <User className="h-[18px] w-[18px] shrink-0" />
-                        Edit profile
+                        {t("s.profile")}
                       </Link>
                       <button
                         type="button"
@@ -542,7 +602,7 @@ export default function AccountShell({
                         className="flex w-full items-center gap-2.5 border-t border-slate-100 px-3.5 py-2.5 text-left text-[13px] font-medium text-rose-600 transition hover:bg-rose-50"
                       >
                         <LogOut className="h-[18px] w-[18px] shrink-0" />
-                        Sign out
+                        {t("s.signOut")}
                       </button>
                     </div>
                   )}
@@ -551,7 +611,7 @@ export default function AccountShell({
                 <button
                   type="button"
                   onClick={onSignOut}
-                  aria-label="Sign out"
+                  aria-label={t("s.signOut")}
                   title={displayName}
                   className="grid h-9 w-9 place-items-center overflow-hidden rounded-full bg-forest text-xs font-bold text-white ring-offset-2 hover:ring-2 hover:ring-brand-400"
                 >
@@ -618,15 +678,18 @@ export function ShellHero({
 
 /** Quick-action tile row — the farmer dashboard's shortcut grid, shared. */
 export function ShellQuickActions({
-  title = "Quick Actions",
+  title,
   actions,
 }: {
   title?: string;
   actions: { label: string; icon: LucideIcon; onClick: () => void }[];
 }) {
+  const { t } = useLang();
   return (
     <section>
-      <h2 className="mb-3 font-display text-[15px] font-bold text-forest">{title}</h2>
+      <h2 className="mb-3 font-display text-[15px] font-bold text-forest">
+        {title ?? t("r.c.quickActions")}
+      </h2>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
         {actions.map(({ label, icon: Icon, onClick }) => (
           <button

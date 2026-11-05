@@ -24,6 +24,8 @@ import {
   useToast,
 } from "@/components/farm/farmerUI";
 import { useAuth } from "@/hooks/useAuth";
+import { useLang } from "@/i18n/LanguageContext";
+import type { TranslationKey } from "@/i18n/locales/en";
 import { supabase } from "@/lib/supabase";
 import { listFarms, haToAcres } from "@/lib/farms";
 import type { Farm } from "@/lib/farms";
@@ -40,13 +42,34 @@ import type { SoilTest } from "@/lib/farmer";
  * typed twice.
  */
 
-const EXPERIENCE_OPTIONS = ["Less than 1 year", "1–3 years", "3–5 years", "5–10 years", "10+ years"];
-const IRRIGATION_OPTIONS = ["Rain-fed only", "Canal", "Deep tubewell", "Shallow tubewell", "River pump", "Drip", "Other"];
+/*
+ * Values are the English strings already saved in `profiles.details`, so an
+ * account created before this page was translated keeps its saved answer. Only
+ * the visible label is translated.
+ */
+const EXPERIENCE_OPTIONS: { value: string; key: TranslationKey }[] = [
+  { value: "Less than 1 year", key: "acc.exp.less1" },
+  { value: "1–3 years", key: "acc.exp.1to3" },
+  { value: "3–5 years", key: "acc.exp.3to5" },
+  { value: "5–10 years", key: "acc.exp.5to10" },
+  { value: "10+ years", key: "acc.exp.10plus" },
+];
+const IRRIGATION_OPTIONS: { value: string; key: TranslationKey }[] = [
+  { value: "Rain-fed only", key: "acc.irr.rainfed" },
+  { value: "Canal", key: "acc.irr.canal" },
+  { value: "Deep tubewell", key: "acc.irr.deepTubewell" },
+  { value: "Shallow tubewell", key: "acc.irr.shallowTubewell" },
+  { value: "River pump", key: "acc.irr.riverPump" },
+  { value: "Drip", key: "acc.irr.drip" },
+  { value: "Other", key: "acc.irr.other" },
+];
+/* Crop names are matched against government data, so they stay as written. */
 const CROP_PREFERENCES = ["Paddy", "Wheat", "Potato", "Mustard", "Jute", "Maize", "Onion", "Vegetables", "Pulses", "Oilseeds"];
 
 export default function FarmingInfoPage() {
   const { user, profile, refreshProfile } = useAuth();
   const { toast, showToast } = useToast();
+  const { t } = useLang();
   const details = profile?.details ?? {};
 
   const [farms, setFarms] = useState<Farm[]>([]);
@@ -91,9 +114,9 @@ export default function FarmingInfoPage() {
       await supabase.auth.updateUser({ data: { details: nextDetails } });
       await refreshProfile();
       setSaved(true);
-      showToast("Farming information saved");
+      showToast(t("acc.farming.savedToast"));
     } catch (err) {
-      setError(farmerError(err, "Could not save your farming information."));
+      setError(farmerError(err, t("acc.farming.errSave")));
     } finally {
       setSaving(false);
     }
@@ -103,31 +126,31 @@ export default function FarmingInfoPage() {
   const farmName = new Map(farms.map((f) => [f.id, f.name]));
 
   return (
-    <FarmerShell>
+    <FarmerShell title={t("acc.farming.title")}>
       <PageHeader
         icon={Tractor}
-        title="Farming Information"
-        description="What you grow, how you water it and how long you have farmed — this is the context crop advice, alerts and mandi selection use."
+        title={t("acc.farming.title")}
+        description={t("acc.farming.desc")}
         actions={
           <Link to="/my-farm" className="creator-btn-ghost inline-flex h-9 items-center gap-1.5 px-3.5 text-xs">
-            <MapPin className="h-3.5 w-3.5" /> Manage farms
+            <MapPin className="h-3.5 w-3.5" /> {t("acc.farming.manageFarms")}
           </Link>
         }
       />
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <Stat label="Farms" value={farms.length} icon={LandPlot} hint="Land records" />
-        <Stat label="Total area" value={farms.length ? `${num(totalAcres)} ac` : "—"} icon={LandPlot} tone="teal" hint="From My Farm" />
-        <Stat label="Crops grown" value={farms.flatMap((f) => f.crops ?? []).length || "—"} icon={Sprout} tone="green" hint="Across farms" />
-        <Stat label="Soil tests" value={soil.length} icon={Sprout} tone="blue" hint="Records on file" />
+        <Stat label={t("acc.farming.statFarms")} value={farms.length} icon={LandPlot} hint={t("acc.farming.hintLandRecords")} />
+        <Stat label={t("acc.farming.statArea")} value={farms.length ? `${num(totalAcres)} ac` : "—"} icon={LandPlot} tone="teal" hint={t("acc.farming.hintFromFarm")} />
+        <Stat label={t("acc.farming.statCrops")} value={farms.flatMap((f) => f.crops ?? []).length || "—"} icon={Sprout} tone="green" hint={t("acc.farming.hintAcross")} />
+        <Stat label={t("acc.farming.statSoil")} value={soil.length} icon={Sprout} tone="blue" hint={t("acc.farming.hintOnFile")} />
       </div>
 
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_340px]">
-        <Panel title="Your farming answers" icon={UserCog}>
+        <Panel title={t("acc.farming.answers")} icon={UserCog}>
           <form onSubmit={submit} className="grid gap-3 p-4 sm:grid-cols-2">
             <label className="block">
               <span className="mb-1 block text-[11px] font-bold uppercase tracking-wide text-slate-500">
-                Total land (acres)
+                {t("acc.farming.landSize")}
               </span>
               <Input
                 type="number"
@@ -136,19 +159,19 @@ export default function FarmingInfoPage() {
                 inputMode="decimal"
                 value={form.land_size}
                 onChange={(e) => setForm({ ...form, land_size: e.target.value })}
-                placeholder="e.g. 2.5"
+                placeholder={t("acc.farming.landPlaceholder")}
               />
             </label>
 
             <label className="block">
               <span className="mb-1 block text-[11px] font-bold uppercase tracking-wide text-slate-500">
-                Years of farming
+                {t("acc.farming.experience")}
               </span>
               <Select value={form.experience} onChange={(e) => setForm({ ...form, experience: e.target.value })}>
-                <option value="">Not set</option>
+                <option value="">{t("acc.farming.notSet")}</option>
                 {EXPERIENCE_OPTIONS.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
+                  <option key={option.value} value={option.value}>
+                    {t(option.key)}
                   </option>
                 ))}
               </Select>
@@ -156,13 +179,13 @@ export default function FarmingInfoPage() {
 
             <label className="block">
               <span className="mb-1 block text-[11px] font-bold uppercase tracking-wide text-slate-500">
-                Main irrigation source
+                {t("acc.farming.irrigation")}
               </span>
               <Select value={form.irrigation} onChange={(e) => setForm({ ...form, irrigation: e.target.value })}>
-                <option value="">Not set</option>
+                <option value="">{t("acc.farming.notSet")}</option>
                 {IRRIGATION_OPTIONS.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
+                  <option key={option.value} value={option.value}>
+                    {t(option.key)}
                   </option>
                 ))}
               </Select>
@@ -170,23 +193,23 @@ export default function FarmingInfoPage() {
 
             <label className="block">
               <span className="mb-1 block text-[11px] font-bold uppercase tracking-wide text-slate-500">
-                Land type
+                {t("acc.farming.landType")}
               </span>
               <Input
                 value={form.tenants}
                 onChange={(e) => setForm({ ...form, tenants: e.target.value })}
-                placeholder="Owned, leased, sharecropped…"
+                placeholder={t("acc.farming.landTypePlaceholder")}
               />
             </label>
 
             <label className="block sm:col-span-2">
               <span className="mb-1 block text-[11px] font-bold uppercase tracking-wide text-slate-500">
-                Crops you grow
+                {t("acc.farming.crops")}
               </span>
               <Input
                 value={form.main_crops}
                 onChange={(e) => setForm({ ...form, main_crops: e.target.value })}
-                placeholder="Paddy, Potato, Mustard"
+                placeholder={t("acc.farming.cropsPlaceholder")}
               />
               <div className="mt-1.5 flex flex-wrap gap-1">
                 {CROP_PREFERENCES.map((crop) => {
@@ -204,9 +227,8 @@ export default function FarmingInfoPage() {
                         const next = active ? list.filter((c) => c.toLowerCase() !== crop.toLowerCase()) : [...list, crop];
                         setForm({ ...form, main_crops: next.join(", ") });
                       }}
-                      className={`rounded-full border px-2.5 py-0.5 text-[10px] font-semibold ${
-                        active ? "border-brand-700 bg-brand-700 text-white" : "border-slate-200 text-slate-600 hover:border-brand-300"
-                      }`}
+                      className={`rounded-full border px-2.5 py-0.5 text-[10px] font-semibold ${active ? "border-brand-700 bg-brand-700 text-white" : "border-slate-200 text-slate-600 hover:border-brand-300"
+                        }`}
                     >
                       {crop}
                     </button>
@@ -222,7 +244,7 @@ export default function FarmingInfoPage() {
                 onChange={(e) => setForm({ ...form, organic: e.target.checked })}
                 className="h-4 w-4 rounded border-slate-300 text-brand-700 focus:ring-brand-500"
               />
-              I farm organically (no synthetic fertiliser)
+              {t("acc.farming.organic")}
             </label>
 
             {error && (
@@ -230,7 +252,7 @@ export default function FarmingInfoPage() {
                 {error}
               </p>
             )}
-            {saved && <div className="sm:col-span-2"><SuccessNote message="Saved. Advice and alerts now use these answers." /></div>}
+            {saved && <div className="sm:col-span-2"><SuccessNote message={t("acc.farming.saved")} /></div>}
 
             <div className="flex justify-end gap-2 sm:col-span-2">
               <GhostButton
@@ -247,33 +269,32 @@ export default function FarmingInfoPage() {
                 }
                 disabled={saving}
               >
-                Reset
+                {t("acc.personal.reset")}
               </GhostButton>
               <PrimaryButton type="submit" disabled={saving}>
-                {saving ? "Saving…" : "Save information"}
+                {saving ? t("acc.personal.saving") : t("acc.farming.save")}
               </PrimaryButton>
             </div>
           </form>
         </Panel>
 
         <div className="space-y-4">
-          <Panel title="Farm holdings" icon={LandPlot}>
+          <Panel title={t("acc.farming.holdings")} icon={LandPlot}>
             {farms.length === 0 ? (
               <p className="px-4 py-6 text-[11px] text-slate-500">
-                No farms yet.{" "}
+                {t("acc.farming.noFarms")}{" "}
                 <Link to="/my-farm" className="font-semibold text-brand-700 hover:underline">
-                  Add one
+                  {t("acc.farming.addOne")}
                 </Link>
-                .
               </p>
             ) : (
               <TableWrap>
                 <Table>
                   <thead>
                     <tr>
-                      <Th>Farm</Th>
-                      <Th className="text-right">Area</Th>
-                      <Th>Soil</Th>
+                      <Th>{t("acc.farming.colFarm")}</Th>
+                      <Th className="text-right">{t("acc.farming.colArea")}</Th>
+                      <Th>{t("acc.farming.colSoil")}</Th>
                     </tr>
                   </thead>
                   <tbody>
@@ -281,7 +302,7 @@ export default function FarmingInfoPage() {
                       <tr key={farm.id}>
                         <Td>
                           <span className="font-semibold text-forest">{farm.name}</span>
-                          <span className="block text-[10px] text-slate-500">{farm.location ?? "Location not set"}</span>
+                          <span className="block text-[10px] text-slate-500">{farm.location ?? t("acc.profile.locationNotSet")}</span>
                         </Td>
                         <Td className="text-right tabular-nums">
                           {farm.area_ha != null ? `${num(haToAcres(farm.area_ha))} ac` : "—"}
@@ -295,14 +316,13 @@ export default function FarmingInfoPage() {
             )}
           </Panel>
 
-          <Panel title="Latest soil reading per field" icon={Sprout}>
+          <Panel title={t("acc.farming.soilTitle")} icon={Sprout}>
             {soil.length === 0 ? (
               <p className="px-4 py-6 text-[11px] text-slate-500">
-                No soil tests recorded.{" "}
+                {t("acc.farming.noSoil")}{" "}
                 <Link to="/soil-health" className="font-semibold text-brand-700 hover:underline">
-                  Add a soil test
+                  {t("acc.farming.addSoil")}
                 </Link>
-                .
               </p>
             ) : (
               <ul className="divide-y divide-slate-100">
@@ -314,10 +334,10 @@ export default function FarmingInfoPage() {
                       {latest ? (
                         <span className="flex shrink-0 items-center gap-1.5">
                           <Chip tone="slate">pH {latest.ph != null ? num(latest.ph, 2) : "—"}</Chip>
-                          <Chip tone="green">{latest.soil_category ?? "Tested"}</Chip>
+                          <Chip tone="green">{latest.soil_category ?? t("acc.farming.tested")}</Chip>
                         </span>
                       ) : (
-                        <span className="text-[10px] text-slate-400">Not tested</span>
+                        <span className="text-[10px] text-slate-400">{t("acc.farming.notTested")}</span>
                       )}
                     </li>
                   );

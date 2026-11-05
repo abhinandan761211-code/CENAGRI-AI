@@ -47,7 +47,8 @@ type Task = {
 
 export default function ProfilePage() {
   const { user, profile } = useAuth();
-  const { lang } = useLang();
+  // `t` is the interface language; `lang` is what the language card shows.
+  const { lang, t, tf } = useLang();
 
   const [farms, setFarms] = useState<Farm[]>([]);
   const [crops, setCrops] = useState<Crop[]>([]);
@@ -95,16 +96,17 @@ export default function ProfilePage() {
 
   const tasks = useMemo<Task[]>(
     () => [
-      { key: "name", label: "Your name", done: Boolean(profile?.full_name), to: "/account/personal" },
-      { key: "phone", label: "Mobile number", done: Boolean(profile?.phone), to: "/account/personal" },
-      { key: "location", label: "Village, district and state", done: Boolean(details.district && details.state), to: "/account/personal" },
-      { key: "farm", label: "At least one farm", done: farms.length > 0, to: "/my-farm" },
-      { key: "crop", label: "At least one crop", done: crops.length > 0, to: "/crops" },
-      { key: "aadhaar", label: "Aadhaar uploaded", done: hasAadhaar, to: "/account/documents" },
-      { key: "land", label: "Land record uploaded", done: documents.some((d) => d.kind === "land_record"), to: "/account/documents" },
-      { key: "bank", label: "Bank details uploaded", done: documents.some((d) => d.kind === "bank_passbook"), to: "/account/documents" },
+      { key: "name", label: t("acc.profile.taskName"), done: Boolean(profile?.full_name), to: "/account/personal" },
+      { key: "phone", label: t("acc.profile.taskPhone"), done: Boolean(profile?.phone), to: "/account/personal" },
+      { key: "location", label: t("acc.profile.taskLocation"), done: Boolean(details.district && details.state), to: "/account/personal" },
+      { key: "farm", label: t("acc.profile.taskFarm"), done: farms.length > 0, to: "/my-farm" },
+      { key: "crop", label: t("acc.profile.taskCrop"), done: crops.length > 0, to: "/crops" },
+      { key: "aadhaar", label: t("acc.profile.taskAadhaar"), done: hasAadhaar, to: "/account/documents" },
+      { key: "land", label: t("acc.profile.taskLand"), done: documents.some((d) => d.kind === "land_record"), to: "/account/documents" },
+      { key: "bank", label: t("acc.profile.taskBank"), done: documents.some((d) => d.kind === "bank_passbook"), to: "/account/documents" },
     ],
-    [profile?.full_name, profile?.phone, details.district, details.state, farms, crops, hasAadhaar, documents]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [profile?.full_name, profile?.phone, details.district, details.state, farms, crops, hasAadhaar, documents, t]
   );
 
   const completion = Math.round((tasks.filter((t) => t.done).length / tasks.length) * 100);
@@ -114,11 +116,11 @@ export default function ProfilePage() {
     <FarmerShell>
       <PageHeader
         icon={User}
-        title="My Profile"
-        description="How your account looks to buyers, workers, transporters and advisors on CenAGRI — and how complete it is."
+        title={t("acc.profile.title")}
+        description={t("acc.profile.desc")}
         actions={
           <Link to="/account/personal" className="creator-btn-primary inline-flex h-9 items-center gap-1.5 px-3.5 text-xs">
-            <UserCog className="h-3.5 w-3.5" /> Edit details
+            <UserCog className="h-3.5 w-3.5" /> {t("acc.profile.edit")}
           </Link>
         }
       />
@@ -145,17 +147,17 @@ export default function ProfilePage() {
               {name}
               {verified ? (
                 <Chip tone="green" icon={BadgeCheck}>
-                  Verified
+                  {t("acc.doc.statusVerified")}
                 </Chip>
               ) : pending ? (
-                <Chip tone="amber">Verification pending</Chip>
+                <Chip tone="amber">{t("acc.doc.statusPending")}</Chip>
               ) : (
-                <Chip tone="slate">Not verified</Chip>
+                <Chip tone="slate">{t("acc.profile.hintNoneVerified")}</Chip>
               )}
             </h2>
             <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-white/80">
               <span className="inline-flex items-center gap-1">
-                <MapPin className="h-3 w-3" /> {location || "Location not set"}
+                <MapPin className="h-3 w-3" /> {location || t("acc.profile.locationNotSet")}
               </span>
               {profile?.phone && (
                 <span className="inline-flex items-center gap-1">
@@ -167,37 +169,40 @@ export default function ProfilePage() {
               </span>
             </p>
             <p className="mt-2 max-w-md text-[11px] text-white/65">
-              {farms.length} farm{farms.length === 1 ? "" : "s"} · {crops.filter((c) => c.status !== "harvested").length} active
-              crops · {documents.length} document{documents.length === 1 ? "" : "s"}
+              {tf("acc.profile.counts", {
+                farms: farms.length,
+                crops: crops.filter((c) => c.status !== "harvested").length,
+                documents: documents.length,
+              })}
             </p>
           </div>
           <div className="shrink-0 rounded-xl bg-white/10 p-3.5 text-center ring-1 ring-inset ring-white/15 sm:min-w-[140px]">
-            <p className="text-[10px] uppercase tracking-wide text-white/70">Profile completion</p>
+            <p className="text-[10px] uppercase tracking-wide text-white/70">{t("acc.profile.completion")}</p>
             <p className="mt-1 font-display text-2xl font-extrabold">{completion}%</p>
             <div className="mt-1.5">
-              <ProgressBar value={completion} tone="teal" label="Profile completion" />
+              <ProgressBar value={completion} tone="teal" label={t("acc.profile.completion")} />
             </div>
           </div>
         </div>
       </section>
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <Stat label="Farms" value={farms.length} icon={Tractor} hint="Land records" />
-        <Stat label="Active crops" value={crops.filter((c) => c.status !== "harvested").length} icon={Sprout} tone="teal" hint="On the land now" />
+        <Stat label={t("acc.profile.statFarms")} value={farms.length} icon={Tractor} hint={t("acc.profile.hintLand")} />
+        <Stat label={t("acc.profile.statCrops")} value={crops.filter((c) => c.status !== "harvested").length} icon={Sprout} tone="teal" hint={t("acc.profile.hintOnLand")} />
         <Stat
-          label="Documents"
+          label={t("acc.profile.statDocs")}
           value={documents.length}
           icon={FileText}
           tone="blue"
-          hint={verified ? "At least one verified" : pending ? "Awaiting review" : "None verified"}
+          hint={verified ? t("acc.profile.hintVerified") : pending ? t("acc.profile.hintReview") : t("acc.profile.hintNoneVerified")}
         />
-        <Stat label="Account type" value="Farmer" icon={Leaf} tone="green" hint="Set at signup" />
+        <Stat label={t("acc.profile.statRole")} value="Farmer" icon={Leaf} tone="green" hint={t("acc.profile.hintSetAtSignup")} />
       </div>
 
       <div className="grid gap-4 xl:grid-cols-2">
         <Panel
-          title={missing.length === 0 ? "Everything is filled in" : "Finish your profile"}
-          description={missing.length === 0 ? "Buyers and services can reach you with a complete profile." : `${missing.length} item${missing.length === 1 ? "" : "s"} still to do`}
+          title={missing.length === 0 ? t("acc.profile.allDone") : t("acc.profile.finish")}
+          description={missing.length === 0 ? t("acc.profile.allDoneDesc") : tf("acc.profile.todo", { count: missing.length })}
           icon={BadgeCheck}
         >
           <ul className="divide-y divide-slate-100">
@@ -221,17 +226,17 @@ export default function ProfilePage() {
           </ul>
         </Panel>
 
-        <Panel title="Account settings" icon={UserCog}>
+        <Panel title={t("acc.profile.settings")} icon={UserCog}>
           <ul className="divide-y divide-slate-100">
             {[
-              { to: "/account/personal", label: "Personal information", body: "Name, phone, email and address", icon: UserCog },
-              { to: "/account/farming", label: "Farming information", body: "Land, crops, soil and experience", icon: Tractor },
-              { to: "/account/documents", label: "My Documents & KYC", body: "Aadhaar, land record, bank details", icon: FileText },
-              { to: "/account/language", label: "Language", body: `${language?.native ?? "English"} — change any time`, icon: Globe },
-              { to: "/account/notifications", label: "Notification settings", body: "What reaches you, and how", icon: BadgeCheck },
-              { to: "/account/privacy", label: "Privacy & security", body: "Password, sessions and visibility", icon: LockKeyhole },
-              { to: "/account/help", label: "Help & support", body: "FAQs, complaints and the helpline", icon: ShieldQuestion },
-              { to: "/account/manage", label: "Account management", body: "Export data, close the account", icon: Landmark },
+              { to: "/account/personal", label: t("acc.settings.personal"), body: t("acc.settings.personalBody"), icon: UserCog },
+              { to: "/account/farming", label: t("acc.settings.farming"), body: t("acc.settings.farmingBody"), icon: Tractor },
+              { to: "/account/documents", label: t("acc.settings.documents"), body: t("acc.settings.documentsBody"), icon: FileText },
+              { to: "/account/language", label: t("acc.settings.language"), body: `${language?.native ?? "English"} — ${t("acc.settings.languageBody")}`, icon: Globe },
+              { to: "/account/notifications", label: t("acc.settings.notifications"), body: t("acc.settings.notificationsBody"), icon: BadgeCheck },
+              { to: "/account/privacy", label: t("acc.settings.privacy"), body: t("acc.settings.privacyBody"), icon: LockKeyhole },
+              { to: "/account/help", label: t("acc.settings.help"), body: t("acc.settings.helpBody"), icon: ShieldQuestion },
+              { to: "/account/manage", label: t("acc.settings.manage"), body: t("acc.settings.manageBody"), icon: Landmark },
             ].map(({ to, label: text, body, icon: Icon }) => (
               <li key={to}>
                 <Link to={to} className="flex items-center gap-3 px-4 py-2.5 hover:bg-slate-50">
@@ -250,10 +255,7 @@ export default function ProfilePage() {
         </Panel>
       </div>
 
-      <p className="text-[10px] leading-relaxed text-slate-400">
-        Your farm records, documents and financial entries are visible only to your account. Buyers see your name,
-        district and listings — nothing more.
-      </p>
+      <p className="text-[10px] leading-relaxed text-slate-400">{t("acc.profile.footer")}</p>
     </FarmerShell>
   );
 }

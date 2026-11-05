@@ -51,3 +51,6 @@ tmp/
 uploads/
 *.sqlite
 *.db
+
+# i18n translation checkpoints (scripts/i18n-fill.mjs resumes from these)
+frontend/src/i18n/locales/.fill-*.json

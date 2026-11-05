@@ -63,6 +63,29 @@ class Settings(BaseSettings):
     LLM_BASE_URL: str = "https://api.openai.com/v1"
     LLM_MODEL: str = "gpt-4o-mini"
 
+    # ── Multilingual AI assistant ────────────────────────────────────────
+    # The Multi Model AI Assistant owns the multilingual pipeline (detection,
+    # intent, agriculture retrieval, generation). CenAGRI forwards questions to
+    # it instead of duplicating any of that. Leave the URL empty to disable the
+    # chat endpoint cleanly — the rest of the app keeps working.
+    AI_ASSISTANT_URL: str = ""          # e.g. http://127.0.0.1:8001
+    AI_ASSISTANT_KEY: str = ""          # shared service key, sent as X-Service-Key
+
+    # Translation provider used only for on-demand content translation. An empty
+    # provider means "no fallback translation" — text is then returned untranslated
+    # with an explicit flag rather than pretending it succeeded.
+    TRANSLATE_PROVIDER: str = ""        # "sarvam" | "gemini" | ""
+    TRANSLATE_API_KEY: str = ""         # server-side only, never in React
+    # Only read when the provider is an LLM (gemini). Empty means the service
+    # default from `services/translate.py`.
+    TRANSLATE_MODEL: str = ""           # e.g. gemini-3.5-flash
+    TRANSLATE_TIMEOUT_SECONDS: float = 12.0
+
+    # CenFriend story retention. The days are stamped onto each row at publish
+    # time (``stories.expires_at``), so shortening the policy later never
+    # retroactively removes a story that was already live.
+    SOCIAL_STORY_TTL_HOURS: int = 24
+
     @property
     def cors_origins_list(self) -> list[str]:
         return [o.strip() for o in self.CORS_ORIGINS.split(",") if o.strip()]
