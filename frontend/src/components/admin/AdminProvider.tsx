@@ -22,6 +22,38 @@ type AdminContextValue = {
 
 const AdminContext = createContext<AdminContextValue | null>(null);
 
+/**
+ * Turn a failed `/roles/me` call into something the reader can act on.
+ *
+ * "The admin service is unreachable" was shown for every non-HTTP failure — a
+ * CORS block, a DNS failure and a 404 from an SPA fallback all looked the same,
+ * so a signed-in admin had no idea what to fix. Each case now says what it is.
+ */
+function describeAdminFailure(err: unknown): string {
+  if (err instanceof AdminApiError) {
+    if (err.status === 403) return "This account does not have admin access.";
+    if (err.status === 404) {
+      return (
+        "The admin API is not switched on for this server. It stays off until " +
+        "the deployment has a valid Supabase URL and service-role key."
+      );
+    }
+    return err.message;
+  }
+
+  // A TypeError from fetch means the request never reached a server at all:
+  // wrong origin, blocked by CORS, or the API is down.
+  if (err instanceof TypeError) {
+    return (
+      "The browser could not reach the admin API. Check that the deployment " +
+      "proxies /api to the backend and that this site's origin is listed in " +
+      "CORS_ORIGINS on the server."
+    );
+  }
+
+  return err instanceof Error ? err.message : "The admin service is unreachable.";
+}
+
 export function AdminProvider({ children }: { children: ReactNode }) {
   const [me, setMe] = useState<AdminMe | null>(null);
   const [loading, setLoading] = useState(true);
@@ -37,13 +69,7 @@ export function AdminProvider({ children }: { children: ReactNode }) {
     } catch (err) {
       if (!alive.current) return;
       setMe(null);
-      setError(
-        err instanceof AdminApiError
-          ? err.status === 403
-            ? "This account does not have admin access."
-            : err.message
-          : "The admin service is unreachable."
-      );
+      setError(describeAdminFailure(err));
     } finally {
       if (alive.current) setLoading(false);
     }

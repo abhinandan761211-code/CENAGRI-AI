@@ -1,6 +1,7 @@
 import { supabase } from "@/lib/supabase";
 import { isMissingTable } from "@/lib/schemaCheck";
 
+import { API_BASE_URL } from "@/lib/apiBase";
 /**
  * Calls the signed-in farmer API on the Kalika FastAPI backend.
  *
@@ -15,7 +16,7 @@ import { isMissingTable } from "@/lib/schemaCheck";
  * server-verified when it isn't.
  */
 
-const BASE = ((import.meta.env.VITE_API_BASE_URL as string | undefined) ?? "/api/v1").replace(/\/$/, "");
+const BASE = API_BASE_URL;
 
 export const isFarmerApiConfigured = Boolean(BASE);
 

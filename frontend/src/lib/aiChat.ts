@@ -2,6 +2,7 @@ import { supabase } from "@/lib/supabase";
 import type { LanguageCode } from "@/i18n/languages";
 import { toProviderCode } from "@/i18n/capabilities";
 
+import { API_BASE_URL } from "@/lib/apiBase";
 /**
  * Multilingual AI client.
  *
@@ -17,7 +18,7 @@ import { toProviderCode } from "@/i18n/capabilities";
  * Provider tags (e.g. `od-IN`) never appear here; the backend maps them.
  */
 
-const BASE = ((import.meta.env.VITE_API_BASE_URL as string | undefined) ?? "/api/v1").replace(/\/$/, "");
+const BASE = API_BASE_URL;
 
 export class AiUnavailable extends Error {
   constructor(message = "The AI assistant is not available right now.") {

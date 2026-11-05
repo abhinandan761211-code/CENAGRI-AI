@@ -1,4 +1,4 @@
-const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "/api/v1";
+import { API_BASE_URL as BASE_URL } from "@/lib/apiBase";
 
 /** Error carrying the backend's HTTP status and human-readable `detail`. */
 export class ApiError extends Error {

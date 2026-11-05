@@ -1,3 +1,4 @@
+import { API_BASE_URL } from "@/lib/apiBase";
 import { supabase } from "@/lib/supabase";
 
 /**
@@ -10,8 +11,7 @@ import { supabase } from "@/lib/supabase";
  * actions; a forged POST is refused server-side regardless.
  */
 
-const API_ROOT = import.meta.env.VITE_API_BASE_URL ?? "/api/v1";
-const BASE_URL = `${API_ROOT}/admin`;
+const BASE_URL = `${API_BASE_URL}/admin`;
 
 export class AdminApiError extends Error {
   status: number;

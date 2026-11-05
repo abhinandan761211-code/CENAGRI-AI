@@ -1,3 +1,4 @@
+import { API_BASE_URL } from "@/lib/apiBase";
 import { supabase } from "@/lib/supabase";
 
 /**
@@ -17,7 +18,7 @@ import { supabase } from "@/lib/supabase";
  * on a deployment where the backend is not configured.
  */
 
-const BASE = ((import.meta.env.VITE_API_BASE_URL as string | undefined) ?? "/api/v1").replace(/\/$/, "");
+const BASE = API_BASE_URL;
 
 export class SocialUnavailable extends Error {
   constructor(message = "CenFriend needs the Kalika server, which is not configured for this build.") {
