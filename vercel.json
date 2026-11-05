@@ -3,11 +3,8 @@
   "buildCommand": "cd frontend && npm install && npm run build",
   "outputDirectory": "frontend/dist",
   "installCommand": "echo 'install handled in buildCommand'",
+  "$comment": "Kept for a Vercel deploy only. The live site is on Netlify, which reads netlify.toml (that file owns the /api/* proxy to Render).",
   "rewrites": [
-    {
-      "source": "/api/(.*)",
-      "destination": "https://cenagri-api.onrender.com/api/$1"
-    },
     {
       "source": "/(.*)",
       "destination": "/index.html"
